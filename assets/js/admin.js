@@ -6,9 +6,10 @@ jQuery(document).ready(function ($) {
     const container = $('<div id="nixfile-box"><strong>NixFileUploader:</strong> This is where your file uploader will go!</div>');
     $('#postdivrich').after(container);
     const formData = new FormData();
+    const errorsBox = $(".nixfile-errors-box");
     // const api = "https://api.yekpayamak.com/v1"
     const api = "http://192.168.0.244:7000/v1"
-    $("#nixfile-uploader-input").on('change', function (e) {
+    $("#nixfile-uploader-input").on('change', async function (e) {
         const fileCounts = e.target.files.length;
         for (let i = 0; i < fileCounts; i++) {
             const file = e.target.files[i];
@@ -77,9 +78,29 @@ jQuery(document).ready(function ($) {
                             console.error('Error fetching image blob:', error);
                         });
                 },
-                error: async function (err) {
-                    console.error('err', Object.keys(await err));
-                    $('#nixfile-result').text('Error during upload.');
+                error: (err) => {
+                    if (err.responseJSON && err.responseJSON.errors) {
+                        const responseError = err.responseJSON.errors;
+                        errorsBox.css("display", 'block')
+                        uploaderDir.append(errorsBox)
+                        Object.keys(responseError).forEach((key) => {
+                            const errorText = $("<span/>", {
+                                class: "nixfile-errors",
+                                text: responseError[key],
+                                style: "margin-inline-start: 0; transition: all .5s ease-in-out;"
+                            });
+                            errorsBox.append(errorText);
+                            setTimeout(() => {
+                                errorText.css("margin-inline-start", '-100%');
+                            }, 2000)
+                            setTimeout(() => {
+                                errorText.detach();
+                            }, 3000)
+                        });
+
+                    } else {
+                        console.log('No specific error details available.');
+                    }
                 }
             });
         }

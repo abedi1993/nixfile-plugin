@@ -122,4 +122,28 @@
             transform: translateY(-18px);
         }
     }
+
+    .nixfile-errors-box {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        z-index: 99999;
+        transition: .5s ease-in;
+
+        .nixfile-errors {
+            margin-inline-start: -285px;
+            transition: all .5s ease-in-out;
+            display: block;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            padding: 8px;
+            max-height: 40px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            width: 285px;
+            background-color: red;
+            color: #fff;
+            font-weight: bold;
+        }
+    }
 }
