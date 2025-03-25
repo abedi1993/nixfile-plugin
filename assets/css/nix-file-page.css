@@ -1,0 +1,209 @@
+
+.nixfile-container {
+    margin: 10px 2px 0 25px;
+
+    button,
+    .nixfile-button {
+        background-color: #f6f7f7;
+        border: 1px solid #2d77b0;
+        border-radius: 3px;
+        color: #2d77b0;
+        cursor: pointer;
+
+        &:hover {
+            background-color: transparent;
+        }
+    }
+
+    .nixfile-media-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        button {
+            padding: 4px 10px;
+        }
+
+        h1 {
+            font-size: 1.7em;
+        }
+    }
+
+    .nixfile-uploader {
+        margin: 20px 0;
+        border: 4px dashed #c3c4c7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        position: relative;
+
+        #nixfile-close-btn {
+            display: block;
+            position: absolute;
+            inset-inline-end: 8px;
+            top: 8px;
+            cursor: pointer;
+            z-index: 9999;
+            background-color: initial;
+            border: none;
+            width: 3em;
+            height: 3em;
+
+            &:before {
+                font: normal 30px/1 dashicons !important;
+                color: #50575e;
+                display: inline-block;
+                content: "\f335";
+                font-weight: 300;
+                margin-top: 1px;
+            }
+        }
+
+        .nixfile-uploader-content {
+            margin: 2em 0;
+            text-align: center;
+
+            h1 {
+                font-size: 1.25em;
+            }
+
+            p {
+                font-size: 0.9em;
+                margin: .8em 0;
+            }
+
+            input {
+                display: none;
+            }
+
+            .nixfile-button {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 3em;
+                font-size: 1.2em;
+            }
+        }
+    }
+
+    .nixfile-filter-bar {
+        background-color: #fff;
+        border: 1px solid #c3c4c7;
+        margin-bottom: 15px;
+        height: auto;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .nixfile-media-tools {
+            width: 66%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            button {
+                padding: 4px 8px;
+
+                &#nixfile-setting-toggler {
+                    padding: 4px 20px;
+                }
+
+                &#nixfile-buy {
+                    background-color: #2271b1;
+                    color: #fff;
+                }
+            }
+        }
+
+        .nixfile-search-box {
+            label {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                color: #50575e;
+
+                span {
+                    display: block;
+                }
+
+                input {
+                    width: 280px;
+                    max-width: 100%;
+                }
+            }
+
+        }
+    }
+
+    .nixfile-setting {
+        display: flex;
+        justify-content: space-between;
+        background-color: #fff;
+        padding: 18px;
+
+        .nixfile-token,
+        .nixfile-option {
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            gap: 0;
+
+            &:nth-child(n) {
+                width: 25%;
+            }
+
+            label,
+            p {
+                margin: 0;
+                border: 1px solid rgba(122, 122, 122, 0.44);
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 16px;
+
+                &:nth-child(1) {
+                    border-bottom: none;
+                }
+
+                button {
+                    padding: 4px;
+                    width: 5em;
+                    border-radius: 15px;
+                    background-color: #00aa2c;
+                    color: #fff;
+                    border: none;
+                    font-weight: 800;
+                }
+
+                input {
+                    background-color: transparent;
+                    width: 80%;
+                    border: none;
+                    direction: ltr;
+
+                    &:focus {
+                        box-shadow: initial;
+                    }
+                }
+            }
+        }
+    }
+
+    .nixfile-media-section {
+        margin: 20px 0;
+        display: grid;
+        grid-template-columns: repeat(10 , 1fr);
+        gap: 8px;
+        justify-content: space-between;
+
+        .box {
+            aspect-ratio: 1/1;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, .1), inset 0 0 0 1px rgba(0, 0, 0, .05);
+            background: #f0f0f1;
+            cursor: pointer;
+        }
+    }
+
+}

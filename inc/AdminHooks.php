@@ -4,11 +4,27 @@ namespace NixFileUploader;
 defined( 'ABSPATH' ) || exit;
 
 class AdminHooks {
-
-	public function __construct() {
+	public function register_hooks(): void {
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
 		add_action( 'edit_form_after_editor', [ $this, 'inject_uploader_view' ] );
 		add_action( 'elementor/editor/after_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
+		add_action( 'admin_menu', [ $this, 'nixfile_uploader_menu' ] );
+	}
+
+	public function nixfile_uploader_menu(): void {
+		add_submenu_page(
+			'upload.php',
+			'رسانه نیکس فایل',
+			'رسانه نیکس فایل',
+			'manage_options',
+			'custom-media-submenu',
+			[ $this, 'nixfile_uploader_page' ]
+		);
+
+	}
+
+	public function nixfile_uploader_page(): void {
+		include plugin_dir_path( __DIR__ ) . 'view/page.php';
 	}
 
 	public function inject_uploader_view(): void {
@@ -22,6 +38,21 @@ class AdminHooks {
 
 	public function enqueue_admin_assets( $hook ): void {
 		$screen = get_current_screen();
+		if ( $screen->base === 'media_page_custom-media-submenu' ) {
+			wp_enqueue_style(
+				'nixfile-uploader-page-style',
+				plugin_dir_url( __DIR__ ) . 'assets/css/nix-file-page.css',
+				[],
+				time()
+			);
+			wp_enqueue_script(
+				'nixfile-uploader-admin-script',
+				plugin_dir_url( __DIR__ ) . 'assets/js/nix-file-page.js',
+				[ 'jquery' ],
+				time(),
+				true
+			);
+		}
 		/*if ( isset( $_GET['action'] ) && $_GET['action'] === 'elementor' ) {
 			die($screen->base);
 			wp_enqueue_style(
@@ -38,7 +69,6 @@ class AdminHooks {
 				time(),
 				true
 			);
-
 			return;
 		}
 		*/
