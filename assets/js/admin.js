@@ -1,5 +1,6 @@
 jQuery(document).ready(function ($) {
     const uploaderDir = $("#nixfile-box");
+    const nixfileSettingData = nixfile_setting_data;
     $(window).on('load', function () {
         uploaderDir.css("display", 'flex');
     });
@@ -16,7 +17,7 @@ jQuery(document).ready(function ($) {
             formData.append("file", file);
             formData.append('upload_type', '1');
             formData.append('expired_at', '2');
-            formData.append("domain_id", '82737eda-08a7-11f0-9fc3-efff83fea63c')
+            formData.append("domain_id", nixfileSettingData.token)
             $.ajax({
                 url: `${api}/upload`,
                 type: 'POST',

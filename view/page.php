@@ -1,3 +1,4 @@
+<?php $token = get_option( "nixfile_uploader_token", "" ) ?>
 <div class="nixfile-container">
     <div class="nixfile-media-header">
         <h1>
@@ -6,8 +7,11 @@
         <button id="nixfile-uploader-opener">
             افزودن رسانه جدید
         </button>
+        <button id="nixfile-folder-opener">
+            افزودن پوشه جدید
+        </button>
     </div>
-    <label class="nixfile-uploader">
+    <label id="nixfile-uploader" class="nixfile-uploader">
         <span type="button" id="nixfile-close-btn"></span>
         <div class="nixfile-uploader-content">
             <h1>
@@ -17,7 +21,7 @@
             <span class="nixfile-button">
                 گزینش پرونده‌ها
             </span>
-            <input type="text">
+            <input type="file">
             <p>
                 حداکثر اندازه پرونده برای بارگذاری: 8 مگابایت.
             </p>
@@ -35,7 +39,7 @@
         <div class="nixfile-search-box">
             <label>
                 <span>جستجوی رسانه</span>
-                <input type="text">
+                <input id="nixfile-search-input" type="text">
             </label>
         </div>
     </div>
@@ -52,12 +56,12 @@
         </div>
         <div class="nixfile-token">
             <label>
-                <button>ثبت</button>
-                <input placeholder="توکن" type="text">
+                <button id="nixfile_store_token">ثبت</button>
+                <input placeholder="توکن" value="<?php echo $token ?>" name="nixfile_store_token" type="text">
             </label>
             <label>
-                <button>ثبت</button>
-                <input placeholder="email" type="text">
+                <button id="nixfile_store_email">ثبت</button>
+                <input placeholder="email" name="nixfile_store_email" type="text">
             </label>
         </div>
         <div class="nixfile-option">
@@ -82,10 +86,6 @@
         </div>
     </div>
     <div class="nixfile-media-section">
-		<?php foreach ( array( '1', '2', '3', '4', '5', '6', '7', '8', '9', '20', '11', '1231', 312 ) as $item ): ?>
-            <div class="box">
-
-            </div>
-		<?php endforeach; ?>
     </div>
+    <div class="nixfile-errors-box"></div>
 </div>
