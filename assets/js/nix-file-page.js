@@ -1,4 +1,4 @@
-jQuery(function ($) {
+jQuery(async function ($) {
     const nixfileContainer = $(".nixfile-container");
     const nixfileCloseBtn = $("#nixfile-close-btn");
     const nixfileOpenerBtn = $("#nixfile-uploader-opener");
@@ -8,7 +8,7 @@ jQuery(function ($) {
     const nixfileAjaxData = nixfile_ajax_data;
     const nixfileStoreTokenBtn = $("#nixfile_store_token");
     const nixfileStoreEmailBtn = $("#nixfile_store_email");
-    const apiUrl = "http://192.168.0.244:7000/v1";
+    const apiUrl = "http://127.0.0.1:7000/v1";
     const searchInput = $("#nixfile-search-input");
     const nixfileMediaBox = $(".nixfile-media-box");
     const nixfileMediaSection = $(".nixfile-media-section");
@@ -23,6 +23,7 @@ jQuery(function ($) {
     let nixfileMediaPage = 1;
     let nixfileMediaLastPage = 1;
     let isLoading = false;
+    let selectedFolderId = null;
     nixfileUploaderSection.hide();
     nixfileSettingSection.hide();
     nixfileFolderFormContainer.hide()
@@ -78,6 +79,7 @@ jQuery(function ($) {
                 per_page: 50,
                 page: nixfileMediaPage,
                 search: searchInput.val(),
+                folder_id: selectedFolderId,
             },
             success: (res) => {
                 const media = res.data.media.data;
@@ -150,6 +152,8 @@ jQuery(function ($) {
         formData.append('upload_type', '1');
         formData.append('expired_at', '2');
         formData.append("domain_id", nixfileTokenInput.val())
+        if (selectedFolderId !== null)
+            formData.append('folder_id', selectedFolderId);
         await $.ajax({
             url: `${apiUrl}/upload`,
             type: "POST",
@@ -210,7 +214,7 @@ jQuery(function ($) {
         await uploadFile(file);
         nixfileMediaSection.empty();
         loadMedia();
-        loadFolders()
+        await loadFolders()
     })
     nixfileUploaderLabel.on("dragover", (e) => {
         e.preventDefault();
@@ -231,32 +235,39 @@ jQuery(function ($) {
                 nixfileUploaderLabel.removeClass("active");
                 nixfileMediaSection.empty();
                 loadMedia();
-                loadFolders()
+                await loadFolders()
             }
         });
+
     nixfileFolderFormContainer.on("click", (e) => {
         $(e.currentTarget).stop().fadeOut();
     });
+
     nixfileFolderFormOpener.on('click', (e) => {
         nixfileFolderFormContainer.stop().fadeIn()
     })
+
     nixfileFolderForm.on('click', (e) => {
         e.stopPropagation();
     }).on('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         formData.append('domain_id', nixfileTokenInput.val());
-        if (false)
-            formData.append('parent_id', null);
+        if (selectedFolderId !== null)
+            formData.append('parent_id', selectedFolderId);
         $.ajax({
             url: `${apiUrl}/upload/folder`,
             type: "POST",
             data: formData,
             processData: false,
             contentType: false,
-            success: (res) => {
+            success: async (res) => {
                 nixfileFolderFormContainer.stop().fadeOut();
-                loadFolders()
+                const nixfileFolderBox = $(".nixfile-folder");
+                console.log(nixfileFolderBox);
+                if (nixfileFolderBox)
+                    nixfileFolderBox.remove()
+                await loadFolders()
                 const toast = $("<span/>", {
                     class: 'nixfile-success-toast',
                     text: res.message,
@@ -297,8 +308,8 @@ jQuery(function ($) {
         })
     });
 
-    const loadFolders = () => {
-        $.ajax({
+    const loadFolders = async () => {
+        await $.ajax({
             url: `${apiUrl}/upload/folder/${nixfileTokenInput.val()}`,
             type: "GET",
             processData: false,
@@ -316,13 +327,39 @@ jQuery(function ($) {
                 ${item.title}
             </p>`
                     });
+                    box.attr({
+                        'data-id': item.id,
+                        'data-name': item.title
+                    })
+                    box.on("click", function (e) {
+                        selectedFolderId = item.id
+                        nixfileMediaSection.empty()
+                        const folderId = $(this).attr("data-id");
+                        const openFolder = $("<div/>", {
+                            class: "nixfile-folder",
+                            html: `
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="M4 20q-.825 0-1.412-.587T2 18V6q0-.825.588-1.412T4 4h6l2 2h8q.825 0 1.413.588T22 8H4v10l2.4-8h17.1l-2.575 8.575q-.2.65-.737 1.038T19 20z"/></svg>
+                                    <p>
+                                        ${$(this).attr('data-name')}
+                                     </p>
+                                  `
+                        });
+                        openFolder.on('click', function (e) {
+                            nixfileMediaSection.empty();
+                            loadFolders()
+                            selectedFolderId = null;
+                            loadMedia()
+                        });
+                        nixfileMediaSection.prepend(openFolder);
+                        loadMedia();
+                    });
                     nixfileMediaSection.prepend(box)
                 })
             },
             error: (error) => {
-
             }
         })
     }
-    loadFolders()
+    await loadFolders()
+
 });

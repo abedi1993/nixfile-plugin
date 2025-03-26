@@ -9,7 +9,7 @@ jQuery(document).ready(function ($) {
     const formData = new FormData();
     const errorsBox = $(".nixfile-errors-box");
     // const api = "https://api.yekpayamak.com/v1"
-    const api = "http://192.168.0.244:7000/v1"
+    const api = "http://127.0.0.1:7000/v1"
     $("#nixfile-uploader-input").on('change', async function (e) {
         const fileCounts = e.target.files.length;
         for (let i = 0; i < fileCounts; i++) {
