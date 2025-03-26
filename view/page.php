@@ -85,7 +85,27 @@
             </p>
         </div>
     </div>
+    <p>
+        خانه
+    </p>
     <div class="nixfile-media-section">
     </div>
-    <div class="nixfile-errors-box"></div>
+    <div class="nixfile-errors-box">
+    </div>
+
+    <div class="nixfile-folder-form-container">
+        <form class="nixfile-folder-form" method="POST">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                      d="M20 5h-9.586L8.707 3.293A1 1 0 0 0 8 3H4c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V7c0-1.103-.897-2-2-2m-4 9h-3v3h-2v-3H8v-2h3V9h2v3h3z"/>
+            </svg>
+            <label>
+                <span>
+                    نام پوشه
+                </span>
+                <input placeholder="مثلا: نمونه کار" type="text" name="title">
+            </label>
+            <button>ثبت</button>
+        </form>
+    </div>
 </div>

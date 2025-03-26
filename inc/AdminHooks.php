@@ -32,7 +32,6 @@ class AdminHooks {
 		$this->token = $token;
 		update_option( 'nixfile_uploader_token', $token );
 		wp_send_json( $response );
-		wp_die();
 	}
 
 	public function nixfile_uploader_menu(): void {
@@ -83,7 +82,7 @@ class AdminHooks {
 				'action'   => [
 					'set_token' => "nixfile_set_token",
 				]
-			] );
+			]);
 		}
 		/*if ( isset( $_GET['action'] ) && $_GET['action'] === 'elementor' ) {
 			die($screen->base);
