@@ -19,14 +19,22 @@ jQuery(async function ($) {
     const nixfileFolderFormOpener = $("#nixfile-folder-opener");
     const nixfileTokenInput = $("input[name=nixfile_store_token]");
     const nixfileFolderForm = $(".nixfile-folder-form");
+    const nixfileBreadcrumb = $("#breadcrumb");
+    const nixfileFolderContextMenu = $(".nixfile-folder-contextmenu");
+    const nixfileFolderEdit = $("#nixfile-edit-folder");
+    const nixfileFolderDelete = $("#nixfile-delete-folder");
+    const nixfileFolderMove = $("#nixfile-move-folder");
     let searchTimeout;
     let nixfileMediaPage = 1;
     let nixfileMediaLastPage = 1;
     let isLoading = false;
     let selectedFolderId = null;
+    let currentFolder = null;
+    let editFolder;
     nixfileUploaderSection.hide();
     nixfileSettingSection.hide();
     nixfileFolderFormContainer.hide()
+    nixfileFolderContextMenu.hide()
     nixfileOpenerBtn.on("click", (e) => {
         e.preventDefault();
         nixfileUploaderSection.stop().slideToggle()
@@ -68,7 +76,8 @@ jQuery(async function ($) {
             error: (err) => {
             }
         });
-    })
+    });
+
     const loadMedia = (page = 1) => {
         if (isLoading) return
         isLoading = true;
@@ -104,13 +113,14 @@ jQuery(async function ($) {
         })
     }
     searchInput.on("input", async (e) => {
-        console.log(e.target.value);
         nixfileMediaPage = 1;
         if (searchTimeout)
             clearTimeout(searchTimeout);
         searchTimeout = setTimeout(async () => {
             nixfileMediaSection.empty()
             await loadMedia();
+            if (!e.target.value)
+                await loadFolders()
         }, 200)
     })
 
@@ -176,7 +186,6 @@ jQuery(async function ($) {
                 const url = `${apiUrl}/private/${slug}`
                 box.css("background-image", `url(${url})`);
                 box.html('')
-                console.log(response)
             },
             error: function (xhr, status, error) {
                 box.find(".nixfile-media-progress").css("background-color", "red");
@@ -203,7 +212,6 @@ jQuery(async function ($) {
                     });
 
                 } else {
-                    console.log('No specific error details available.');
                 }
             }
         });
@@ -244,13 +252,17 @@ jQuery(async function ($) {
     });
 
     nixfileFolderFormOpener.on('click', (e) => {
-        nixfileFolderFormContainer.stop().fadeIn()
+        nixfileFolderFormContainer.stop().fadeIn();
+        nixfileFolderFormContainer.find('button').text('ثبت');
+        $("#nixfile-edit-folder-name").remove();
+        nixfileFolderFormContainer.find('label input').attr('placeholder', 'مثلا: نمونه کار');
     })
 
     nixfileFolderForm.on('click', (e) => {
         e.stopPropagation();
-    }).on('submit', (e) => {
+    }).on('submit', function (e) {
         e.preventDefault();
+        const form = $(e.currentTarget);
         const formData = new FormData(e.currentTarget);
         formData.append('domain_id', nixfileTokenInput.val());
         if (selectedFolderId !== null)
@@ -261,10 +273,9 @@ jQuery(async function ($) {
             data: formData,
             processData: false,
             contentType: false,
-            success: async (res) => {
+            success: async function (res) {
                 nixfileFolderFormContainer.stop().fadeOut();
                 const nixfileFolderBox = $(".nixfile-folder");
-                console.log(nixfileFolderBox);
                 if (nixfileFolderBox)
                     nixfileFolderBox.remove()
                 await loadFolders()
@@ -273,6 +284,7 @@ jQuery(async function ($) {
                     text: res.message,
                     style: "inset-inline-start:0;"
                 });
+                form.find('input').val("");
                 nixfileContainer.append(toast)
                 setTimeout(() => {
                     toast.css("inset-inline-start", "-100%");
@@ -302,15 +314,19 @@ jQuery(async function ($) {
                     });
 
                 } else {
-                    console.log('No specific error details available.');
                 }
             }
         })
     });
 
     const loadFolders = async () => {
+        let url = `${apiUrl}/upload/folder/${nixfileTokenInput.val()}`;
+        if (selectedFolderId)
+            url += `?parent_id=${selectedFolderId}`;
+        if (currentFolder)
+            url += selectedFolderId ? `&current_id=${currentFolder}` : `?current_id=${currentFolder}`
         await $.ajax({
-            url: `${apiUrl}/upload/folder/${nixfileTokenInput.val()}`,
+            url: url,
             type: "GET",
             processData: false,
             contentType: false,
@@ -329,29 +345,40 @@ jQuery(async function ($) {
                     });
                     box.attr({
                         'data-id': item.id,
-                        'data-name': item.title
+                        'data-name': item.title,
+                        'data-parent-id': item.parent_id,
                     })
-                    box.on("click", function (e) {
-                        selectedFolderId = item.id
-                        nixfileMediaSection.empty()
-                        const folderId = $(this).attr("data-id");
-                        const openFolder = $("<div/>", {
-                            class: "nixfile-folder",
-                            html: `
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="M4 20q-.825 0-1.412-.587T2 18V6q0-.825.588-1.412T4 4h6l2 2h8q.825 0 1.413.588T22 8H4v10l2.4-8h17.1l-2.575 8.575q-.2.65-.737 1.038T19 20z"/></svg>
+                    if (item.id === selectedFolderId)
+                        box.html(`   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="M4 20q-.825 0-1.412-.587T2 18V6q0-.825.588-1.412T4 4h6l2 2h8q.825 0 1.413.588T22 8H4v10l2.4-8h17.1l-2.575 8.575q-.2.65-.737 1.038T19 20z"/></svg>
                                     <p>
-                                        ${$(this).attr('data-name')}
-                                     </p>
-                                  `
+                                        ${item.title}
+                                     </p>`)
+                    box.on("click", async function (e) {
+                        const id = $(this).attr('data-id');
+                        await nixfileMediaSection.empty()
+                        if (id === selectedFolderId) {
+                            selectedFolderId = item.parent_id;
+                            await loadFolders()
+                            await loadMedia()
+                            $(`.nixfile-breadcrumb-items[data-id=${id}]`).remove()
+                        } else {
+                            selectedFolderId = $(this).attr('data-id');
+                            await loadFolders()
+                            await loadMedia()
+                            breadcrumbMaker()
+                        }
+                    }).on('contextmenu', function (e) {
+                        e.preventDefault();
+                        nixfileFolderContextMenu.stop().slideDown(100);
+                        nixfileFolderContextMenu.css({
+                            'position': 'absolute',
+                            'top': e.pageY + 'px',
+                            'left': e.pageX + 'px'
                         });
-                        openFolder.on('click', function (e) {
-                            nixfileMediaSection.empty();
-                            loadFolders()
-                            selectedFolderId = null;
-                            loadMedia()
-                        });
-                        nixfileMediaSection.prepend(openFolder);
-                        loadMedia();
+                        nixfileFolderContextMenu.attr({
+                            'data-id': $(this).attr('data-id'),
+                            'data-name': $(this).attr("data-name")
+                        })
                     });
                     nixfileMediaSection.prepend(box)
                 })
@@ -362,4 +389,71 @@ jQuery(async function ($) {
     }
     await loadFolders()
 
+    function breadcrumbMaker(e) {
+        let folder;
+        if (selectedFolderId)
+            folder = $(`.nixfile-folder[data-id=${selectedFolderId}]`);
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="#888888" d="m6.05 19l5-7l-5-7H8.5l5 7l-5 7zM12 19l5-7l-5-7h2.45l5 7l-5 7z"/></svg>`;
+
+        const breadcrumbItem = $("<p/>", {
+            class: 'nixfile-breadcrumb-items',
+            html: `${svg}
+<p>${folder ? folder.attr('data-name') : 'خانه'}</p>
+`
+        });
+        breadcrumbItem.attr('data-id', selectedFolderId ? selectedFolderId : null);
+        breadcrumbItem.on("click", async function (e) {
+            selectedFolderId = $(this).attr('data-id');
+            nixfileMediaSection.empty();
+            removeBreadcrumb($(this).next());
+            breadcrumbLink(selectedFolderId)
+            await loadFolders();
+            await loadMedia();
+        });
+        nixfileBreadcrumb.append(breadcrumbItem);
+        breadcrumbLink(selectedFolderId);
+    }
+
+    const removeBreadcrumb = (element) => {
+        if (element.next().length > 0)
+            removeBreadcrumb(element.next());
+        element.remove();
+    }
+
+    function breadcrumbLink(elementId) {
+        $(`.nixfile-breadcrumb-items[data-id=${elementId}]`).prevAll().css("color", '#2d77b0');
+
+    }
+
+    breadcrumbMaker()
+
+    $(document).on('click', function (e) {
+        nixfileFolderContextMenu.stop().slideUp(100);
+    })
+
+    nixfileFolderEdit.on("click", function (e) {
+        nixfileFolderFormContainer.stop().fadeIn();
+        editFolder = {
+            'name': nixfileFolderContextMenu.attr('data-name'),
+            'id': nixfileFolderContextMenu.attr('data-id')
+        }
+        nixfileFolderFormContainer.find("label input").attr('placeholder', editFolder.name);
+        nixfileFolderFormContainer.find('button').text("ویرایش نام").on('click', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: `${apiUrl}/upload/folder/${editFolder.id}`,
+                type: "PUT",
+                data: {
+                    title: nixfileFolderFormContainer.find('label input').val()
+                },
+                success:async function (e) {
+                    e.preventDefault();
+                    nixfileSettingSection.empty();
+                    await loadFolders();
+                    await loadMedia()
+                    nixfileFolderFormContainer.fadeOut();
+                }
+            })
+        });
+    })
 });
