@@ -150,6 +150,15 @@
         justify-content: space-between;
         background-color: #fff;
         padding: 18px;
+        gap: 14px;
+
+        & > div {
+            width: 100%;
+
+            &:nth-child(1) {
+                width: 30%;
+            }
+        }
 
         .nixfile-token,
         .nixfile-option {
@@ -157,10 +166,6 @@
             flex-direction: column;
             padding: 0;
             gap: 0;
-
-            &:nth-child(n) {
-                width: 25%;
-            }
 
             label,
             p {
@@ -207,6 +212,7 @@
 
         .nixfile-media-box,
         .nixfile-folder {
+            border: 1px solid #D5D5D5;
             aspect-ratio: 1/1;
             display: flex;
             align-items: center;
@@ -234,7 +240,16 @@
             position: relative;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-end;
+            flex-direction: column;
+
+            .nixfile-folder-icon {
+                background-size: cover;
+                box-sizing: border-box;
+                background-position: 0 -35px;
+                width: 100%;
+                height: 100%;
+            }
 
             svg {
                 width: 100%;
@@ -244,8 +259,14 @@
 
             p {
                 position: absolute;
-                color: #fff;
-                font-size: 1.2em;
+                color: #000;
+                font-size: 1em;
+                background-color: #fff;
+                width: 100%;
+                text-align: center;
+                margin: 0;
+                padding: 4px 0;
+                border-top: 1px solid #D5D5D5;
             }
         }
     }
@@ -384,9 +405,10 @@
         display: flex;
         flex-direction: column;
         height: 140px;
-        justify-content: space-between;
+        justify-content: flex-start;
         max-height: 250px;
         z-index: 999999;
+        overflow: hidden;
 
         ul {
             margin: 0;
@@ -394,20 +416,22 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            overflow: hidden;
 
             li {
                 display: flex;
                 align-items: center;
-                justify-content: center;
+                justify-content: flex-start;
                 font-size: 1.3em;
                 font-weight: lighter;
                 margin: 0;
+                padding: 0 4px;
                 color: #8c8888;
                 position: relative;
                 cursor: pointer;
                 width: 100%;
                 height: 100%;
-                gap: 15px;
+                gap: 6px;
                 border-bottom: 1px solid #D5D5D5;
 
                 &:hover {
@@ -420,5 +444,68 @@
                 }
             }
         }
+    }
+
+    #nixfile-delete-folder-form-container {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, .3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        form {
+            width: 20%;
+            background-color: #fff;
+            flex-direction: column;
+            padding: 18px;
+            border-radius: 8px;
+
+            label {
+                display: none;
+            }
+
+            display: flex;
+            align-items: center;
+
+            h1 {
+                font-size: 1.6em;
+                margin-bottom: 18px;
+            }
+
+            & > div {
+                width: 100%;
+                display: flex;
+
+                input[type=submit] {
+                    width: 60%;
+                    background-color: red;
+                    border: 1px solid crimson;
+                    color: #fff;
+                    cursor: pointer;
+                }
+
+                button {
+                    width: 40%;
+                }
+            }
+        }
+    }
+
+    #nixfile-folder-move-container {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, .3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #D5D5D5;
+        width: 500px;
     }
 }

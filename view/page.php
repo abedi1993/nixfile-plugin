@@ -87,13 +87,12 @@
             </p>
         </div>
     </div>
-    <div id="breadcrumb">
 
-    </div>
-    <div class="nixfile-media-section">
-    </div>
-    <div class="nixfile-errors-box">
-    </div>
+    <div id="breadcrumb"></div>
+
+    <div class="nixfile-media-section"></div>
+
+    <div class="nixfile-errors-box"></div>
 
     <div class="nixfile-folder-form-container">
         <form class="nixfile-folder-form" method="POST">
@@ -134,6 +133,50 @@
                 </svg>
                 <span>انتقال پوشه</span>
             </li>
+            <li id="nixfile-detail-folder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                    <path fill="#888888"
+                          d="M8 12v-2h8v2zm0-4V6h8v2zm-2 6h8.975L18 17.95V4H6zm0 6h11.05L14 16H6zm14 2H4V2h16zM6 20V4zm0-4v-2z"/>
+                </svg>
+                <span>جزپیات پوشه</span>
+            </li>
         </ul>
     </div>
+
+    <div id="nixfile-delete-folder-form-container">
+        <form id="nixfile-delete-folder-form">
+            <h1>آیا از حذف شدن این فایل اطمینان دارید ؟</h1>
+            <label>
+                <input type="text" name="id">
+            </label>
+            <div>
+                <input type="submit" , value="حذف">
+                <button type="button">انصراف</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="nixfile-folder-move-container">
+
+            <img src="<?php echo plugin_dir_url( __DIR__ ) . 'assets/images/transfer.svg' ?>" alt="logo">
+            <button>ساخت پوشه جدید</button>
+
+
+                <div >
+                    <p>نام پوشه</p>
+                    <div>
+                        <div>test 1</div>
+                        <div >test 2</div>
+                    </div>
+                </div>
+
+
+            <div>
+                <button>انتقال پوشه</button>
+                <button>انصراف</button>
+            </div>
+
+
+        </div>
+
 </div>

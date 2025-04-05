@@ -6,6 +6,7 @@
     width: 100%;
     display: none;
     z-index: 9999;
+    flex-wrap: wrap;
     /*flex-direction: row-reverse;
     justify-content: flex-start;*/
     gap: 4px;

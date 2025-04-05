@@ -81,8 +81,9 @@ class AdminHooks {
 				'token'    => $this->token,
 				'action'   => [
 					'set_token' => "nixfile_set_token",
-				]
-			]);
+				],
+				'images_url' => plugin_dir_url( __DIR__ ) . 'assets/images/',
+			] );
 		}
 		/*if ( isset( $_GET['action'] ) && $_GET['action'] === 'elementor' ) {
 			die($screen->base);
@@ -122,7 +123,7 @@ class AdminHooks {
 			true
 		);
 		wp_localize_script( 'nixfile-uploader-admin-script', 'nixfile_setting_data', [
-			'token' => $this->token
+			'token'      => $this->token,
 		] );
 	}
 }
