@@ -8,7 +8,7 @@ jQuery(async function ($) {
     const nixfileAjaxData = nixfile_ajax_data;
     const nixfileStoreTokenBtn = $("#nixfile_store_token");
     const nixfileStoreEmailBtn = $("#nixfile_store_email");
-    const apiUrl = "http://127.0.0.1:7000/v1";
+    const apiUrl = "http://192.168.0.244:7000/v1";
     const searchInput = $("#nixfile-search-input");
     const nixfileMediaBox = $(".nixfile-media-box");
     const nixfileMediaSection = $(".nixfile-media-section");
@@ -26,6 +26,7 @@ jQuery(async function ($) {
     const nixfileFolderMove = $("#nixfile-move-folder");
     const nixfileDeleteFolderContainer = $("#nixfile-delete-folder-form-container");
     const nixfileMoveFolderContainer = $("#nixfile-folder-move-container");
+    const cancelMoveFolderModalBtn = $(".nixfile-cancel-button");
     let searchTimeout;
     let nixfileMediaPage = 1;
     let nixfileMediaLastPage = 1;
@@ -523,10 +524,16 @@ jQuery(async function ($) {
     nixfileMoveFolderContainer.on('click' , function (e){
        $(this).fadeOut();
     });
-    nixfileMoveFolderContainer.find('p').on('click' , function (e){
+    nixfileMoveFolderContainer.find('.nixfile-folder-move-content').on('click' , function (e){
+        e.preventDefault();
         e.stopPropagation();
     })
     nixfileFolderMove.on("click" , function (e){
        nixfileMoveFolderContainer.fadeIn();
     });
+    cancelMoveFolderModalBtn.on("click" , function (e){
+        e.preventDefault();
+        nixfileMoveFolderContainer.fadeOut();
+    })
+    
 });
