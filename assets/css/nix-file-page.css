@@ -1,3 +1,6 @@
+* {
+    scroll-behavior: smooth;
+}
 
 .nixfile-container {
     margin: 10px 2px 0 25px;
@@ -206,6 +209,7 @@
     .nixfile-media-section {
         margin: 20px 0;
         display: grid;
+        grid-template-rows: auto;
         grid-template-columns: repeat(10, 1fr);
         gap: 18px;
         justify-content: space-between;
@@ -216,13 +220,14 @@
             aspect-ratio: 1/1;
             display: flex;
             align-items: center;
-            justify-content: center;
             position: relative;
             box-shadow: inset 0 0 15px rgba(0, 0, 0, .1), inset 0 0 0 1px rgba(0, 0, 0, .05);
             background-color: #f0f0f1;
             cursor: pointer;
             background-position: center;
             background-size: cover;
+            justify-content: flex-end;
+            flex-direction: column;
             object-fit: cover;
 
             .nixfile-media-progress {
@@ -233,28 +238,14 @@
                 transition: .5s ease-in-out;
                 margin: 2em;
             }
-        }
-
-        .nixfile-folder {
-            box-shadow: initial;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-direction: column;
 
             .nixfile-folder-icon {
-                background-size: cover;
+                background-size: 80%;
                 box-sizing: border-box;
-                background-position: 0 -35px;
+                background-position: center -3px;
                 width: 100%;
                 height: 100%;
-            }
-
-            svg {
-                width: 100%;
-                height: 100%;
-                color: #777;
+                background-repeat: no-repeat;
             }
 
             p {
@@ -267,6 +258,81 @@
                 margin: 0;
                 padding: 4px 0;
                 border-top: 1px solid #D5D5D5;
+            }
+        }
+
+        .nixfile-folder {
+            box-shadow: initial;
+            position: relative;
+            display: flex;
+            align-items: center;
+
+            .nixfile-folder-icon {
+                background-position: center -15px;
+            }
+
+            svg {
+                width: 100%;
+                height: 100%;
+                color: #777;
+            }
+
+        }
+
+        .nixfile-detail-bar {
+            grid-column: 9/11;
+            grid-row: 1/5;
+            background-color: #fff;
+            padding: 18px;
+            border: 1px solid #D5D5D5;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+
+            hr {
+                margin-top: 25px;
+                width: 100%;
+            }
+
+            img {
+                width: 100%;
+                max-height: 250px;
+            }
+
+            .nixfile-detail-actions {
+                justify-self: flex-end;
+                margin-top: auto;
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+                align-items: center;
+
+                button {
+                    background-color: #ccc;
+                    border: none;
+                    color: #fff;
+                    font-weight: bold;
+                    height: 35px;
+                    width: 25%;
+                }
+
+                input {
+                    background-color: #D5D5D5;
+                    border: 1px solid #D5D5D5;
+                    height: 35px;
+                    border-radius: 4px;
+                    padding: 8px;
+                    overflow-y: hidden;
+                    overflow-x: scroll;
+                    box-sizing: border-box;
+                    user-select: none;
+                    position: relative;
+                    pointer-events: none;
+                    &:focus{
+                        box-shadow: none;
+                        outline: none;
+                    }
+                }
             }
         }
     }
@@ -497,135 +563,138 @@
 
     .nixfile-flex {
         display: flex;
-      }
-      
-      .nixfile-items-center {
+    }
+
+    .nixfile-items-center {
         align-items: center;
-      }
-      
-      .nixfile-gap-4 {
+    }
+
+    .nixfile-gap-4 {
         gap: 16px;
-      }
-      
-      #nixfile-folder-move-container {
+    }
+
+    #nixfile-folder-move-container {
         position: fixed;
         inset: 0;
         display: flex;
         align-items: center;
         justify-content: center;
         background-color: rgba(0, 0, 0, 0.689);
-      }
-      
-      .nixfile-folder-move-content {
+    }
+
+    .nixfile-folder-move-content {
         min-width: 400px;
         background-color: white;
         padding: 16px;
         color: black;
-      }
+    }
 
-    
-      .nixfile-folder-mov-header {
-         display: flex;
-          justify-content: center;
-          margin-bottom: 1rem;
-      }
-      .nixfile-size-12 {
+
+    .nixfile-folder-mov-header {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .nixfile-size-12 {
         margin: auto;
         width: 48px;
         height: 48px;
 
-      }
-      
-      .nixfile-button-modal {
+    }
+
+    .nixfile-button-modal {
         cursor: pointer;
         color: #4299e1;
-      }
-      
-      .nixfile-folder-move-folder-name {
+    }
+
+    .nixfile-folder-move-folder-name {
         margin-top: 12px;
         background-color: #e2e8f0;
         padding: 8px 16px;
         font-size: 0.600rem;
         font-weight: 600;
-      }
-      
-      .nixfile-divider {
+    }
+
+    .nixfile-divider {
         border-top: 2px solid #e2e8f0;
         font-size: 0.875rem;
-      }
-      
-      .nixfile-folder-item {
+    }
+
+    .nixfile-folder-item {
         display: flex;
         align-items: center;
         gap: 16px;
         padding: 8px 16px;
         border-bottom: 1px solid #e2e8f0;
-      }
-      .nixfile-folder-item-dropdown-container {
+    }
+
+    .nixfile-folder-item-dropdown-container {
         display: flex;
         flex-direction: column;
-    
+
         gap: 8px;
         border-bottom: 1px solid #e2e8f0;
-      }
-      .nixfile-dropdown-item {
-        display: flex; 
-        align-items: center; 
-        gap: 4px; 
-        justify-content: space-between; 
+    }
+
+    .nixfile-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        justify-content: space-between;
         padding: 8px 16px;
-      }
-      
-      .nixfile-folder-move-icon {
+    }
+
+    .nixfile-folder-move-icon {
         width: 32px;
         height: 32px;
         background-color: #f56565;
-      }
-      
-      .nixfile-folder-name-text {
+    }
+
+    .nixfile-folder-name-text {
         font-size: 0.875rem;
-      }
-      
-      .nixfile-close-button {
+    }
+
+    .nixfile-close-button {
         cursor: pointer;
-      }
-      
-      .nixfile-size-4 {
+    }
+
+    .nixfile-size-4 {
         width: 16px;
         height: 16px;
-      }
-      
-      .nixfile-content {
+    }
+
+    .nixfile-content {
         padding: 16px;
-      }
-      
-      .nixfile-footer {
+    }
+
+    .nixfile-footer {
         margin-top: 24px;
         display: flex;
         align-items: center;
         gap: 16px;
         font-size: 0.875rem;
-      }
-      
-      .nixfile-blue-button {
+    }
+
+    .nixfile-blue-button {
         cursor: pointer;
         background-color: #3182ce;
         padding: 8px 16px;
         color: white;
-      }
-      
-      .nixfile-cancel-button {
+    }
+
+    .nixfile-cancel-button {
         cursor: pointer;
         background-color: #e2e8f0;
         padding: 8px 16px;
-      }
-      
-      .nixfile-size-4 {
+    }
+
+    .nixfile-size-4 {
         transition: transform 0.3s;
     }
 
     .nixfile-size-4.rotated {
         transform: rotate(180deg);
     }
-  
+
 }

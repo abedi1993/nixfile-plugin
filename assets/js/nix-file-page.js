@@ -26,6 +26,7 @@ jQuery(async function ($) {
     const nixfileFolderMove = $("#nixfile-move-folder");
     const nixfileDeleteFolderContainer = $("#nixfile-delete-folder-form-container");
     const nixfileMoveFolderContainer = $("#nixfile-folder-move-container");
+    const nixfileDetailBar = $(".nixfile-detail-bar");
     const cancelMoveFolderModalBtn = $(".nixfile-cancel-button");
     const nixfileCloseButton = $(".nixfile-close-button")
     let searchTimeout;
@@ -41,6 +42,7 @@ jQuery(async function ($) {
     nixfileFolderContextMenu.hide();
     nixfileDeleteFolderContainer.hide();
     nixfileMoveFolderContainer.hide();
+    nixfileDetailBar.hide()
     nixfileOpenerBtn.on("click", (e) => {
         e.preventDefault();
         nixfileUploaderSection.stop().slideToggle()
@@ -103,8 +105,90 @@ jQuery(async function ($) {
                     const box = $("<div/>", {
                         class: 'nixfile-media-box',
                         style: `background-image:url(${item.url})`,
-                        text: parseInt(item.type.int) !== 0 ? item.type.fa : "",
+                        // text: parseInt(item.type.int) !== 0 ? item.type.fa : "",
+                    }).on("click", function (e) {
+                        $(window).scrollTop(0)
+                        const item = JSON.parse($(this).attr('data-item'))
+                        const nixfileDetailBar = $("<div/>", {
+                            class: 'nixfile-detail-bar',
+                        });
+                        const img = $("<img/>", {
+                            src: item.url
+                        });
+                        const hr = $("<hr/>");
+                        const name = $("<p/>", {
+                            text: item.title
+                        });
+                        const date = $("<p/>", {
+                            text: "1404/خرداد/02"
+                        });
+                        const size = $("<p/>", {
+                            text: "5کیلو بایت",
+                        });
+                        const resolution = $("<p/>", {
+                            text: `${item.width} * ${item.height} پیکسل `
+                        });
+                        const copyRight = $("<p/>", {
+                            text: "آپلود شده در نیکس فایل"
+                        });
+                        const nixfileDetailAction = $("<div/>", {
+                            class: "nixfile-detail-actions",
+                        });
+                        const button = $("<button/>", {
+                            text: "کپی لینک"
+                        }).on("click", function (e) {
+                            const btn = $(this);
+                            navigator.clipboard.writeText(input.val()).then(() => {
+                                btn.css('background-color', 'rgba(226, 255, 223, 0.85)');
+                                btn.css('color', 'black');
+                                setTimeout(() => {
+                                    btn.css("background-color", '#ccc')
+                                    btn.css('color', '#fff');
+                                }, 500)
+                            }).catch(err => {
+                                console.error('Clipboard copy failed:', err);
+                            });
+                        });
+                        const input = $("<input/>", {
+                            value: item.url,
+                            readonly: true
+                        });
+                        nixfileDetailAction.append(button);
+                        nixfileDetailAction.append(input);
+                        nixfileMediaSection.append(nixfileDetailBar)
+                        nixfileDetailBar.append(img);
+                        nixfileDetailBar.append(hr);
+                        nixfileDetailBar.append(name);
+                        nixfileDetailBar.append(date);
+                        nixfileDetailBar.append(size);
+                        nixfileDetailBar.append(resolution);
+                        nixfileDetailBar.append(copyRight);
+                        nixfileDetailBar.append(nixfileDetailAction);
+                        nixfileDetailBar.hide();
+                        nixfileDetailBar.slideDown();
                     });
+                    box.attr('data-item', JSON.stringify(item))
+                    if (parseInt(item.type.int) !== 0) {
+                        console.log(item.type)
+                        const p = $('<p/>').text(item.title);
+                        const icon = $('<div/>', {
+                            class: "nixfile-folder-icon",
+                        });
+                        console.log(icon)
+                        switch (parseInt(item.type.int)) {
+                            case 1 :
+                                icon.css('background-image', `url(${nixfileAjaxData.images_url}/formats/mp4.svg)`)
+                                break;
+                            case 2 :
+                                icon.css('background-image', `url(${nixfileAjaxData.images_url}/formats/mp3.svg)`)
+                                break;
+                            case 3 :
+                                icon.css('background-image', `url(${nixfileAjaxData.images_url}/formats/zip.svg)`)
+                                break;
+                        }
+                        box.append(icon);
+                        box.append(p)
+                    }
                     if (index === media.length - 1) {
                         box.attr('data-scroll', 'true')
                         setupInfiniteScrollObserver(box);
@@ -224,8 +308,12 @@ jQuery(async function ($) {
     }
 
     nixfileUploaderLabel.find("input").on("change", async function (e) {
-        const [file] = e.target.files;
-        await uploadFile(file);
+        const files = e.target.files;
+        if (files.length > 0) {
+            for (const file of files) {
+                await uploadFile(file)
+            }
+        }
         nixfileMediaSection.empty();
         nixfileMediaPage = 1;
         await loadMedia();
@@ -246,7 +334,9 @@ jQuery(async function ($) {
             e.stopPropagation();
             const files = e.originalEvent.dataTransfer.files;
             if (files.length > 0) {
-                await uploadFile(files[0]);
+                for (const file of files) {
+                    await uploadFile(file);
+                }
                 nixfileUploaderLabel.removeClass("active");
                 nixfileMediaSection.empty();
                 nixfileMediaPage = 1;
@@ -522,26 +612,27 @@ jQuery(async function ($) {
     nixfileDeleteFolderContainer.find('button').on('click', function (e) {
         nixfileDeleteFolderContainer.fadeOut();
     });
-    nixfileMoveFolderContainer.on('click' , function (e){
-       $(this).fadeOut();
+    nixfileMoveFolderContainer.on('click', function (e) {
+        $(this).fadeOut();
     });
-    nixfileMoveFolderContainer.find('.nixfile-folder-move-content').on('click' , function (e){
+    nixfileMoveFolderContainer.find('.nixfile-folder-move-content').on('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
     })
-    nixfileFolderMove.on("click" , function (e){
-       nixfileMoveFolderContainer.fadeIn();
+    nixfileFolderMove.on("click", function (e) {
+        nixfileMoveFolderContainer.fadeIn();
     });
-    cancelMoveFolderModalBtn.on("click" , function (e){
+    cancelMoveFolderModalBtn.on("click", function (e) {
         e.preventDefault();
         nixfileMoveFolderContainer.fadeOut();
     })
 
-    nixfileCloseButton.click(function(){
-    var content = $(this).closest('.nixfile-dropdown-item').next('.nixfile-content');
-    var svg = $(this).find('svg');
-    content.slideToggle();
-    svg.toggleClass('rotated');
-});
-    
+    nixfileCloseButton.click(function () {
+        var content = $(this).closest('.nixfile-dropdown-item').next('.nixfile-content');
+        var svg = $(this).find('svg');
+        content.slideToggle();
+        svg.toggleClass('rotated');
+
+    });
+
 });
