@@ -561,7 +561,7 @@
         padding: 8px 16px;
         border-bottom: 1px solid #e2e8f0;
       }
-      .nixfile-folder-item-container {
+      .nixfile-folder-item-dropdown-container {
         display: flex;
         flex-direction: column;
     
@@ -620,5 +620,12 @@
         padding: 8px 16px;
       }
       
+      .nixfile-size-4 {
+        transition: transform 0.3s;
+    }
+
+    .nixfile-size-4.rotated {
+        transform: rotate(180deg);
+    }
   
 }

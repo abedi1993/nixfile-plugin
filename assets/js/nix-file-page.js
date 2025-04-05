@@ -27,6 +27,7 @@ jQuery(async function ($) {
     const nixfileDeleteFolderContainer = $("#nixfile-delete-folder-form-container");
     const nixfileMoveFolderContainer = $("#nixfile-folder-move-container");
     const cancelMoveFolderModalBtn = $(".nixfile-cancel-button");
+    const nixfileCloseButton = $(".nixfile-close-button")
     let searchTimeout;
     let nixfileMediaPage = 1;
     let nixfileMediaLastPage = 1;
@@ -535,5 +536,12 @@ jQuery(async function ($) {
         e.preventDefault();
         nixfileMoveFolderContainer.fadeOut();
     })
+
+    nixfileCloseButton.click(function(){
+    var content = $(this).closest('.nixfile-dropdown-item').next('.nixfile-content');
+    var svg = $(this).find('svg');
+    content.slideToggle();
+    svg.toggleClass('rotated');
+});
     
 });
