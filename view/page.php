@@ -166,6 +166,7 @@
             </div>
         </div>
     </div>
+
     <div class="nixfile-media-header">
         <h1>
             کتابخانه رسانه نیکس فایل
@@ -388,56 +389,47 @@
 
     <div id="nixfile-folder-move-container">
         <div class="nixfile-folder-move-content">
-
-
             <div class="nixfile-folder-mov-header">
                 <img class="nixfile-size-12"
                      src="<?php echo plugin_dir_url( __DIR__ ) . 'assets/images/transfer.svg' ?>"
                      alt="alt">
             </div>
-
-
-            <div>
-                <div class="nixfile-button-modal">ساخت پوشه جدید</div>
-
-                <div class="nixfile-folder-move-folder-name">نام پوشه</div>
-
-                <div class="nixfile-divider">
-                    <div class="nixfile-folder-item-dropdown-container">
-                        <div class="nixfile-dropdown-item">
-                            <div class="nixfile-flex nixfile-items-center nixfile-gap-4">
-                                <div class="nixfile-folder-move-icon"></div>
-                                <span>نام پوشه تستی 1</span>
-                            </div>
-
-                            <button class="nixfile-close-button">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     stroke-width="1.5" stroke="currentColor" class="nixfile-size-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-                                </svg>
-                            </button>
+            <button class="nixfile-create-new-folder">ساخت پوشه جدید</button>
+            <form class="nixfile-create-new-folder-form">
+                <label>
+                    <input type="text" placeholder="مثلا: نمونه کار">
+                </label>
+                <button type="submit"> ایجاد</button>
+            </form>
+            <div class="nixfile-folder-move-folder-name">نام پوشه</div>
+            <div class="nixfile-divider">
+                <div class="nixfile-folder-item-dropdown-container">
+                    <div class="nixfile-dropdown-item">
+                        <div class="nixfile-flex nixfile-items-center nixfile-gap-4">
+                            <div class="nixfile-folder-move-icon"></div>
+                            <span>نام پوشه تستی 1</span>
                         </div>
-
-                        <div class="nixfile-content" style="display: none;">s</div>
+                        <button class="nixfile-close-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke-width="1.5" stroke="currentColor" class="nixfile-size-4">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                            </svg>
+                        </button>
                     </div>
-
-
-                    <div class="nixfile-folder-item">
-                        <div class="nixfile-folder-move-icon"></div>
-                        <span>نام پوشه تستی 1</span>
-                    </div>
-
+                    <div class="nixfile-content" style="display: none;">s</div>
+                </div>
+                <div class="nixfile-folder-item">
+                    <div class="nixfile-folder-move-icon"></div>
+                    <span>نام پوشه تستی 1</span>
                 </div>
             </div>
-
             <div class="nixfile-footer">
                 <button class="nixfile-blue-button">انتقال پوشه</button>
                 <button class="nixfile-cancel-button">انصراف</button>
             </div>
         </div>
     </div>
-
     <div class="nixfile-file-edit-name-form-container">
         <form class="nixfile-file-edit-form">
             <label>
@@ -447,7 +439,6 @@
             <button type="submit">ویرایش</button>
         </form>
     </div>
-
     <div id="nixfile-delete-file-form-container">
         <form id="nixfile-delete-file-form">
             <h1>آیا از حذف شدن این فایل اطمینان دارید ؟</h1>

@@ -41,6 +41,8 @@ jQuery(async function ($) {
     const nixfileDeleteFileForm = $("#nixfile-delete-file-form");
     const nixfileDeleteFile = $("#nixfile-delete-file");
     const nixfileLoader = $("#nixfile-loader");
+    const nixfileCreateNewFolder = $(".nixfile-create-new-folder");
+    const nixfileCreateNewFolderForm = $(".nixfile-create-new-folder-form");
     let searchTimeout;
     let nixfileMediaPage = 1;
     let nixfileMediaLastPage = 1;
@@ -61,6 +63,7 @@ jQuery(async function ($) {
     nixfileFileContextMenu.hide();
     nixfileFileEditNameContainer.hide();
     nixfileDeleteFileContainer.hide();
+    nixfileCreateNewFolderForm.hide();
     nixfileOpenerBtn.on("click", (e) => {
         e.preventDefault();
         nixfileUploaderSection.stop().slideToggle()
@@ -862,5 +865,8 @@ jQuery(async function ($) {
     }
 
     getStatistic();
+    nixfileCreateNewFolder.on('click' , function (e){
+        nixfileCreateNewFolderForm.stop().slideToggle()
+    });
 });
 
