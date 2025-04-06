@@ -69,17 +69,24 @@ class AdminHooks {
 				time()
 			);
 			wp_enqueue_script(
+				'progressbar-js',
+				'https://cdn.jsdelivr.net/npm/progressbar.js@1.1.0/dist/progressbar.min.js',
+				[],
+				'1.1.0',
+				true
+			);
+			wp_enqueue_script(
 				'nixfile-uploader-page-script',
 				plugin_dir_url( __DIR__ ) . 'assets/js/nix-file-page.js',
-				[ 'jquery' ],
+				[ 'jquery', 'progressbar-js' ],
 				time(),
 				true
 			);
 			wp_localize_script( 'nixfile-uploader-page-script', 'nixfile_ajax_data', [
-				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'nixfile_uploader_nonce' ),
-				'token'    => $this->token,
-				'action'   => [
+				'ajax_url'   => admin_url( 'admin-ajax.php' ),
+				'nonce'      => wp_create_nonce( 'nixfile_uploader_nonce' ),
+				'token'      => $this->token,
+				'action'     => [
 					'set_token' => "nixfile_set_token",
 				],
 				'images_url' => plugin_dir_url( __DIR__ ) . 'assets/images/',
@@ -123,7 +130,7 @@ class AdminHooks {
 			true
 		);
 		wp_localize_script( 'nixfile-uploader-admin-script', 'nixfile_setting_data', [
-			'token'      => $this->token,
+			'token' => $this->token,
 		] );
 	}
 }
