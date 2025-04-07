@@ -201,7 +201,7 @@
             <select name="type" id="nixfile-file-type"></select>
             <select name="date" id="nixfile-file-date"></select>
             <select name="mims" id="nixfile-file-mims"></select>
-            <button>انتخاب دسته‌جمعی</button>
+            <button id="nixfile-multi-select">انتخاب دسته‌جمعی</button>
             <button id="nixfile-setting-toggler">تنظیمات</button>
             <button id="nixfile-buy">
                 <a target="_blank" href="https://nixfile.com">خرید و تمدید سرویس</a>
@@ -212,6 +212,10 @@
                 <span>جستجوی رسانه</span>
                 <input id="nixfile-search-input" type="text">
             </label>
+        </div>
+        <div class="nixfile-multi-select-tools">
+            <button id="nixfile-multi-select-delete" class="disabled">حذف برای همیشه</button>
+            <button id="nixfile-multi-select-cancel">لغو</button>
         </div>
     </div>
 
@@ -264,16 +268,15 @@
 
     <div id="breadcrumb"></div>
 
-    <div class="nixfile-media-section"></div>
+    <div class="nixfile-media-section-container">
+        <div class="nixfile-media-section"></div>
+    </div>
 
     <div class="nixfile-errors-box"></div>
 
     <div class="nixfile-folder-form-container">
         <form class="nixfile-folder-form" method="POST">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                <path fill="currentColor"
-                      d="M20 5h-9.586L8.707 3.293A1 1 0 0 0 8 3H4c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V7c0-1.103-.897-2-2-2m-4 9h-3v3h-2v-3H8v-2h3V9h2v3h3z"/>
-            </svg>
+            <img src="<?php echo plugin_dir_url( __DIR__ ) . 'assets/images/add.svg' ?>" alt="">
             <label>
                 <span>
                     نام پوشه
@@ -430,6 +433,7 @@
             </div>
         </div>
     </div>
+
     <div class="nixfile-file-edit-name-form-container">
         <form class="nixfile-file-edit-form">
             <label>
@@ -439,6 +443,7 @@
             <button type="submit">ویرایش</button>
         </form>
     </div>
+
     <div id="nixfile-delete-file-form-container">
         <form id="nixfile-delete-file-form">
             <h1>آیا از حذف شدن این فایل اطمینان دارید ؟</h1>
@@ -451,4 +456,15 @@
             </div>
         </form>
     </div>
+
+    <div id="nixfile-replace-file-form-container">
+        <form id="nixfile-replace-file-form">
+            <h1>فایل جدید را بارگزاری کنید</h1>
+            <label class="nixfile-upload-file">
+                <input type="file" name="id">
+                <span>50%</span>
+            </label>
+        </form>
+    </div>
+
 </div>
