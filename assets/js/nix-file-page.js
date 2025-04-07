@@ -1069,9 +1069,9 @@ jQuery(async function ($) {
         if ($(".nixfile-multi-select-label").length > 0)
             $(".nixfile-multi-select-label").remove();
         if (activeMultiSelect) {
-            nixfileMediaTolls.fadeOut();
-            nixfileMediaSearch.fadeOut();
-            nixfileMultiSelectTools.fadeIn();
+            nixfileMediaTolls.hide();
+            nixfileMediaSearch.hide();
+            nixfileMultiSelectTools.show();
             const mediaBox = $(".nixfile-media-box");
             mediaBox.css({
                 'opacity': "0.7"
