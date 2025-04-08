@@ -543,9 +543,13 @@ jQuery(async function ($) {
                         'data-name': item.title,
                         'data-parent-id': item.parent_id,
                         'data-item': JSON.stringify(item),
+                        'data-open': false,
                     });
-                    if (item.id === selectedFolderId)
+                    if (item.id === selectedFolderId){
                         nixfileFolderIcon.css("background-image", `url(${nixfile_ajax_data.images_url}/back.png)`);
+                        box.attr('data-open', true);
+                        box.css('order' , '-1')
+                    }
                     box
                         .on("click", async function (e) {
                             const id = $(this).attr('data-id');
