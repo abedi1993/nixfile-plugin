@@ -283,7 +283,7 @@
                 </span>
                 <input placeholder="مثلا: نمونه کار" type="text" name="title">
             </label>
-            <button>ثبت</button>
+            <button type="submit">ثبت</button>
         </form>
     </div>
 
@@ -405,30 +405,9 @@
                 <button type="submit"> ایجاد</button>
             </form>
             <div class="nixfile-folder-move-folder-name">نام پوشه</div>
-            <div class="nixfile-divider">
-                <div class="nixfile-folder-item-dropdown-container">
-                    <div class="nixfile-dropdown-item">
-                        <div class="nixfile-flex nixfile-items-center nixfile-gap-4">
-                            <div class="nixfile-folder-move-icon"></div>
-                            <span>نام پوشه تستی 1</span>
-                        </div>
-                        <button class="nixfile-close-button">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                 stroke-width="1.5" stroke="currentColor" class="nixfile-size-4">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="nixfile-content" style="display: none;">s</div>
-                </div>
-                <div class="nixfile-folder-item">
-                    <div class="nixfile-folder-move-icon"></div>
-                    <span>نام پوشه تستی 1</span>
-                </div>
-            </div>
+            <div class="nixfile-divider"></div>
             <div class="nixfile-footer">
-                <button class="nixfile-blue-button">انتقال پوشه</button>
+                <button id="nixfile-submit-move-folder" class="nixfile-blue-button">انتقال پوشه</button>
                 <button class="nixfile-cancel-button">انصراف</button>
             </div>
         </div>

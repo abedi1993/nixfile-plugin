@@ -54,8 +54,10 @@ jQuery(async function ($) {
     const nixfileMultiDeleteBtn = $("#nixfile-multi-select-delete");
     const nixfileMultiCancelBtn = $("#nixfile-multi-select-cancel");
     const nixfileMultiSelectTools = $(".nixfile-multi-select-tools");
+    const nixfileMoveFolderBtn = $("#nixfile-submit-move-folder");
     let localStorageData = localStorage.getItem('nixfilePageData') ? JSON.parse(localStorage.getItem('nixfilePageData')) : null;
     let searchTimeout;
+    let folderLists;
     let nixfileMediaPage = 1;
     let nixfileMediaLastPage = localStorageData?.page ?? 1;
     let isLoading = false;
@@ -66,6 +68,7 @@ jQuery(async function ($) {
     let capacityPercent = 0;
     let activeMultiSelect = false;
     let multiSelectedId = [];
+    let selectMoveFolder = null;
     localStorage.removeItem('nixfilePageData');
     nixfileLoader.fadeOut(400);
     nixfileUploaderSection.hide();
@@ -81,6 +84,7 @@ jQuery(async function ($) {
     nixfileCreateNewFolderForm.hide();
     nixfileReplaceFormContainer.hide();
     nixfileMultiSelectTools.hide();
+
     nixfileOpenerBtn.on("click", (e) => {
         e.preventDefault();
         nixfileUploaderSection.stop().slideToggle()
@@ -124,8 +128,9 @@ jQuery(async function ($) {
         });
     });
 
-    const loadMedia = () => {
-        nixfileMultiCancelBtn.click();
+    function loadMedia() {
+        if (activeMultiSelect)
+            nixfileMultiCancelBtn.click();
         if (isLoading) return
         isLoading = true;
         $.ajax({
@@ -173,7 +178,9 @@ jQuery(async function ($) {
                                     break;
                                 default:
                                     media = $("<img/>", {
-                                        src: $(`.nixfile-media-box[data-id=${item.id}]`).find('.nixfile-folder-icon').css('background-image').replace(/url\((['"])?(.*?)\1\)/gi, '$2')
+                                        src: $(`.nixfile-media-box[data-id=${item.id}]`)
+                                            .find('.nixfile-folder-icon').css('background-image')
+                                            .replace(/url\((['"])?(.*?)\1\)/gi, '$2')
                                     });
                                     break;
                             }
@@ -273,8 +280,9 @@ jQuery(async function ($) {
             error: (err) => {
                 isLoading = false;
             }
-        })
+        });
     }
+
     searchInput.on("input", async (e) => {
         nixfileMediaPage = 1;
         if (searchTimeout)
@@ -396,12 +404,13 @@ jQuery(async function ($) {
         nixfileMediaPage = 1;
         await loadMedia();
         await loadFolders();
-    })
-    nixfileUploaderLabel.on("dragover", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        nixfileUploaderLabel.addClass("active")
-    })
+    });
+    nixfileUploaderLabel
+        .on("dragover", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            nixfileUploaderLabel.addClass("active")
+        })
         .on("dragleave", (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -431,76 +440,77 @@ jQuery(async function ($) {
         $("#nixfile-edit-folder-name").remove();
         nixfileFolderFormContainer.find('label input').attr('placeholder', 'مثلا: نمونه کار');
     })
-    nixfileFolderForm.on('click', (e) => {
-        e.stopPropagation();
-    }).on('submit', function (e) {
-        e.preventDefault();
-        let url = `${apiUrl}/upload/folder`;
-        const form = $(e.currentTarget);
-        const formData = new FormData(e.currentTarget);
-        if (editFolder) {
-            url += `/${editFolder.id}`;
-            type = editFolder.type;
-            formData.append('_method', 'PUT');
-        }
-        formData.append('domain_id', nixfileTokenInput.val());
-        console.log(selectedFolderId);
-        if (selectedFolderId !== null && selectedFolderId !== undefined)
-            formData.append('parent_id', selectedFolderId);
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: async function (res) {
-                editFolder = null;
-                nixfileFolderFormContainer.stop().fadeOut();
-                const nixfileFolderBox = $(".nixfile-folder");
-                if (nixfileFolderBox)
-                    nixfileFolderBox.remove()
-                await loadFolders()
-                const toast = $("<span/>", {
-                    class: 'nixfile-success-toast',
-                    text: res.message,
-                    style: "inset-inline-start:0;"
-                });
-                form.find('input').val("");
-                nixfileContainer.append(toast)
-                setTimeout(() => {
-                    toast.css("inset-inline-start", "-100%");
-                }, 2500);
-                setTimeout(() => {
-                    toast.detach();
-                }, 4000)
-            },
-            error: (error) => {
-                editFolder = null;
-                if (error.responseJSON && error.responseJSON.errors) {
-                    const responseError = error.responseJSON.errors;
-                    errorsBox.css("display", 'block')
-                    uploaderDir.append(errorsBox)
-                    Object.keys(responseError).forEach((key) => {
-                        const errorText = $("<span/>", {
-                            class: "nixfile-errors",
-                            text: responseError[key],
-                            style: "margin-inline-start: 0; transition: all .5s ease-in-out;"
-                        });
-                        errorsBox.append(errorText);
-                        setTimeout(() => {
-                            errorText.css("margin-inline-start", '-100%');
-                        }, 2000)
-                        setTimeout(() => {
-                            errorText.detach();
-                        }, 3000)
-                    });
-
-                } else {
-                }
-            }
+    nixfileFolderForm
+        .on('click', (e) => {
+            e.stopPropagation();
         })
-    });
+        .on('submit', function (e) {
+            e.preventDefault();
+            let url = `${apiUrl}/upload/folder`;
+            const form = $(e.currentTarget);
+            const formData = new FormData(e.currentTarget);
+            if (editFolder) {
+                url += `/${editFolder.id}`;
+                type = editFolder.type;
+                formData.append('_method', 'PUT');
+            }
+            formData.append('domain_id', nixfileTokenInput.val());
+            console.log(selectedFolderId);
+            if (selectedFolderId !== null && selectedFolderId !== undefined)
+                formData.append('parent_id', selectedFolderId);
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: async function (res) {
+                    editFolder = null;
+                    nixfileFolderFormContainer.stop().fadeOut();
+                    const nixfileFolderBox = $(".nixfile-folder");
+                    if (nixfileFolderBox)
+                        nixfileFolderBox.remove()
+                    await loadFolders()
+                    const toast = $("<span/>", {
+                        class: 'nixfile-success-toast',
+                        text: res.message,
+                        style: "inset-inline-start:0;"
+                    });
+                    form.find('input').val("");
+                    nixfileContainer.append(toast)
+                    setTimeout(() => {
+                        toast.css("inset-inline-start", "-100%");
+                    }, 2500);
+                    setTimeout(() => {
+                        toast.detach();
+                    }, 4000)
+                },
+                error: (error) => {
+                    editFolder = null;
+                    if (error.responseJSON && error.responseJSON.errors) {
+                        const responseError = error.responseJSON.errors;
+                        errorsBox.css("display", 'block')
+                        uploaderDir.append(errorsBox)
+                        Object.keys(responseError).forEach((key) => {
+                            const errorText = $("<span/>", {
+                                class: "nixfile-errors",
+                                text: responseError[key],
+                                style: "margin-inline-start: 0; transition: all .5s ease-in-out;"
+                            });
+                            errorsBox.append(errorText);
+                            setTimeout(() => {
+                                errorText.css("margin-inline-start", '-100%');
+                            }, 2000)
+                            setTimeout(() => {
+                                errorText.detach();
+                            }, 3000)
+                        });
 
+                    } else {
+                    }
+                }
+            })
+        });
     const loadFolders = async () => {
         let url = `${apiUrl}/upload/folder/${nixfileTokenInput.val()}`;
         if (selectedFolderId)
@@ -513,6 +523,8 @@ jQuery(async function ($) {
             processData: false,
             contentType: false,
             success: (res) => {
+                if (!selectedFolderId)
+                    folderLists = res.data;
                 res.data.forEach((item) => {
                     const box = $("<div/>", {
                         class: "nixfile-folder",
@@ -525,7 +537,7 @@ jQuery(async function ($) {
                         text: item.title
                     })
                     box.append(nixfileFolderIcon);
-                    box.append(p)
+                    box.append(p);
                     box.attr({
                         'data-id': item.id,
                         'data-name': item.title,
@@ -534,36 +546,38 @@ jQuery(async function ($) {
                     });
                     if (item.id === selectedFolderId)
                         nixfileFolderIcon.css("background-image", `url(${nixfile_ajax_data.images_url}/back.png)`);
-                    box.on("click", async function (e) {
-                        const id = $(this).attr('data-id');
-                        await nixfileMediaSection.empty();
-                        if (id === selectedFolderId) {
-                            selectedFolderId = item.parent_id;
-                            nixfileMediaPage = 1;
-                            await loadFolders();
-                            await loadMedia();
-                            $(`.nixfile-breadcrumb-items[data-id=${id}]`).remove();
-                        } else {
-                            selectedFolderId = $(this).attr('data-id');
-                            nixfileMediaPage = 1;
-                            await loadFolders();
-                            await loadMedia();
-                            breadcrumbMaker();
-                        }
-                    }).on('contextmenu', function (e) {
-                        e.preventDefault();
-                        nixfileFolderContextMenu.stop().slideDown(100);
-                        nixfileFileContextMenu.stop().slideUp(100);
-                        nixfileFolderContextMenu.css({
-                            'position': 'absolute',
-                            'top': e.pageY + 'px',
-                            'left': e.pageX + 'px'
-                        });
-                        nixfileFolderContextMenu.attr({
-                            'data-id': $(this).attr('data-id'),
-                            'data-name': $(this).attr("data-name")
+                    box
+                        .on("click", async function (e) {
+                            const id = $(this).attr('data-id');
+                            await nixfileMediaSection.empty();
+                            if (id === selectedFolderId) {
+                                selectedFolderId = item.parent_id;
+                                nixfileMediaPage = 1;
+                                await loadFolders();
+                                await loadMedia();
+                                $(`.nixfile-breadcrumb-items[data-id=${id}]`).remove();
+                            } else {
+                                selectedFolderId = $(this).attr('data-id');
+                                nixfileMediaPage = 1;
+                                await loadFolders();
+                                await loadMedia();
+                                breadcrumbMaker();
+                            }
                         })
-                    });
+                        .on('contextmenu', function (e) {
+                            e.preventDefault();
+                            nixfileFolderContextMenu.stop().slideDown(100);
+                            nixfileFileContextMenu.stop().slideUp(100);
+                            nixfileFolderContextMenu.css({
+                                'position': 'absolute',
+                                'top': e.pageY + 'px',
+                                'left': e.pageX + 'px'
+                            });
+                            nixfileFolderContextMenu.attr({
+                                'data-id': $(this).attr('data-id'),
+                                'data-name': $(this).attr("data-name")
+                            })
+                        });
                     nixfileMediaSection.prepend(box)
                 })
             },
@@ -642,82 +656,87 @@ jQuery(async function ($) {
         nixfileFileContextMenu.stop().slideUp(100);
     });
 
-    nixfileFolderEdit.on("click", function (e) {
-        activeMultiSelect = false;
-        nixfileFolderFormContainer.stop().fadeIn();
-        editFolder = {
-            'name': nixfileFolderContextMenu.attr('data-name'),
-            'id': nixfileFolderContextMenu.attr('data-id'),
-            'type': 'PUT',
-        }
-        nixfileFolderFormContainer.find("label input").attr('placeholder', editFolder.name);
-        nixfileFolderFormContainer.find('button').text("ویرایش نام");
-    });
+    nixfileFolderEdit
+        .on("click", function (e) {
+            activeMultiSelect = false;
+            nixfileFolderFormContainer.stop().fadeIn();
+            editFolder = {
+                'name': nixfileFolderContextMenu.attr('data-name'),
+                'id': nixfileFolderContextMenu.attr('data-id'),
+                'type': 'PUT',
+            }
+            nixfileFolderFormContainer.find("label input").attr('placeholder', editFolder.name);
+            nixfileFolderFormContainer.find('button').text("ویرایش نام");
+        });
     nixfileDeleteFolderContainer.on('click', function (e) {
         $(this).fadeOut();
     });
-    nixfileFolderDelete.on('click', function (e) {
-        nixfileDeleteFolderContainer.fadeIn();
-        nixfileDeleteFolderContainer.find('input[type=text]').attr('value', nixfileFolderContextMenu.attr('data-id'));
-    })
-    nixfileDeleteFolderContainer.find('form').on("submit", function (e) {
-        e.preventDefault();
-        const url = `${apiUrl}/upload/folder/${nixfileFolderContextMenu.attr('data-id')}?domain_id=${nixfileTokenInput.val()}`
-        $.ajax({
-            url: url,
-            type: "DELETE",
-            processData: false,
-            contentType: false,
-            success: async function (res) {
-                nixfileDeleteFolderContainer.stop().fadeOut();
-                const nixfileFolderBox = $(".nixfile-folder");
-                selectedFolderId = null;
-                currentFolder = null;
-                if (nixfileFolderBox)
-                    nixfileFolderBox.remove();
-                getStatistic();
-                nixfileMediaPage = 1;
-                location.reload();
-                const toast = $("<span/>", {
-                    class: 'nixfile-success-toast',
-                    text: res.message,
-                    style: "inset-inline-start:0;"
-                });
-                nixfileContainer.append(toast);
-                setTimeout(() => {
-                    toast.css("inset-inline-start", "-100%");
-                }, 2500);
-                setTimeout(() => {
-                    toast.detach();
-                }, 4000);
-            },
-            error: (error) => {
-                if (error.responseJSON && error.responseJSON.errors) {
-                    const responseError = error.responseJSON.errors;
-                    errorsBox.css("display", 'block')
-                    uploaderDir.append(errorsBox)
-                    Object.keys(responseError).forEach((key) => {
-                        const errorText = $("<span/>", {
-                            class: "nixfile-errors",
-                            text: responseError[key],
-                            style: "margin-inline-start: 0; transition: all .5s ease-in-out;"
-                        });
-                        errorsBox.append(errorText);
-                        setTimeout(() => {
-                            errorText.css("margin-inline-start", '-100%');
-                        }, 2000)
-                        setTimeout(() => {
-                            errorText.detach();
-                        }, 3000)
-                    });
-
-                } else {
-                }
-            }
+    nixfileFolderDelete
+        .on('click', function (e) {
+            nixfileDeleteFolderContainer.fadeIn();
+            nixfileDeleteFolderContainer.find('input[type=text]').attr('value', nixfileFolderContextMenu.attr('data-id'));
         });
-    }).on('click', function (e) {
-        e.stopPropagation();
-    });
+    nixfileDeleteFolderContainer
+        .find('form')
+        .on("submit", function (e) {
+            e.preventDefault();
+            const url = `${apiUrl}/upload/folder/${nixfileFolderContextMenu.attr('data-id')}?domain_id=${nixfileTokenInput.val()}`
+            $.ajax({
+                url: url,
+                type: "DELETE",
+                processData: false,
+                contentType: false,
+                success: async function (res) {
+                    nixfileDeleteFolderContainer.stop().fadeOut();
+                    const nixfileFolderBox = $(".nixfile-folder");
+                    selectedFolderId = null;
+                    currentFolder = null;
+                    if (nixfileFolderBox)
+                        nixfileFolderBox.remove();
+                    getStatistic();
+                    nixfileMediaPage = 1;
+                    location.reload();
+                    const toast = $("<span/>", {
+                        class: 'nixfile-success-toast',
+                        text: res.message,
+                        style: "inset-inline-start:0;"
+                    });
+                    nixfileContainer.append(toast);
+                    setTimeout(() => {
+                        toast.css("inset-inline-start", "-100%");
+                    }, 2500);
+                    setTimeout(() => {
+                        toast.detach();
+                    }, 4000);
+                },
+                error: (error) => {
+                    if (error.responseJSON && error.responseJSON.errors) {
+                        const responseError = error.responseJSON.errors;
+                        errorsBox.css("display", 'block')
+                        uploaderDir.append(errorsBox)
+                        Object.keys(responseError).forEach((key) => {
+                            const errorText = $("<span/>", {
+                                class: "nixfile-errors",
+                                text: responseError[key],
+                                style: "margin-inline-start: 0; transition: all .5s ease-in-out;"
+                            });
+                            errorsBox.append(errorText);
+                            setTimeout(() => {
+                                errorText.css("margin-inline-start", '-100%');
+                            }, 2000)
+                            setTimeout(() => {
+                                errorText.detach();
+                            }, 3000)
+                        });
+
+                    } else {
+                    }
+                }
+            });
+        })
+        .on('click', function (e) {
+            e.stopPropagation();
+        });
     nixfileDeleteFolderContainer.find('button').on('click', function (e) {
         nixfileDeleteFolderContainer.fadeOut();
     });
@@ -730,7 +749,91 @@ jQuery(async function ($) {
     })
     nixfileFolderMove.on("click", function (e) {
         nixfileMoveFolderContainer.fadeIn();
+        const divider = nixfileMoveFolderContainer.find('.nixfile-divider');
+        divider.empty();
+        if (folderLists.length > 0) {
+            folderLists.reverse().forEach((data) => {
+                if (nixfileFolderContextMenu.attr('data-id') !== data.id)
+                    divider.append(createFolder(data))
+            });
+        }
     });
+    nixfileMoveFolderBtn.on('click', async function () {
+        if (!selectMoveFolder) return;
+        const formData = new FormData();
+        formData.append('domain_id', nixfileTokenInput.val());
+        formData.append('parent_id', selectMoveFolder);
+        formData.append('_method', 'PUT');
+        await $.ajax({
+            url: `${apiUrl}/upload/folder/${nixfileFolderContextMenu.attr('data-id')}`,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: async function (response) {
+                getStatistic();
+                nixfileMediaPage = 1;
+                await nixfileMediaSection.empty();
+                await loadFolders();
+                await loadMedia();
+                nixfileMoveFolderContainer.fadeOut();
+            },
+            error: function (error) {
+
+            }
+        });
+    })
+
+    function createFolder(data) {
+        const container = $("<div/>", {
+            class: `${data.folders.length > 0 ? 'nixfile-folder-item-dropdown-container' : 'nixfile-move-folder-container'}`,
+        })
+            .attr('data-id', data.id);
+        container.on('click', function (e) {
+            e.stopPropagation();
+            const id = $(this).attr('data-id');
+            if (selectMoveFolder === id) selectMoveFolder = null;
+            else selectMoveFolder = id;
+            const divider = $('.nixfile-divider');
+            divider.find('.selected').not(this).removeClass('selected');
+            divider.find(`div[data-id=${id}]`).toggleClass('selected');
+        });
+        const item = $("<div/>", {
+            class: "nixfile-folder-item"
+        });
+        const icon = $("<span/>", {
+            class: "nixfile-folder-move-icon",
+        })
+            .css("background-image", `url(${nixfileAjaxData.images_url}/folder.png)`);
+        const text = $("<p/>", {
+            text: data.title
+        });
+        container.append(item);
+        item.append(icon);
+        item.append(text);
+        if (data.folders && data.folders.length > 0) {
+            data.folders.forEach(async (subFolder) => {
+                await container.append(createFolder(subFolder).hide());
+                const dropDownSvg = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke-width="1.5" stroke="currentColor" class="nixfile-size-4">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                            </svg>`;
+                const dropDownTrigger = $("<button/>", {
+                    html: dropDownSvg,
+                })
+                    .on('click', function (e) {
+                        e.stopPropagation();
+                        $(`.nixfile-divider div[data-id=${subFolder.id}]`).stop().slideToggle()
+                        $(this).toggleClass('active')
+                    });
+                dropDownTrigger.attr('data-id', subFolder.id);
+                item.append(dropDownTrigger);
+            });
+        }
+        return container;
+    }
+
     cancelMoveFolderModalBtn.on("click", function (e) {
         e.preventDefault();
         nixfileMoveFolderContainer.fadeOut();
@@ -934,9 +1037,50 @@ jQuery(async function ($) {
     }
 
     getStatistic();
-    nixfileCreateNewFolder.on('click', function (e) {
-        nixfileCreateNewFolderForm.stop().slideToggle()
-    });
+    nixfileCreateNewFolder
+        .on('click', function (e) {
+            nixfileCreateNewFolderForm.stop().slideToggle()
+        });
+    nixfileCreateNewFolderForm.find('button[type=submit]').on('click', function (e) {
+        const formData = new FormData();
+        formData.append('title', nixfileCreateNewFolderForm.find('input[type=text]').val());
+        formData.append('domain_id', nixfileTokenInput.val());
+        $.ajax({
+            url: `${apiUrl}/upload/folder/`,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: async function (response) {
+                const temp = selectedFolderId;
+                if (selectedFolderId) {
+                    selectedFolderId = null;
+                    nixfileMediaPage = 1;
+                    nixfileMediaSection.empty();
+                    await loadMedia();
+                    await loadFolders();
+                }
+                selectedFolderId = temp;
+                nixfileMediaPage = 1;
+                nixfileMediaSection.empty();
+                await loadMedia();
+                await loadFolders();
+                if (folderLists.length > 0) {
+                    const divider = nixfileMoveFolderContainer.find('.nixfile-divider');
+                    divider.empty();
+                    folderLists.reverse().forEach((data) => {
+                        if (nixfileFolderContextMenu.attr('data-id') !== data.id)
+                            divider.append(createFolder(data))
+                    });
+                }
+                nixfileCreateNewFolderForm[0].reset();
+            },
+            error: function (xhr, status, error) {
+                nixfileCreateNewFolderForm[0].reset();
+            }
+        });
+    })
+
     nixfileReplaceFileTrigger.on('click', function () {
         nixfileReplaceFormContainer.fadeIn();
     });
@@ -1136,7 +1280,7 @@ jQuery(async function ($) {
             const formData = new FormData();
             formData.append('domain_id', nixfileTokenInput.val());
             multiSelectedId.forEach((item, index) => {
-                formData.append(`ids.[${index}].`, item);
+                formData.append(`ids[` + index + ']', item);
             });
             console.log(formData);
             $.ajax({
@@ -1146,12 +1290,17 @@ jQuery(async function ($) {
                 contentType: false,
                 data: formData,
                 success: async (res) => {
-                    nixfileMultiCancelBtn.click();
+                    nixfileMediaPage = 1;
+                    nixfileMediaSection.empty();
+                    await loadMedia();
+                    multiSelectedId = {};
                 },
                 error: async (err) => {
                     nixfileMultiCancelBtn.click();
+                    multiSelectedId = {};
                 }
             })
         }
     });
+
 });

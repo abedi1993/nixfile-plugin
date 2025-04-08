@@ -1,5 +1,6 @@
 * {
     scroll-behavior: smooth;
+    box-sizing: border-box !important;
 }
 
 @keyframes zzz {
@@ -859,10 +860,26 @@
                 align-items: center;
                 gap: 8px;
 
+                label {
+                    width: 75%;
+
+                    input {
+                        width: 100%;
+                    }
+                }
+
                 button {
                     padding: 3.5px;
+                    width: 25%;
+
+
+                    svg {
+                        transition: .5s ease;
+                    }
                 }
             }
+
+
         }
 
         .nixfile-folder-mov-header {
@@ -891,8 +908,18 @@
         }
 
         .nixfile-divider {
-            border-top: 2px solid #e2e8f0;
+            border: 1px solid #D5D5D5;
             font-size: 0.875rem;
+            max-height: 200px;
+            overflow-y: scroll;
+            scrollbar-width: none;
+
+            button {
+                width: 20px;
+                aspect-ratio: 1/1;
+                border: none;
+                margin-right: auto;
+            }
         }
 
         .nixfile-folder-item {
@@ -903,12 +930,33 @@
             border-bottom: 1px solid #e2e8f0;
         }
 
-        .nixfile-folder-item-dropdown-container {
+        .nixfile-folder-item-dropdown-container,
+        .nixfile-move-folder-container {
             display: flex;
             flex-direction: column;
-
-            gap: 8px;
             border-bottom: 1px solid #e2e8f0;
+            box-sizing: border-box;
+            cursor: pointer;
+
+            .nixfile-folder-item-dropdown-container,
+            .nixfile-move-folder-container {
+                .nixfile-folder-item {
+                    margin: 0 15px;
+                }
+            }
+
+            button {
+                &.active {
+                    svg {
+                        transform: rotate(180deg);
+                    }
+                }
+            }
+
+            &.selected {
+                border: 1px solid #0060ec;
+                background-color: #f2f8ff;
+            }
         }
 
         .nixfile-dropdown-item {
@@ -922,7 +970,8 @@
         .nixfile-folder-move-icon {
             width: 32px;
             height: 32px;
-            background-color: #f56565;
+            background-size: cover;
+            background-position: center;
         }
 
         .nixfile-folder-name-text {
