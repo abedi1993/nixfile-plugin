@@ -125,6 +125,7 @@ jQuery(async function ($) {
     });
 
     const loadMedia = () => {
+        nixfileMultiCancelBtn.click();
         if (isLoading) return
         isLoading = true;
         $.ajax({
@@ -313,6 +314,7 @@ jQuery(async function ($) {
     loadMedia();
 
     const uploadFile = async (file) => {
+        activeMultiSelect = false;
         const box = $("<div/>", {
             class: 'nixfile-media-box',
             html: `<span class="nixfile-media-progress"></span>`
@@ -641,6 +643,7 @@ jQuery(async function ($) {
     });
 
     nixfileFolderEdit.on("click", function (e) {
+        activeMultiSelect = false;
         nixfileFolderFormContainer.stop().fadeIn();
         editFolder = {
             'name': nixfileFolderContextMenu.attr('data-name'),
@@ -1115,20 +1118,40 @@ jQuery(async function ($) {
         }
     });
     nixfileMultiCancelBtn.on('click', async function () {
-        {
-            if ($(".nixfile-multi-select-label").length > 0)
-                $(".nixfile-multi-select-label").remove();
-            await nixfileMultiSelectTools.hide();
-            await nixfileMediaTolls.show();
-            await nixfileMediaSearch.show();
-            $(".nixfile-folder").remove();
-            await loadFolders();
-            const mediaBox = $(".nixfile-media-box");
-            mediaBox.css({
-                'opacity': "1"
+        if ($(".nixfile-multi-select-label").length > 0)
+            $(".nixfile-multi-select-label").remove();
+        await nixfileMultiSelectTools.hide();
+        await nixfileMediaTolls.show();
+        await nixfileMediaSearch.show();
+        $(".nixfile-folder").remove();
+        await loadFolders();
+        const mediaBox = $(".nixfile-media-box");
+        mediaBox.css({
+            'opacity': "1"
+        });
+        activeMultiSelect = false;
+    });
+    nixfileMultiDeleteBtn.on('click', function () {
+        if (multiSelectedId.length > 0) {
+            const formData = new FormData();
+            formData.append('domain_id', nixfileTokenInput.val());
+            multiSelectedId.forEach((item, index) => {
+                formData.append(`ids.[${index}].`, item);
             });
-            activeMultiSelect = false;
+            console.log(formData);
+            $.ajax({
+                url: `${apiUrl}/upload/multi-delete`,
+                type: "POST",
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: async (res) => {
+                    nixfileMultiCancelBtn.click();
+                },
+                error: async (err) => {
+                    nixfileMultiCancelBtn.click();
+                }
+            })
         }
     });
 });
-
