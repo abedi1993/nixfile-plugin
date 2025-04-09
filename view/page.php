@@ -198,9 +198,13 @@
 
     <div class="nixfile-filter-bar">
         <div class="nixfile-media-tools">
-            <select name="type" id="nixfile-file-type"></select>
-            <select name="date" id="nixfile-file-date"></select>
-            <select name="mims" id="nixfile-file-mims"></select>
+            <select name="type" id="nixfile-file-type">
+                <option value="null">همه موارد رسانه ای</option>
+            </select>
+            <select name="date" id="nixfile-file-date">
+                <option value="null">همه تاریخ ها</option>
+            </select>
+            <!--<select name="mims" id="nixfile-file-mims"></select>-->
             <button id="nixfile-multi-select">انتخاب دسته‌جمعی</button>
             <button id="nixfile-setting-toggler">تنظیمات</button>
             <button id="nixfile-buy">

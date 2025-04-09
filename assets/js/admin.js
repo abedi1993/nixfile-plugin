@@ -11,13 +11,13 @@ jQuery(document).ready(function ($) {
     // const api = "https://api.yekpayamak.com/v1"
     const api = "http://127.0.0.1:7000/v1"
     $("#nixfile-uploader-input").on('change', async function (e) {
-        const files = e.target.files[i];
+        const files = e.target.files;
         if (files.length > 0) {
             for (const file of files) {
                 formData.append("file", file);
                 formData.append('upload_type', '1');
                 formData.append('expired_at', '2');
-                formData.append("domain_id", nixfileSettingData.token)
+                formData.append("domain_id", nixfileSettingData.token);
                 $.ajax({
                     url: `${api}/upload`,
                     type: 'POST',
