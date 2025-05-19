@@ -17,22 +17,38 @@ export function postFolder() {
             formContainer.find("button").text("ثبت");
             $("#nixfile-edit-folder-name").remove();
             formContainer.find("label input").attr("placeholder", "مثلا: نمونه کار");
+            form.attr({
+                'data-mode': "create",
+            });
         });
+
+
         form.on("click", (e) => e.stopPropagation());
         form.on("submit", async function (e) {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
             formData.append("parent_id", window.currentFolderId);
-            try {
-                await post(`${link(2)}/domain/file-manager/${getToken}/folder`, formData);
-                e.currentTarget.reset();
-                formContainer.fadeOut();
-                await fetchFileManagerData({
-                    folder_id: window.currentFolderId
-                })
-            } catch (error) {
-                console.error("Folder submit failed:", error);
+            const mode = form.attr('data-mode');
+            if (mode === "create") {
+                try {
+                    await post(`${link(2)}/domain/file-manager/${getToken}/folder`, formData);
+                } catch (error) {
+                    console.error("Folder submit failed:", error);
+                }
+            } else {
+                formData.append("_method", "PUT");
+                const folderId = form.attr('data-folder-id');
+                try {
+                    await post(`${link(2)}/domain/file-manager/${getToken}/folder/${folderId}`, formData);
+                } catch (error) {
+                    console.error("Folder submit failed:", error);
+                }
             }
+            e.currentTarget.reset();
+            formContainer.fadeOut();
+            await fetchFileManagerData({
+                folder_id: window.currentFolderId
+            });
         });
     });
 }

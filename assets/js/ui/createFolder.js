@@ -1,10 +1,13 @@
 import {fetchFileManagerData} from "../utils/fetchFileManagerData.js";
 import {nixfileAjaxData} from "../utils/ajaxData.js";
+import {editFolderTitle} from "../actions/editFolderTitle.js";
 
 export function createFolder(folders) {
     jQuery(async function ($) {
         if (!folders.length) return;
         const fileManagerSection = $(".nixfile-media-section");
+        const nixfileFolderContextMenu = $(".nixfile-folder-contextmenu");
+        const nixfileFileContextMenu = $(".nixfile-file-contextmenu");
         folders.forEach(function (item) {
             const box = $("<div/>", {
                 class: "nixfile-folder"
@@ -24,6 +27,20 @@ export function createFolder(folders) {
                         folder_id: window.currentFolderId,
                         force: true
                     });
+                })
+                .on('contextmenu', function (e) {
+                    e.preventDefault();
+                    nixfileFolderContextMenu.stop().slideDown(100);
+                    nixfileFileContextMenu.stop().slideUp(100);
+                    nixfileFolderContextMenu.css({
+                        'position': 'absolute',
+                        'top': e.pageY + 'px',
+                        'left': e.pageX + 'px'
+                    });
+                    nixfileFolderContextMenu.attr({
+                        'data-id': $(this).attr('data-id'),
+                        'data-item': JSON.stringify(item)
+                    })
                 });
             const icon = $("<div/>", {
                 class: 'nixfile-folder-icon'
@@ -33,7 +50,6 @@ export function createFolder(folders) {
                 class: 'nixfile-folder-title',
                 text: item.title
             });
-            console.log(item.id, window.currentFolderId);
             if (item.id === window.currentFolderId) {
                 icon.css("background-image", `url(${nixfileAjaxData.images_url}/back.png)`);
                 box.attr('data-open', true);
@@ -42,5 +58,10 @@ export function createFolder(folders) {
             box.append(icon).append(title);
             fileManagerSection.prepend(box);
         });
+        $(document).on('click', function (e) {
+            nixfileFolderContextMenu.stop().slideUp(100);
+            nixfileFileContextMenu.stop().slideUp(100);
+        });
     });
+    editFolderTitle();
 }
