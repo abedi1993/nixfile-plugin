@@ -1,0 +1,39 @@
+import {post} from "../utils/fetch.js";
+import {link} from "../__apiRoutes.js";
+import {getToken} from "../utils/getToken.js";
+import {fetchFileManagerData} from "../utils/fetchFileManagerData.js";
+
+export function deleteFolder() {
+    jQuery(function ($) {
+        const nixfileDeleteFolderContainer = $("#nixfile-delete-folder-form-container");
+        const nixfileFolderDelete = $("#nixfile-delete-folder");
+        const nixfileFolderContextMenu = $(".nixfile-folder-contextmenu");
+
+        nixfileDeleteFolderContainer.on('click', function (e) {
+            $(this).fadeOut();
+        });
+        nixfileFolderDelete
+            .on('click', function (e) {
+                nixfileDeleteFolderContainer.fadeIn();
+            });
+        nixfileDeleteFolderContainer
+            .find('form')
+            .on("submit", async function (e) {
+                e.preventDefault();
+                console.log(nixfileFolderContextMenu);
+                const folderId = JSON.parse(nixfileFolderContextMenu.attr('data-item')).id;
+                const formData = new FormData();
+                formData.append('_method', "DELETE");
+                await post(`${link(2)}/domain/file-manager/${getToken}/folder/${folderId}`, formData)
+                await fetchFileManagerData({
+                    force: true,
+                    page: 1,
+                    folder_id: window.currentFolderId
+                });
+                nixfileDeleteFolderContainer.fadeOut();
+            })
+            .on('click', function (e) {
+                e.stopPropagation();
+            });
+    });
+}

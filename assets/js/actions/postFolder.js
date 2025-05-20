@@ -38,8 +38,9 @@ export function postFolder() {
             } else {
                 formData.append("_method", "PUT");
                 const folderId = form.attr('data-folder-id');
+                formData.append("folder_id", folderId);
                 try {
-                    await post(`${link(2)}/domain/file-manager/${getToken}/folder/${folderId}`, formData);
+                    await post(`${link(2)}/domain/file-manager/${getToken}/folder-title/${folderId}`, formData);
                 } catch (error) {
                     console.error("Folder submit failed:", error);
                 }
@@ -47,7 +48,9 @@ export function postFolder() {
             e.currentTarget.reset();
             formContainer.fadeOut();
             await fetchFileManagerData({
-                folder_id: window.currentFolderId
+                folder_id: window.currentFolderId,
+                force: true,
+                page: 1,
             });
         });
     });

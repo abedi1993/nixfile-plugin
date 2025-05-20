@@ -2,6 +2,7 @@ import {fetchFileManagerData} from "./utils/fetchFileManagerData.js";
 import {postFolder} from "./actions/postFolder.js";
 import {uploaderInput} from "./ui/uploaderInput.js";
 import {setting} from "./ui/setting.js";
+import {deleteFolder} from "./actions/deleteFolder.js";
 
 jQuery(async function ($) {
     const nixfileLoader = $("#nixfile-loader");
@@ -45,4 +46,5 @@ jQuery(async function ($) {
     });
     postFolder();
     uploaderInput();
+    deleteFolder();
 });
