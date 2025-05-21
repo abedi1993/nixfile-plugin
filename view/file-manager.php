@@ -418,10 +418,10 @@
     </div>
 
     <div class="nixfile-file-edit-name-form-container">
-        <form class="nixfile-file-edit-form">
+        <form class="nixfile-file-edit-form" method="POST">
             <label>
                 <span>نام فایل</span>
-                <input name="title" type="text" placeholder="نام فایل">
+                <input name="title" id="nixfile-file-edit-form-input" type="text" placeholder="نام فایل">
             </label>
             <button type="submit">ویرایش</button>
         </form>

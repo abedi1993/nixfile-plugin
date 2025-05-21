@@ -1,9 +1,15 @@
 import {nixfileAjaxData} from "../utils/ajaxData.js";
 import {setupInfiniteScrollObserver} from "../utils/setupInfiniteScrollObserver.js";
+import {copyToClipboard} from "../actions/copyToClipboard.js";
+import {editMediaTitle} from "../actions/editMediaTitle.js";
+import {deleteMedia} from "../actions/deleteMedia.js";
 
 export function createMedia(media) {
     if (!media.data.length) return;
     jQuery(async function ($) {
+        const nixfileFileContextMenu = $(".nixfile-file-contextmenu");
+        const nixfileFolderContextMenu = $(".nixfile-folder-contextmenu");
+
         const fileManagerSection = $(".nixfile-media-section");
         const nixfileMediaSectionContainer = $(".nixfile-media-section-container");
         media.data.forEach((item, index) => {
@@ -108,7 +114,6 @@ export function createMedia(media) {
                 })
                 .on('contextmenu', function (e) {
                     e.preventDefault();
-                    /*e.preventDefault();
                     nixfileFileContextMenu.stop().slideDown(100);
                     nixfileFolderContextMenu.stop().slideUp(100);
                     nixfileFileContextMenu.css({
@@ -118,7 +123,7 @@ export function createMedia(media) {
                     });
                     nixfileFileContextMenu.attr({
                         'data-item': $(this).attr('data-item'),
-                    })*/
+                    })
                 });
             if (parseInt(item.type.int) !== 0) {
                 const title = $("<p/>", {
@@ -147,5 +152,8 @@ export function createMedia(media) {
                 setupInfiniteScrollObserver(box);
             }
         });
+        copyToClipboard();
+        editMediaTitle();
+        deleteMedia();
     });
 }

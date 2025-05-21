@@ -1,6 +1,9 @@
 import {fetchFileManagerData} from "../utils/fetchFileManagerData.js";
 import {nixfileAjaxData} from "../utils/ajaxData.js";
 import {editFolderTitle} from "../actions/editFolderTitle.js";
+import {deleteFolder} from "../actions/deleteFolder.js";
+import {moveFolder} from "../actions/moveFolder.js";
+import {folderDetails} from "../actions/folderDetails.js";
 
 export function createFolder(folders) {
     jQuery(async function ($) {
@@ -65,4 +68,7 @@ export function createFolder(folders) {
         });
     });
     editFolderTitle();
+    deleteFolder();
+    moveFolder();
+    folderDetails();
 }
