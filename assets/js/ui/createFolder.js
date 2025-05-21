@@ -13,6 +13,7 @@ export function createFolder(folders) {
                 class: "nixfile-folder"
             })
                 .attr({
+                    'data-id': item.id,
                     'data-item': JSON.stringify(item),
                     'data-open': false,
                 })
