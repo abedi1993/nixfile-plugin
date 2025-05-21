@@ -127,7 +127,9 @@ class AdminHooks {
 				return $tag;
 			}, 10, 3 );
 		}
-		if ($screen->base === "media_page_nixfile-file-manager"){
+		if ( $screen->base === "media_page_nixfile-file-manager" ) {
+			wp_enqueue_script( 'anime-js', 'https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js', [], null, true );
+			wp_enqueue_script('html2canvas', 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', [], null, true);
 			wp_enqueue_style(
 				'nixfile-uploader-page-style',
 				plugin_dir_url( __DIR__ ) . 'assets/css/nix-file-page.css',

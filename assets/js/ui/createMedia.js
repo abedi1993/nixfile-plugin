@@ -3,6 +3,9 @@ import {setupInfiniteScrollObserver} from "../utils/setupInfiniteScrollObserver.
 import {copyToClipboard} from "../actions/copyToClipboard.js";
 import {editMediaTitle} from "../actions/editMediaTitle.js";
 import {deleteMedia} from "../actions/deleteMedia.js";
+import {mediaDetail} from "../actions/mediaDetail.js";
+import {replaceMedia} from "../actions/replaceMedia.js";
+import {moveMedia} from "../actions/moveMedia.js";
 
 export function createMedia(media) {
     if (!media.data.length) return;
@@ -155,5 +158,8 @@ export function createMedia(media) {
         copyToClipboard();
         editMediaTitle();
         deleteMedia();
+        mediaDetail();
+        replaceMedia();
+        moveMedia();
     });
 }

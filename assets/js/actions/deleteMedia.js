@@ -1,7 +1,7 @@
 import {post} from "../utils/fetch.js";
 import {link} from "../__apiRoutes.js";
 import {getToken} from "../utils/getToken.js";
-import {fetchFileManagerData} from "../utils/fetchFileManagerData.js";
+import {pixelExplode} from "../animate/pixelExplode.js";
 
 export function deleteMedia() {
     jQuery(function ($) {
@@ -25,11 +25,11 @@ export function deleteMedia() {
                 const item = JSON.parse(nixfileFileContextMenu.attr('data-item'));
                 const formData = new FormData();
                 formData.append("_method", "DELETE");
-                await post(`${link(2)}/domain/file-manager/${getToken}/media/${item.id}`, formData);
                 nixfileDeleteFileContainer.fadeOut();
-                const media = $(`.nixfile-media-box[data-id='${item.id}']`);
-                if (media.length) {
-                    media.fadeOut()
+                await post(`${link(2)}/domain/file-manager/${getToken}/media/${item.id}`, formData);
+                const mediaBox = document.querySelector(`.nixfile-media-box[data-id='${item.id}']`);
+                if (mediaBox) {
+                    await pixelExplode(mediaBox, 200, 500, 1000);
                 }
             });
     })

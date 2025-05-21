@@ -1,7 +1,7 @@
 import {post} from "../utils/fetch.js";
 import {link} from "../__apiRoutes.js";
 import {getToken} from "../utils/getToken.js";
-import {fetchFileManagerData} from "../utils/fetchFileManagerData.js";
+import {pixelExplode} from "../animate/pixelExplode.js";
 
 export function deleteFolder() {
     jQuery(function ($) {
@@ -25,11 +25,10 @@ export function deleteFolder() {
                 const formData = new FormData();
                 formData.append('_method', "DELETE");
                 await post(`${link(2)}/domain/file-manager/${getToken}/folder/${folderId}`, formData)
-                await fetchFileManagerData({
-                    force: true,
-                    page: 1,
-                    folder_id: window.currentFolderId
-                });
+                const folder = document.querySelector(`.nixfile-folder[data-id='${folderId}']`);
+                if (folder) {
+                    pixelExplode(folder);
+                }
                 nixfileDeleteFolderContainer.fadeOut();
             })
             .on('click', function (e) {

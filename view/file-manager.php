@@ -416,7 +416,6 @@
             </div>
         </div>
     </div>
-
     <div class="nixfile-file-edit-name-form-container">
         <form class="nixfile-file-edit-form" method="POST">
             <label>

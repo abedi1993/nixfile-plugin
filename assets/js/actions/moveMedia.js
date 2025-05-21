@@ -4,25 +4,32 @@ import {getToken} from "../utils/getToken.js";
 import {nixfileAjaxData} from "../utils/ajaxData.js";
 import {fetchFileManagerData} from "../utils/fetchFileManagerData.js";
 
-export function moveFolder() {
-    jQuery(async function ($) {
+export function moveMedia() {
+    jQuery(function ($) {
         const container = $("#nixfile-folder-move-container");
         const moveBtn = $("#nixfile-submit-move-folder");
         const context = $(".nixfile-file-contextmenu");
         const createNewFolderToggleBtn = $(".nixfile-create-new-folder");
         const createNewFolderForm = $(".nixfile-create-new-folder-form");
+        const nixfileFileMoveContextMenu = $("#nixfile-move-file");
         const divider = container.find('.nixfile-divider');
 
         let selected;
 
-        container.on('click', () => container.fadeOut());
+        nixfileFileMoveContextMenu
+            .on('click', async function () {
+                container.fadeIn();
+            });
+        container.on('click', function () {
+            container.fadeOut();
+            selected = null;
+        });
         container.find('.nixfile-folder-move-content').on('click', e => e.stopPropagation());
 
         async function loadFolderList() {
             divider.empty();
             const response = await get(`${link(2)}/domain/file-manager/${getToken}/move-list`);
             const folderList = response.data;
-
             divider.append(createFolder({
                 "title": folderList.title,
                 "id": folderList.id,
@@ -31,7 +38,7 @@ export function moveFolder() {
             folderList.children?.forEach(folder => divider.append(createFolder(folder)));
         }
 
-        $("#nixfile-move-file").on("click", async () => {
+        $("#nixfile-move-folder").on("click", async () => {
             container.fadeIn();
             await loadFolderList();
         });
@@ -50,9 +57,8 @@ export function moveFolder() {
             formData.append('parent_id', selected);
             formData.append('_method', 'PUT');
 
-            await post(`${link(2)}/domain/file-manager/${getToken}/move-file/`, formData);
+            await post(`${link(2)}/domain/file-manager/${getToken}/move-folder/`, formData);
             await fetchFileManagerData({folder_id: window.currentFolderId, force: true, page: 1});
-
             selected = null;
             container.fadeOut();
         });
@@ -61,18 +67,15 @@ export function moveFolder() {
 
         createNewFolderForm.find('button[type=submit]').on('click', async e => {
             e.preventDefault();
-
             const title = createNewFolderForm.find('input[type=text]').val().trim();
             if (!title) return;
-
             const formData = new FormData();
             formData.append('title', title);
             formData.append("parent_id", window.currentFolderId);
-
             await post(`${link(2)}/domain/file-manager/${getToken}/folder`, formData);
             await fetchFileManagerData({folder_id: window.currentFolderId, force: true, page: 1});
             await loadFolderList();
-            createNewFolderForm.trigger('reset')
+            createNewFolderForm.trigger('reset');
         });
 
         function createFolder(folder) {
@@ -114,5 +117,5 @@ export function moveFolder() {
 
             return folderContainer;
         }
-    });
+    })
 }
