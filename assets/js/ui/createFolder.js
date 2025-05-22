@@ -4,6 +4,7 @@ import {editFolderTitle} from "../actions/editFolderTitle.js";
 import {deleteFolder} from "../actions/deleteFolder.js";
 import {moveFolder} from "../actions/moveFolder.js";
 import {folderDetails} from "../actions/folderDetails.js";
+import {multiMediaSelect} from "../actions/multiMediaSelect.js";
 
 export function createFolder(folders) {
     jQuery(async function ($) {
@@ -34,6 +35,7 @@ export function createFolder(folders) {
                 })
                 .on('contextmenu', function (e) {
                     e.preventDefault();
+                    moveFolder();
                     nixfileFolderContextMenu.stop().slideDown(100);
                     nixfileFileContextMenu.stop().slideUp(100);
                     nixfileFolderContextMenu.css({
@@ -69,6 +71,6 @@ export function createFolder(folders) {
     });
     editFolderTitle();
     deleteFolder();
-    moveFolder();
     folderDetails();
+    multiMediaSelect();
 }

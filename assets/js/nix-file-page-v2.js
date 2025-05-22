@@ -2,6 +2,7 @@ import {fetchFileManagerData} from "./utils/fetchFileManagerData.js";
 import {postFolder} from "./actions/postFolder.js";
 import {uploaderInput} from "./ui/uploaderInput.js";
 import {setting} from "./ui/setting.js";
+import {statistics} from "./utils/statistics.js";
 
 
 jQuery(async function ($) {
@@ -44,6 +45,8 @@ jQuery(async function ($) {
     await fetchFileManagerData({
         force: true
     });
+
     postFolder();
     uploaderInput();
+    statistics()
 });

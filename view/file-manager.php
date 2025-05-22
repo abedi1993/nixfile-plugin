@@ -255,7 +255,7 @@
             </p>
             <p>
                 <span>نمایش مانیتورینگ در نوار وردپرس </span>
-                <button>غیر فعال</button>
+                <button id="nixfile-show-on-navbar">غیر فعال</button>
             </p>
         </div>
         <div class="nixfile-option">

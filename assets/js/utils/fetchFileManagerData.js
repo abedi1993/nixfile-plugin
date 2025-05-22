@@ -4,6 +4,7 @@ import {getToken} from "./getToken.js";
 import {breadcrumb} from "../ui/breadcrumb.js";
 import {createFolder} from "../ui/createFolder.js";
 import {createMedia} from "../ui/createMedia.js";
+import {statistics} from "./statistics.js";
 
 export async function fetchFileManagerData(params = {}) {
     const page = params.page || 1;
@@ -20,6 +21,7 @@ export async function fetchFileManagerData(params = {}) {
     }
     window.nixfileMediaLoading = true;
     const response = await get(`${link(2)}/domain/file-manager/${getToken}?folder_id=${params.folder_id ?? ''}&page=${page}`);
+    await statistics();
     if (!response) {
         window.nixfileMediaLoading = false;
         return;

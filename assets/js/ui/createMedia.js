@@ -117,6 +117,7 @@ export function createMedia(media) {
                 })
                 .on('contextmenu', function (e) {
                     e.preventDefault();
+                    moveMedia();
                     nixfileFileContextMenu.stop().slideDown(100);
                     nixfileFolderContextMenu.stop().slideUp(100);
                     nixfileFileContextMenu.css({
@@ -160,6 +161,5 @@ export function createMedia(media) {
         deleteMedia();
         mediaDetail();
         replaceMedia();
-        moveMedia();
     });
 }
