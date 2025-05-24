@@ -1,6 +1,7 @@
 <?php
 $token              = get_option( "nixfile_uploader_token", "" );
 $show_status_navbar = get_option( "nixfile_uploader_show_status_navbar", false );
+$compress_upload    = get_option( "nixfile_uploader_compress_upload", false );
 ?>
 <div class="nixfile-container">
     <div id="nixfile-loader">
@@ -267,7 +268,11 @@ $show_status_navbar = get_option( "nixfile_uploader_show_status_navbar", false )
         <div class="nixfile-option">
             <p>
                 <span>زمان آپلود تصاویر فشرده شود؟</span>
-                <button>غیر فعال</button>
+                <button id="compares-on-upload"
+                        style="<?php echo $compress_upload ? "background-color:#00aa2c" : "background-color:red;" ?>"
+                >
+					<?php echo $compress_upload ? "فعال" : "غیر فعال" ?>
+                </button>
             </p>
             <p>
                 <span>زمان آپلود فرمت WEBP شود؟</span>

@@ -1,6 +1,7 @@
 import {nixfileAjaxData} from "../utils/ajaxData.js";
 import {post, wpRestPost} from "../utils/fetch.js";
 import {showOnNavbar} from "../actions/showOnNavbar.js";
+import {comparesOnUpload} from "../actions/comparesOnUpload.js";
 
 export function setting() {
     jQuery(function ($) {
@@ -19,5 +20,6 @@ export function setting() {
                 location.reload();
             });
         showOnNavbar();
+        comparesOnUpload();
     });
 }

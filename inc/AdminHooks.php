@@ -83,15 +83,7 @@ class AdminHooks {
 			'methods'             => 'POST',
 			'callback'            => [ $this, 'set_compress_upload_rest' ],
 			'permission_callback' => [ $this, 'check_manage_options_permission' ],
-			'args'                => [
-				'compress_upload' => [
-					'required'          => true,
-					'type'              => 'boolean',
-					'validate_callback' => function ( $param ) {
-						return is_bool( $param );
-					},
-				],
-			],
+			'args'                => [],
 		] );
 		register_rest_route( $namespace, '/compress-webp-upload', [
 			'methods'             => 'POST',
@@ -218,26 +210,21 @@ class AdminHooks {
 	}
 
 	public function set_compress_upload_rest( WP_REST_Request $request ): WP_REST_Response {
-		$compress_upload = $request->get_param( 'compress_upload' );
-
-		$this->compress_upload = $compress_upload;
-		update_option( 'nixfile_uploader_compress_upload', $compress_upload );
+		update_option( 'nixfile_uploader_compress_upload', ! get_option( "nixfile_uploader_compress_upload", false ) );
 
 		return new WP_REST_Response( [
 			'success' => true,
 			'message' => __( 'Compress upload setting updated successfully.', 'nixfile-uploader' ),
 			'data'    => [
-				'compress_upload' => $compress_upload
+				'compress_upload' => get_option( "nixfile_uploader_compress_upload", false )
 			]
 		], 200 );
 	}
 
 	public function set_compress_webp_upload_rest( WP_REST_Request $request ): WP_REST_Response {
 		$compress_webp = $request->get_param( 'compress_webp_upload' );
-
 		$this->compress_webp_upload = $compress_webp;
 		update_option( 'nixfile_uploader_compress_webp_upload', $compress_webp );
-
 		return new WP_REST_Response( [
 			'success' => true,
 			'message' => __( 'Compress WebP upload setting updated successfully.', 'nixfile-uploader' ),
@@ -263,8 +250,6 @@ class AdminHooks {
 
 	public function update_multiple_settings_rest( WP_REST_Request $request ): WP_REST_Response {
 		$updated_settings = [];
-
-		// Update token if provided
 		if ( $request->has_param( 'token' ) ) {
 			$token = $request->get_param( 'token' );
 			if ( ! empty( trim( $token ) ) ) {
@@ -273,8 +258,6 @@ class AdminHooks {
 				$updated_settings['token'] = $token;
 			}
 		}
-
-		// Update email if provided
 		if ( $request->has_param( 'email' ) ) {
 			$email = $request->get_param( 'email' );
 			if ( is_email( $email ) ) {
@@ -283,15 +266,12 @@ class AdminHooks {
 				$updated_settings['email'] = $email;
 			}
 		}
-
-		// Update boolean settings
 		$boolean_settings = [
 			'daily_backup'         => 'nixfile_uploader_daily_backup',
 			'show_status_navbar'   => 'nixfile_uploader_show_status_navbar',
 			'compress_upload'      => 'nixfile_uploader_compress_upload',
 			'compress_webp_upload' => 'nixfile_uploader_compress_webp_upload',
 		];
-
 		foreach ( $boolean_settings as $param_name => $option_name ) {
 			if ( $request->has_param( $param_name ) ) {
 				$value             = $request->get_param( $param_name );
@@ -300,7 +280,6 @@ class AdminHooks {
 				$updated_settings[ $param_name ] = $value;
 			}
 		}
-
 		return new WP_REST_Response( [
 			'success' => true,
 			'message' => __( 'Settings updated successfully.', 'nixfile-uploader' ),
@@ -317,8 +296,6 @@ class AdminHooks {
 			]
 		], 200 );
 	}
-
-	// Getter methods to access settings from other parts of your plugin
 	public function get_token(): string {
 		return $this->token;
 	}
@@ -579,7 +556,7 @@ class AdminHooks {
 			) {
 				$percent  = number_format( (float) ( ( $body['data']['uploaded'] * 100 ) / $body['data']['capacity'] ), 2 );
 				$duration = isset( $body['data']['duration'] ) ? (int) $body['data']['duration'] : null;
-				$title    = "📦 استفاده‌شده: {$percent}%";
+				$title    = "📦 استفاده ‌شده: {$percent}%";
 				if ( ! is_null( $duration ) ) {
 					$title .= " | ⏳ {$duration} روز مانده";
 				}
@@ -594,6 +571,13 @@ class AdminHooks {
 			'id'    => 'nixfile_status_bar',
 			'title' => $title,
 			'href'  => admin_url( 'upload.php?page=nixfile-file-manager' ),
+			'style' => 'border: 1px solid red; padding: 3px 6px; border-radius: 5px; display: inline-block;',
+			'meta'  => [
+				'class' => 'nixfile-status-item',
+				'html'  => '',
+				'title' => 'وضعیت آپلود',
+				'style' => 'border: 1px solid red; padding: 3px 6px; border-radius: 5px; display: inline-block;',
+			]
 		] );
 	}
 
