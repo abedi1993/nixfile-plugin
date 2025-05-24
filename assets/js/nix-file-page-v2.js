@@ -40,6 +40,8 @@ jQuery(async function ($) {
     window.nixfileMediaLoading = false;
     window.nixfileMediaReachedEnd = false;
     window.nixfileMediaRequest = null;
+    window.selectedTypeFilter = null;
+    window.selectedDateFilter = null;
 
     setting();
     await fetchFileManagerData({

@@ -1,5 +1,6 @@
 import {link} from "../__apiRoutes.js";
 import {fetchFileManagerData} from "./fetchFileManagerData.js";
+import {nixfileAjaxData} from "./ajaxData.js";
 
 export function get(link) {
     if (window.nixfileMediaRequest) {
@@ -65,3 +66,17 @@ export function xhr(url, formData, box) {
         }
     });
 }
+export async function wpRestPost(url, data) {
+    return jQuery.ajax({
+        url: url,
+        type: "POST",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        processData: false,
+        headers: {
+            "X-WP-Nonce": nixfileAjaxData.nonce,
+            "Accept": "application/json"
+        }
+    });
+}
+

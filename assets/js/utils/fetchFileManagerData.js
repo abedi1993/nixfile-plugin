@@ -5,6 +5,9 @@ import {breadcrumb} from "../ui/breadcrumb.js";
 import {createFolder} from "../ui/createFolder.js";
 import {createMedia} from "../ui/createMedia.js";
 import {statistics} from "./statistics.js";
+import {createTypeFilters} from "../actions/createTypeFilters.js";
+import {createDateFilters} from "../actions/createDateFilter.js";
+import {searchInput} from "../actions/searchInput.js";
 
 export async function fetchFileManagerData(params = {}) {
     const page = params.page || 1;
@@ -20,8 +23,13 @@ export async function fetchFileManagerData(params = {}) {
         jQuery(".nixfile-media-section-container").scrollTop(0);
     }
     window.nixfileMediaLoading = true;
-    const response = await get(`${link(2)}/domain/file-manager/${getToken}?folder_id=${params.folder_id ?? ''}&page=${page}`);
+    const response = await get(`${link(2)}/domain/file-manager/${getToken}?folder_id=${params.folder_id ?? ''}&page=${page}&month=${params.month}&type=${params.type}&search=${params.search}`);
     await statistics();
+    console.log(response.data.filter);
+    createTypeFilters(response.data.filter.type);
+    createDateFilters(response.data.filter.date);
+    searchInput();
+
     if (!response) {
         window.nixfileMediaLoading = false;
         return;

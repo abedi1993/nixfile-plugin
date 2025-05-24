@@ -1,4 +1,7 @@
-<?php $token = get_option( "nixfile_uploader_token", "" ) ?>
+<?php
+$token              = get_option( "nixfile_uploader_token", "" );
+$show_status_navbar = get_option( "nixfile_uploader_show_status_navbar", false );
+?>
 <div class="nixfile-container">
     <div id="nixfile-loader">
         <div class="loader">
@@ -255,7 +258,10 @@
             </p>
             <p>
                 <span>نمایش مانیتورینگ در نوار وردپرس </span>
-                <button id="nixfile-show-on-navbar">غیر فعال</button>
+                <button id="nixfile-show-on-navbar"
+                        style="<?php echo $show_status_navbar ? "background-color:#00aa2c" : "background-color:red;" ?>">
+					<?php echo $show_status_navbar ? "فعال" : "غیر فعال" ?>
+                </button>
             </p>
         </div>
         <div class="nixfile-option">

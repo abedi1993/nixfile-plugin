@@ -1,6 +1,6 @@
 import {nixfileAjaxData} from "../utils/ajaxData.js";
-import {post} from "../utils/fetch.js";
-import {fetchFileManagerData} from "../utils/fetchFileManagerData.js";
+import {post, wpRestPost} from "../utils/fetch.js";
+import {showOnNavbar} from "../actions/showOnNavbar.js";
 
 export function setting() {
     jQuery(function ($) {
@@ -14,14 +14,10 @@ export function setting() {
             });
         nixfileStoreTokenBtn
             .on("click", async (e) => {
-                console.log("asdas");
-                const formData = new FormData();
                 const token = $("input[name=nixfile_store_token]").val();
-                formData.append('token', token);
-                formData.append("action", nixfileAjaxData.action.set_token);
-                formData.append("security", nixfileAjaxData.nonce);
-                await post(nixfileAjaxData.ajax_url, formData);
-                location.reload()
+                await wpRestPost(nixfileAjaxData.rest_url + nixfileAjaxData.action.token, {token});
+                location.reload();
             });
+        showOnNavbar();
     });
 }
