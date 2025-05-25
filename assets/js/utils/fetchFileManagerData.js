@@ -25,7 +25,6 @@ export async function fetchFileManagerData(params = {}) {
     window.nixfileMediaLoading = true;
     const response = await get(`${link(2)}/domain/file-manager/${getToken}?folder_id=${params.folder_id ?? ''}&page=${page}&month=${params.month}&type=${params.type}&search=${params.search}`);
     await statistics();
-    console.log(response.data.filter);
     createTypeFilters(response.data.filter.type);
     createDateFilters(response.data.filter.date);
     searchInput();

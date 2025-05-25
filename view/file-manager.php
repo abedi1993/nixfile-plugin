@@ -2,6 +2,7 @@
 $token              = get_option( "nixfile_uploader_token", "" );
 $show_status_navbar = get_option( "nixfile_uploader_show_status_navbar", false );
 $compress_upload    = get_option( "nixfile_uploader_compress_upload", false );
+$avif               = get_option( "nixfile_uploader_avif_on_upload", false );
 ?>
 <div class="nixfile-container">
     <div id="nixfile-loader">
@@ -275,8 +276,12 @@ $compress_upload    = get_option( "nixfile_uploader_compress_upload", false );
                 </button>
             </p>
             <p>
-                <span>زمان آپلود فرمت WEBP شود؟</span>
-                <button>غیر فعال</button>
+                <span>زمان آپلود فرمت AVIF شود؟</span>
+                <button id="avif-on-upload"
+                        style="<?php echo $avif ? "background-color:#00aa2c" : "background-color:red;" ?>"
+                >
+					<?php echo $avif ? "فعال" : "غیر فعال" ?>
+                </button>
             </p>
         </div>
     </div>

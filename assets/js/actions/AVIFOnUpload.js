@@ -1,12 +1,12 @@
 import {wpRestPost} from "../utils/fetch.js";
 import {nixfileAjaxData} from "../utils/ajaxData.js";
 
-export function comparesOnUpload() {
+export function avifOnUpload() {
     jQuery(function ($) {
-        const btn = $("#compares-on-upload");
+        const btn = $("#avif-on-upload");
         btn
             .on('click', async function () {
-                await wpRestPost(`${nixfileAjaxData.rest_url + nixfileAjaxData.action.compress_upload}`)
+                await wpRestPost(`${nixfileAjaxData.rest_url + nixfileAjaxData.action.avif_on_upload}`)
                 location.reload();
             });
     })

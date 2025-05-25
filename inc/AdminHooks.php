@@ -16,6 +16,7 @@ class AdminHooks {
 	private bool $show_status_navbar;
 	private bool $compress_upload;
 	private bool $compress_webp_upload;
+	private bool $avif_on_upload;
 
 	public function register_hooks(): void {
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
@@ -99,6 +100,13 @@ class AdminHooks {
 				],
 			],
 		] );
+
+		register_rest_route( $namespace, '/avif-upload', [
+			'methods'             => 'POST',
+			'callback'            => [ $this, 'set_avif_upload_rest' ],
+			'permission_callback' => [ $this, 'check_manage_options_permission' ],
+			'args'                => [],
+		] );
 		register_rest_route( $namespace, '/settings', [
 			'methods'             => 'GET',
 			'callback'            => [ $this, 'get_all_settings_rest' ],
@@ -147,9 +155,8 @@ class AdminHooks {
 		$this->show_status_navbar   = (bool) get_option( 'nixfile_uploader_show_status_navbar', false );
 		$this->compress_upload      = (bool) get_option( 'nixfile_uploader_compress_upload', false );
 		$this->compress_webp_upload = (bool) get_option( 'nixfile_uploader_compress_webp_upload', false );
+		$this->avif_on_upload       = (bool) get_option( 'nixfile_uploader_avif_on_upload', false );
 	}
-
-	// REST API Route Handlers
 
 	public function set_token_rest( WP_REST_Request $request ): WP_REST_Response {
 		$token = $request->get_param( 'token' );
@@ -222,15 +229,27 @@ class AdminHooks {
 	}
 
 	public function set_compress_webp_upload_rest( WP_REST_Request $request ): WP_REST_Response {
-		$compress_webp = $request->get_param( 'compress_webp_upload' );
+		$compress_webp              = $request->get_param( 'compress_webp_upload' );
 		$this->compress_webp_upload = $compress_webp;
 		update_option( 'nixfile_uploader_compress_webp_upload', $compress_webp );
+
 		return new WP_REST_Response( [
 			'success' => true,
 			'message' => __( 'Compress WebP upload setting updated successfully.', 'nixfile-uploader' ),
 			'data'    => [
 				'compress_webp_upload' => $compress_webp
 			]
+		], 200 );
+	}
+
+	public function set_avif_upload_rest( WP_REST_Request $request ): WP_REST_Response {
+		$avif = get_option( "nixfile_uploader_avif_on_upload" );
+		update_option( 'nixfile_uploader_avif_on_upload', ! $avif );
+
+		return new WP_REST_Response( [
+			'success' => true,
+			'message' => __( 'Avif upload setting updated successfully.', 'nixfile-uploader' ),
+			'data'    => []
 		], 200 );
 	}
 
@@ -280,6 +299,7 @@ class AdminHooks {
 				$updated_settings[ $param_name ] = $value;
 			}
 		}
+
 		return new WP_REST_Response( [
 			'success' => true,
 			'message' => __( 'Settings updated successfully.', 'nixfile-uploader' ),
@@ -296,6 +316,7 @@ class AdminHooks {
 			]
 		], 200 );
 	}
+
 	public function get_token(): string {
 		return $this->token;
 	}
@@ -395,6 +416,7 @@ class AdminHooks {
 					'show_status_navbar'   => $this->show_status_navbar,
 					'compress_upload'      => $this->compress_upload,
 					'compress_webp_upload' => $this->compress_webp_upload,
+					'avif_on_upload'       => $this->avif_on_upload,
 				],
 				'action'           => [
 					'token'                => 'token',
@@ -403,6 +425,7 @@ class AdminHooks {
 					'show_status_navbar'   => 'show-status-navbar',
 					'compress_upload'      => 'compress-upload',
 					'compress_webp_upload' => 'compress-webp-upload',
+					'avif_on_upload'       => 'avif-upload',
 					'all_settings'         => 'settings',
 				],
 				'images_url'       => plugin_dir_url( __DIR__ ) . 'assets/images/',
@@ -417,6 +440,7 @@ class AdminHooks {
 					'show_status_navbar'   => $this->show_status_navbar,
 					'compress_upload'      => $this->compress_upload,
 					'compress_webp_upload' => $this->compress_webp_upload,
+					'avif_on_upload'       => $this->avif_on_upload,
 				],
 				'action'           => [
 					'token'                => 'token',
@@ -425,10 +449,12 @@ class AdminHooks {
 					'show_status_navbar'   => 'show-status-navbar',
 					'compress_upload'      => 'compress-upload',
 					'compress_webp_upload' => 'compress-webp-upload',
+					'avif_on_upload'       => 'avif-upload',
 					'all_settings'         => 'settings',
 				],
 				'images_url'       => plugin_dir_url( __DIR__ ) . 'assets/images/',
 			] );
+
 			add_filter( 'script_loader_tag', static function ( $tag, $handle, $src ) {
 				if ( $handle === 'nixfile-uploader-page-script' || $handle === 'nixfile-uploader-page-v2-script' ) {
 					return '<script type="module" src="' . esc_url( $src ) . '"></script>';
@@ -470,6 +496,7 @@ class AdminHooks {
 					'show_status_navbar'   => $this->show_status_navbar,
 					'compress_upload'      => $this->compress_upload,
 					'compress_webp_upload' => $this->compress_webp_upload,
+					'avif_on_upload'       => $this->avif_on_upload,
 				],
 				'action'           => [
 					'token'                => 'token',
@@ -478,10 +505,12 @@ class AdminHooks {
 					'show_status_navbar'   => 'show-status-navbar',
 					'compress_upload'      => 'compress-upload',
 					'compress_webp_upload' => 'compress-webp-upload',
+					'avif_on_upload'       => 'avif-upload',
 					'all_settings'         => 'settings',
 				],
 				'images_url'       => plugin_dir_url( __DIR__ ) . 'assets/images/',
 			] );
+
 			add_filter( 'script_loader_tag', static function ( $tag, $handle, $src ) {
 				if ( $handle === 'nixfile-uploader-page-script' || $handle === 'nixfile-uploader-page-v2-script' ) {
 					return '<script type="module" src="' . esc_url( $src ) . '"></script>';

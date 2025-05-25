@@ -2,6 +2,7 @@ import {nixfileAjaxData} from "../utils/ajaxData.js";
 import {post, wpRestPost} from "../utils/fetch.js";
 import {showOnNavbar} from "../actions/showOnNavbar.js";
 import {comparesOnUpload} from "../actions/comparesOnUpload.js";
+import {avifOnUpload} from "../actions/AVIFOnUpload.js";
 
 export function setting() {
     jQuery(function ($) {
@@ -21,5 +22,6 @@ export function setting() {
             });
         showOnNavbar();
         comparesOnUpload();
+        avifOnUpload();
     });
 }
