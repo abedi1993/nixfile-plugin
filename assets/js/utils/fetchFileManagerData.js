@@ -33,7 +33,7 @@ export async function fetchFileManagerData(params = {}) {
         window.nixfileMediaLoading = false;
         return;
     }
-    window.currentFolderId = response.data.current_folder.id;
+    window.currentFolderId = response.data?.current_folder?.id;
     window.nixfileMediaPage = response.data.media.current_page;
     window.nixfileMediaLastPage = response.data.media.last_page;
     if (window.nixfileMediaPage >= window.nixfileMediaLastPage) {

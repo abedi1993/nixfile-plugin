@@ -1,5 +1,5 @@
 const api = {
-    url: "http://192.168.0.244:7000",
+    url: "http://api.naring.ir",
     version: ["v1", "v2"]
 }
 

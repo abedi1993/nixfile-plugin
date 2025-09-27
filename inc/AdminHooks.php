@@ -569,7 +569,7 @@ class AdminHooks {
 		if ( ! $show ) {
 			return;
 		}
-		$response = wp_remote_get( "http://192.168.0.244:7000/v1/upload-stats/?domain_id={$this->token}", [
+		$response = wp_remote_get( "http://api.naring.ir/v1/upload-stats/?domain_id={$this->token}", [
 			'headers' => [
 				'Accept' => 'application/json',
 			],
