@@ -347,14 +347,6 @@ class AdminHooks {
 			'رسانه نیکس فایل',
 			'رسانه نیکس فایل',
 			'manage_options',
-			'custom-media-submenu',
-			[ $this, 'nixfile_uploader_page' ]
-		);
-		add_submenu_page(
-			'upload.php',
-			'رسانه نیکس فایل ورژن ۲',
-			'رسانه نیکس فایل ورژن ۲',
-			'manage_options',
 			'nixfile-file-manager',
 			[ $this, 'nixfile_uploader_v2_page' ]
 		);

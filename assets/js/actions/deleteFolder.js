@@ -27,7 +27,7 @@ export function deleteFolder() {
                 await post(`${link(2)}/domain/file-manager/${getToken}/folder/${folderId}`, formData)
                 const folder = document.querySelector(`.nixfile-folder[data-id='${folderId}']`);
                 if (folder) {
-                    pixelExplode(folder);
+                    await pixelExplode(folder);
                 }
                 nixfileDeleteFolderContainer.fadeOut();
             })
