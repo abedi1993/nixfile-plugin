@@ -1,6 +1,6 @@
 jQuery(document).ready(function ($) {
     const uploaderDir = $("#nixfile-box");
-    const nixfileSettingData = nixfile_setting_data;
+    const nixfileSettingData = nixfile_ajax_data;
     $(window).on('load', function () {
         uploaderDir.css("display", 'flex');
     });
@@ -9,7 +9,7 @@ jQuery(document).ready(function ($) {
     const formData = new FormData();
     const errorsBox = $(".nixfile-errors-box");
     // const api = "https://api.yekpayamak.com/v1"
-    const api = "http://127.0.0.1:7000/v1"
+    const api = nixfileSettingData.rest_url
     $("#nixfile-uploader-input").on('change', async function (e) {
         const files = e.target.files;
         if (files.length > 0) {
@@ -19,7 +19,7 @@ jQuery(document).ready(function ($) {
                 formData.append('expired_at', '2');
                 formData.append("domain_id", nixfileSettingData.token);
                 $.ajax({
-                    url: `${api}/upload`,
+                    url: `${api}upload`,
                     type: 'POST',
                     data: formData,
                     processData: false,
@@ -38,7 +38,7 @@ jQuery(document).ready(function ($) {
                                                     <path d="M4.012 16.737A2 2 0 0 1 3 15V5c0-1.1.9-2 2-2h10c.75 0 1.158.385 1.5 1M11 14l2 2l4-4"/>
                                                 </g>
                                             </svg>`;
-                        fetch(`${api}/private/${slug}`)
+                        fetch(`${api}private/${slug}`)
                             .then(response => response.blob())
                             .then(blob => {
                                 const imageObjectURL = URL.createObjectURL(blob);
@@ -56,7 +56,7 @@ jQuery(document).ready(function ($) {
                                     click: function () {
                                         const btn = $(this);
                                         btn.addClass("copied");
-                                        navigator.clipboard.writeText(`${api}/private/${slug}`).then(() => {
+                                        navigator.clipboard.writeText(`${api}private/${slug}`).then(() => {
                                             btn.html(successSVG);
                                             setTimeout(() => {
                                                 btn.removeClass("copied");

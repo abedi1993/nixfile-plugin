@@ -29,7 +29,7 @@ export function deleteMedia() {
                 await post(`${link(2)}/domain/file-manager/${getToken}/media/${item.id}`, formData);
                 const mediaBox = document.querySelector(`.nixfile-media-box[data-id='${item.id}']`);
                 if (mediaBox) {
-                    await pixelExplode(mediaBox, 200, 500, 1000);
+                    await pixelExplode(mediaBox);
                 }
             });
     })

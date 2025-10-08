@@ -119,7 +119,7 @@ export function createMedia(media) {
                     e.preventDefault();
                     moveMedia();
                     nixfileFileContextMenu.stop().slideDown(100);
-                    nixfileFolderContextMenu.stop().slideUp(100);
+                    if (nixfileFolderContextMenu) nixfileFolderContextMenu.stop().slideUp(100);
                     nixfileFileContextMenu.css({
                         'position': 'absolute',
                         'top': e.pageY + 'px',
@@ -155,6 +155,10 @@ export function createMedia(media) {
             if (index === media.data.length - 1) {
                 setupInfiniteScrollObserver(box);
             }
+        });
+        $(document).on('click', function (e) {
+            nixfileFolderContextMenu.stop().slideUp(100);
+            nixfileFileContextMenu.stop().slideUp(100);
         });
         copyToClipboard();
         editMediaTitle();

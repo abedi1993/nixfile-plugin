@@ -216,11 +216,8 @@
             gap: 8px;
 
             button {
-                padding: 4px 8px;
-
-                &#nixfile-setting-toggler {
-                    padding: 4px 20px;
-                }
+                padding: 6px 8px;
+                height: 100%;
 
                 &#nixfile-buy {
                     background-color: #2271b1;

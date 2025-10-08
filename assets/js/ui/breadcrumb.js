@@ -1,6 +1,5 @@
 import {createFolder} from "./createFolder.js";
 import {fetchFileManagerData} from "../utils/fetchFileManagerData.js";
-import {createMedia} from "./createMedia.js";
 
 export function breadcrumb(currentFolder) {
     jQuery(async function ($) {
