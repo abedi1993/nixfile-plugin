@@ -9,15 +9,19 @@ export function deleteFolder() {
         const nixfileFolderDelete = $("#nixfile-delete-folder");
         const nixfileFolderContextMenu = $(".nixfile-folder-contextmenu");
 
-        nixfileDeleteFolderContainer.on('click', function (e) {
-            $(this).fadeOut();
-        });
+        nixfileDeleteFolderContainer
+            .off("click")
+            .on('click', function (e) {
+                $(this).fadeOut();
+            });
         nixfileFolderDelete
+            .off("click")
             .on('click', function (e) {
                 nixfileDeleteFolderContainer.fadeIn();
             });
         nixfileDeleteFolderContainer
             .find('form')
+            .off("submit click")
             .on("submit", async function (e) {
                 e.preventDefault();
                 console.log(nixfileFolderContextMenu);

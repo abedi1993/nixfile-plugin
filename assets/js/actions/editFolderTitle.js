@@ -5,6 +5,7 @@ export function editFolderTitle() {
         const formContainer = $(".nixfile-folder-form-container");
         const form = $(".nixfile-folder-form");
         nixfileFolderEdit
+            .off('click')
             .on("click", function (e) {
                 formContainer.stop().fadeIn();
                 const item = JSON.parse(contextMenu.attr('data-item'));

@@ -10,11 +10,14 @@ export function deleteMedia() {
         const nixfileDeleteFileForm = $("#nixfile-delete-file-form");
         const nixfileFileContextMenu = $(".nixfile-file-contextmenu");
 
-        nixfileDeleteFile.on('click', function (e) {
-            nixfileDeleteFileContainer.fadeIn();
-        });
+        nixfileDeleteFile
+            .off("click")
+            .on('click', function (e) {
+                nixfileDeleteFileContainer.fadeIn();
+            });
         nixfileDeleteFileForm
             .find("button")
+            .off("click")
             .on('click', function () {
                 nixfileDeleteFileContainer.fadeOut();
             });

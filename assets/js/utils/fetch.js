@@ -18,16 +18,22 @@ export function get(link) {
 }
 
 export async function post(link, body) {
-    return jQuery.ajax({
+    if (window.nixfilePostRequest) {
+        window.nixfilePostRequest.abort();
+    }
+
+    window.nixfilePostRequest = jQuery.ajax({
         url: link,
         type: "POST",
         data: body,
         processData: false,
         contentType: false,
         headers: {
-            Accept: "application/json"
-        }
-    }).then(res => res.data);
+            Accept: "application/json",
+        },
+    });
+
+    return window.nixfilePostRequest.then(res => res.data);
 }
 
 export function xhr(url, formData, box) {

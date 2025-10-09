@@ -10,27 +10,34 @@ export function editMediaTitle() {
         const editNameFormContainer = $(".nixfile-file-edit-name-form-container");
         const fileContextMenu = $(".nixfile-file-contextmenu");
         let inputValue;
-        editFileNameBtn.on("click", () => {
-            const itemData = fileContextMenu.attr("data-item");
-            if (!itemData) return;
-            const item = JSON.parse(itemData);
-            editNameFormContainer.fadeIn(() => {
-                input
-                    .attr("placeholder", item.title)
-                    .focus();
+        editFileNameBtn
+            .off('click')
+            .on("click", () => {
+                const itemData = fileContextMenu.attr("data-item");
+                if (!itemData) return;
+                const item = JSON.parse(itemData);
+                editNameFormContainer.fadeIn(() => {
+                    input
+                        .attr("placeholder", item.title)
+                        .focus();
+                });
             });
-        });
-        editNameFormContainer.on("click", function () {
+        editNameFormContainer
+            .off('click')
+            .on("click", function () {
             $(this).fadeOut();
         });
         editNameFormContainer.find("form")
+            .off('click')
             .on("click", function (e) {
                 e.stopPropagation();
                 document.querySelector('#nixfile-file-edit-form-input').addEventListener('change', function (e) {
                     inputValue = e.currentTarget.value;
                 })
             });
-        editNameFormContainer.find("form").on("submit", async function (e) {
+        editNameFormContainer.find("form")
+            .off('submit')
+            .on("submit", async function (e) {
             e.preventDefault();
             const itemData = fileContextMenu.attr("data-item");
             if (!itemData) return;
