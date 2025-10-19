@@ -25,8 +25,202 @@ class AdminHooks {
 		add_action( 'admin_menu', [ $this, 'nixfile_uploader_menu' ] );
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 		add_action( 'admin_bar_menu', [ $this, 'maybe_add_admin_bar_item' ], 100 );
+
+		// Initialize External Featured Image functionality
+		$this->init_external_featured_image();
+
 		$this->load_settings();
 	}
+
+	// Initialize External Featured Image functionality
+	private function init_external_featured_image() {
+		// Add field to featured image box
+		add_action('add_meta_boxes', [$this, 'add_external_featured_image_meta_box']);
+
+		// Save external featured image URL
+		add_action('save_post', [$this, 'save_external_featured_image']);
+
+		// Replace featured image with external URL
+		add_filter('post_thumbnail_html', [$this, 'replace_featured_image_with_external'], 10, 5);
+		add_filter('get_post_metadata', [$this, 'fake_thumbnail_id'], 10, 4);
+		add_filter('wp_get_attachment_image_src', [$this, 'fake_attachment_image_src'], 10, 4);
+
+		// Social media meta tags
+		add_action('wp_head', [$this, 'add_social_media_meta_tags'], 5);
+
+		// Rank Math integration
+		add_filter('rank_math/opengraph/facebook/image', [$this, 'rank_math_image_override']);
+		add_filter('rank_math/opengraph/twitter/image', [$this, 'rank_math_image_override']);
+
+		// Enqueue admin script for live preview
+		add_action('admin_enqueue_scripts', [$this, 'enqueue_external_featured_image_script']);
+	}
+
+	// Add external featured image meta box
+	public function add_external_featured_image_meta_box() {
+		add_meta_box(
+			'external_featured_image',
+			__('External Featured Image', 'nixfile-uploader'),
+			[$this, 'render_external_featured_image_meta_box'],
+			['post', 'page'],
+			'side',
+			'low'
+		);
+	}
+
+	// Render external featured image meta box
+	public function render_external_featured_image_meta_box($post) {
+		$external_url = get_post_meta($post->ID, '_external_featured_image_url', true);
+		$default_url = 'https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp';
+		$url = !empty($external_url) ? $external_url : $default_url;
+		?>
+        <div class="external-featured-image-wrapper">
+            <p>
+                <label for="external_featured_image_url"><?php _e('External Image URL', 'nixfile-uploader'); ?></label>
+            </p>
+            <input type="url" id="external_featured_image_url" name="external_featured_image_url"
+                   value="<?php echo esc_attr($url); ?>"
+                   placeholder="https://example.com/image.jpg"
+                   style="width: 100%; margin-bottom: 10px;" />
+            <div id="external-image-preview" style="display: <?php echo !empty($external_url) ? 'block' : 'none'; ?>; border: 1px solid #ddd; padding: 8px; border-radius: 4px; background: #f9f9f9;">
+                <img src="<?php echo esc_url($url); ?>" alt="<?php _e('Preview', 'nixfile-uploader'); ?>" style="max-width: 100%; height: auto; display: block;" />
+            </div>
+            <p class="description"><?php _e('Enter an external image URL to use as the featured image. This will override the uploaded image.', 'nixfile-uploader'); ?></p>
+        </div>
+		<?php
+	}
+
+	// Save external featured image URL
+	public function save_external_featured_image($post_id) {
+		if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+		if (!isset($_POST['external_featured_image_url'])) return;
+
+		$url = sanitize_text_field($_POST['external_featured_image_url']);
+
+		if (!empty($url) && filter_var($url, FILTER_VALIDATE_URL)) {
+			update_post_meta($post_id, '_external_featured_image_url', esc_url_raw($url));
+		} else {
+			delete_post_meta($post_id, '_external_featured_image_url');
+		}
+	}
+
+	// Enqueue script for live preview
+	public function enqueue_external_featured_image_script($hook) {
+		if (!in_array($hook, ['post.php', 'post-new.php'])) return;
+
+		$screen = get_current_screen();
+		if (!$screen || !in_array($screen->base, ['post', 'page'])) return;
+
+		$script = <<<JS
+        (function($) {
+            $(document).ready(function() {
+                var input = $('#external_featured_image_url');
+                var preview = $('#external-image-preview');
+                var previewImg = preview.find('img');
+                
+                function updatePreview() {
+                    var url = input.val().trim();
+                    if (url && /^https?:\\/\\//i.test(url)) {
+                        previewImg.attr('src', url);
+                        preview.show();
+                    } else {
+                        preview.hide();
+                    }
+                }
+                
+                input.on('input', updatePreview);
+                updatePreview();
+            });
+        })(jQuery);
+        JS;
+
+		wp_add_inline_script('jquery', $script);
+	}
+
+	// Replace featured image with external URL
+	public function replace_featured_image_with_external($html, $post_id, $post_thumbnail_id, $size, $attr) {
+		$external_url = get_post_meta($post_id, '_external_featured_image_url', true);
+		if (empty($external_url)) return $html;
+
+		$default_attr = [
+			'class' => 'attachment-' . $size . ' size-' . $size . ' external-featured-image',
+			'alt'   => get_the_title($post_id),
+		];
+		$attr = wp_parse_args($attr, $default_attr);
+
+		return sprintf(
+			'<img src="%s"%s />',
+			esc_url($external_url),
+			$this->get_attr_html($attr)
+		);
+	}
+
+	// Fake thumbnail ID for external images
+	public function fake_thumbnail_id($value, $object_id, $meta_key, $single) {
+		if ($meta_key !== '_thumbnail_id') return $value;
+
+		$external_url = get_post_meta($object_id, '_external_featured_image_url', true);
+		if (!empty($external_url)) {
+			return $single ? -1 : [-1];
+		}
+
+		return $value;
+	}
+
+	// Fake attachment image source for external images
+	public function fake_attachment_image_src($image, $attachment_id, $size, $icon) {
+		if ($attachment_id !== -1) return $image;
+
+		$post = get_post();
+		if (!$post) return $image;
+
+		$external_url = get_post_meta($post->ID, '_external_featured_image_url', true);
+		if (!empty($external_url)) {
+			return [$external_url, 0, 0, false];
+		}
+
+		return $image;
+	}
+
+	// Add social media meta tags
+	public function add_social_media_meta_tags() {
+		if (!is_singular()) return;
+
+		$post_id = get_queried_object_id();
+		$external_url = get_post_meta($post_id, '_external_featured_image_url', true);
+
+		if (!empty($external_url)) {
+			echo '<meta property="og:image" content="' . esc_url($external_url) . '" />' . "\n";
+			echo '<meta name="twitter:image" content="' . esc_url($external_url) . '" />' . "\n";
+			echo '<meta name="twitter:card" content="summary_large_image" />' . "\n";
+		}
+	}
+
+	// Rank Math integration
+	public function rank_math_image_override($image) {
+		if (!is_singular()) return $image;
+
+		$post_id = get_queried_object_id();
+		$external_url = get_post_meta($post_id, '_external_featured_image_url', true);
+
+		if (!empty($external_url)) {
+			return $external_url;
+		}
+
+		return $image;
+	}
+
+	// Helper function to generate attribute HTML
+	private function get_attr_html($attr) {
+		$html = '';
+		foreach ($attr as $name => $value) {
+			$html .= ' ' . esc_attr($name) . '="' . esc_attr($value) . '"';
+		}
+		return $html;
+	}
+
+	// ... [Rest of the AdminHooks class remains unchanged] ...
+	// (All existing methods from your original AdminHooks class)
 
 	public function register_rest_routes(): void {
 		$namespace = 'nixfile/v1';
@@ -602,5 +796,4 @@ class AdminHooks {
 			]
 		] );
 	}
-
 }
