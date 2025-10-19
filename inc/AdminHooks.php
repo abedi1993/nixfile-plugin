@@ -60,7 +60,7 @@ class AdminHooks {
 	public function add_external_featured_image_meta_box() {
 		add_meta_box(
 			'external_featured_image',
-			__('External Featured Image', 'nixfile-uploader'),
+			__('تصویر شاخص نیکس‌فایل', 'nixfile-uploader'), // Translated to Persian
 			[$this, 'render_external_featured_image_meta_box'],
 			['post', 'page'],
 			'side',
@@ -76,16 +76,16 @@ class AdminHooks {
 		?>
         <div class="external-featured-image-wrapper">
             <p>
-                <label for="external_featured_image_url"><?php _e('External Image URL', 'nixfile-uploader'); ?></label>
+                <label for="external_featured_image_url"><?php _e('آدرس تصویر از نیکس‌فایل', 'nixfile-uploader'); ?></label>
             </p>
             <input type="url" id="external_featured_image_url" name="external_featured_image_url"
                    value="<?php echo esc_attr($url); ?>"
                    placeholder="https://example.com/image.jpg"
                    style="width: 100%; margin-bottom: 10px;" />
             <div id="external-image-preview" style="display: <?php echo !empty($external_url) ? 'block' : 'none'; ?>; border: 1px solid #ddd; padding: 8px; border-radius: 4px; background: #f9f9f9;">
-                <img src="<?php echo esc_url($url); ?>" alt="<?php _e('Preview', 'nixfile-uploader'); ?>" style="max-width: 100%; height: auto; display: block;" />
+                <img src="<?php echo esc_url($url); ?>" alt="<?php _e('پیش‌نمایش', 'nixfile-uploader'); ?>" style="max-width: 100%; height: auto; display: block;" />
             </div>
-            <p class="description"><?php _e('Enter an external image URL to use as the featured image. This will override the uploaded image.', 'nixfile-uploader'); ?></p>
+            <p class="description"><?php _e('آدرس تصویر نیکس‌فایل را برای استفاده به عنوان تصویر شاخص وارد کنید. این تصویر جایگزین تصویر آپلود شده خواهد شد.', 'nixfile-uploader'); ?></p>
         </div>
 		<?php
 	}
