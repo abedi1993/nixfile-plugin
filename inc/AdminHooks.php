@@ -531,6 +531,7 @@ class AdminHooks {
 		);
 		wp_localize_script( 'nixfile-uploader-admin-script', 'nixfile_ajax_data', [
 			'rest_url'         => rest_url( 'nixfile/v1/' ),
+			'url'              => "https://api.naring.ir/v1/",
 			'nonce'            => wp_create_nonce( 'wp_rest' ),
 			'current_settings' => [
 				'token'                => $this->token,

@@ -9,7 +9,7 @@ jQuery(document).ready(function ($) {
     const formData = new FormData();
     const errorsBox = $(".nixfile-errors-box");
     // const api = "https://api.yekpayamak.com/v1"
-    const api = nixfileSettingData.rest_url
+    const api = nixfileSettingData.url
     $("#nixfile-uploader-input").on('change', async function (e) {
         const files = e.target.files;
         if (files.length > 0) {
@@ -17,7 +17,7 @@ jQuery(document).ready(function ($) {
                 formData.append("file", file);
                 formData.append('upload_type', '1');
                 formData.append('expired_at', '2');
-                formData.append("domain_id", nixfileSettingData.token);
+                formData.append("domain_id", nixfileSettingData.current_settings.token);
                 $.ajax({
                     url: `${api}upload`,
                     type: 'POST',
