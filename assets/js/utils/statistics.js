@@ -58,7 +58,7 @@ export function statistics() {
             const dayPercent = res.data.duration
             console.log(dayPercent);
             capacityBar.animate(percent / 100);
-            expiredBar.animate(dayPercent);
+            expiredBar.animate(dayPercent / 100);
         }
 
         await getStatistic();

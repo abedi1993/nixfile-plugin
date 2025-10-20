@@ -77,7 +77,7 @@ export function createMedia(media) {
                         text: `${item.width} * ${item.height} پیکسل `
                     });
                     const copyRight = $("<p/>", {
-                        html: `<p>آپلود شده در <a href="https://nixfile.com">نیکس فایل</a></p>`
+                        html: `<p>آپلود شده در <a target="_blank" href="https://nixfile.com">نیکس فایل</a></p>`
                     });
                     const nixfileDetailAction = $("<div/>", {
                         class: "nixfile-detail-actions",
@@ -87,7 +87,7 @@ export function createMedia(media) {
                         readonly: true
                     });
                     const button = $("<button/>", {
-                        text: "کپی لینک"
+                        html: `<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24"><path fill="#ffffff" d="M15 20H5V7c0-.55-.45-1-1-1s-1 .45-1 1v13c0 1.1.9 2 2 2h10c.55 0 1-.45 1-1s-.45-1-1-1m5-4V4c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h9c1.1 0 2-.9 2-2m-2 0H9V4h9z"/></svg>`
                     }).on("click", function (e) {
                         const btn = $(this);
                         navigator.clipboard.writeText(input.val()).then(() => {

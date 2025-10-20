@@ -1,3 +1,5 @@
+
+
 #nixfile-box {
     margin-top: 20px;
     position: fixed;
@@ -8,11 +10,13 @@
     z-index: 9999;
     flex-wrap: wrap;
     padding: 0 10px;
+    pointer-events: none;
     /*flex-direction: row-reverse;
     justify-content: flex-start;*/
     gap: 4px;
 
     form {
+        pointer-events: all;
         height: 55px;
         width: 55px;
         border-radius: 8px;
@@ -53,6 +57,7 @@
         justify-content: center;
         border-radius: 8px;
         cursor: pointer;
+        pointer-events: all;
 
         &:hover {
             .nixfile-delete-btn {
@@ -101,6 +106,7 @@
     }
 
     .nixfile-delete-btn {
+        pointer-events: all;
         position: absolute;
         z-index: 99999;
         top: 0;
@@ -126,6 +132,7 @@
     }
 
     .nixfile-errors-box {
+        pointer-events: all;
         display: none;
         position: fixed;
         bottom: 0;

@@ -17,6 +17,8 @@ class AdminHooks {
 	private bool $compress_upload;
 	private bool $compress_webp_upload;
 	private bool $avif_on_upload;
+	private bool $jalali_converter;
+	private bool $modern_template;
 
 	public function register_hooks(): void {
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
@@ -26,8 +28,12 @@ class AdminHooks {
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 		add_action( 'admin_bar_menu', [ $this, 'maybe_add_admin_bar_item' ], 100 );
 
-		// Initialize External Featured Image functionality
 		$this->init_external_featured_image();
+
+		add_filter( 'get_the_date', [ $this, 'convert_to_jalali' ], 10, 3 );
+		add_filter( 'get_the_time', [ $this, 'convert_to_jalali' ], 10, 3 );
+		add_filter( 'get_comment_date', [ $this, 'convert_to_jalali' ], 10, 3 );
+		add_filter( 'get_post_time', [ $this, 'convert_to_jalali' ], 10, 3 );
 
 		$this->load_settings();
 	}
@@ -35,81 +41,91 @@ class AdminHooks {
 	// Initialize External Featured Image functionality
 	private function init_external_featured_image() {
 		// Add field to featured image box
-		add_action('add_meta_boxes', [$this, 'add_external_featured_image_meta_box']);
+		add_action( 'add_meta_boxes', [ $this, 'add_external_featured_image_meta_box' ] );
 
 		// Save external featured image URL
-		add_action('save_post', [$this, 'save_external_featured_image']);
+		add_action( 'save_post', [ $this, 'save_external_featured_image' ] );
 
 		// Replace featured image with external URL
-		add_filter('post_thumbnail_html', [$this, 'replace_featured_image_with_external'], 10, 5);
-		add_filter('get_post_metadata', [$this, 'fake_thumbnail_id'], 10, 4);
-		add_filter('wp_get_attachment_image_src', [$this, 'fake_attachment_image_src'], 10, 4);
+		add_filter( 'post_thumbnail_html', [ $this, 'replace_featured_image_with_external' ], 10, 5 );
+		add_filter( 'get_post_metadata', [ $this, 'fake_thumbnail_id' ], 10, 4 );
+		add_filter( 'wp_get_attachment_image_src', [ $this, 'fake_attachment_image_src' ], 10, 4 );
 
 		// Social media meta tags
-		add_action('wp_head', [$this, 'add_social_media_meta_tags'], 5);
+		add_action( 'wp_head', [ $this, 'add_social_media_meta_tags' ], 5 );
 
 		// Rank Math integration
-		add_filter('rank_math/opengraph/facebook/image', [$this, 'rank_math_image_override']);
-		add_filter('rank_math/opengraph/twitter/image', [$this, 'rank_math_image_override']);
+		add_filter( 'rank_math/opengraph/facebook/image', [ $this, 'rank_math_image_override' ] );
+		add_filter( 'rank_math/opengraph/twitter/image', [ $this, 'rank_math_image_override' ] );
 
 		// Enqueue admin script for live preview
-		add_action('admin_enqueue_scripts', [$this, 'enqueue_external_featured_image_script']);
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_external_featured_image_script' ] );
 	}
 
 	// Add external featured image meta box
 	public function add_external_featured_image_meta_box() {
 		add_meta_box(
 			'external_featured_image',
-			__('تصویر شاخص نیکس‌فایل', 'nixfile-uploader'), // Translated to Persian
-			[$this, 'render_external_featured_image_meta_box'],
-			['post', 'page'],
+			__( 'تصویر شاخص خارجی', 'nixfile-uploader' ),
+			[ $this, 'render_external_featured_image_meta_box' ],
+			[ 'post', 'page' ],
 			'side',
 			'low'
 		);
 	}
 
 	// Render external featured image meta box
-	public function render_external_featured_image_meta_box($post) {
-		$external_url = get_post_meta($post->ID, '_external_featured_image_url', true);
-		$default_url = 'https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp';
-		$url = !empty($external_url) ? $external_url : $default_url;
+	public function render_external_featured_image_meta_box( $post ) {
+		$external_url = get_post_meta( $post->ID, '_external_featured_image_url', true );
+		$default_url  = 'https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp';
+		$url          = ! empty( $external_url ) ? $external_url : $default_url;
 		?>
         <div class="external-featured-image-wrapper">
             <p>
-                <label for="external_featured_image_url"><?php _e('آدرس تصویر از نیکس‌فایل', 'nixfile-uploader'); ?></label>
+                <label for="external_featured_image_url"><?php _e( 'آدرس تصویر خارجی', 'nixfile-uploader' ); ?></label>
             </p>
             <input type="url" id="external_featured_image_url" name="external_featured_image_url"
-                   value="<?php echo esc_attr($url); ?>"
+                   value="<?php echo esc_attr( $url ); ?>"
                    placeholder="https://example.com/image.jpg"
-                   style="width: 100%; margin-bottom: 10px;" />
-            <div id="external-image-preview" style="display: <?php echo !empty($external_url) ? 'block' : 'none'; ?>; border: 1px solid #ddd; padding: 8px; border-radius: 4px; background: #f9f9f9;">
-                <img src="<?php echo esc_url($url); ?>" alt="<?php _e('پیش‌نمایش', 'nixfile-uploader'); ?>" style="max-width: 100%; height: auto; display: block;" />
+                   style="width: 100%; margin-bottom: 10px;"/>
+            <div id="external-image-preview"
+                 style="display: <?php echo ! empty( $external_url ) ? 'block' : 'none'; ?>; border: 1px solid #ddd; padding: 8px; border-radius: 4px; background: #f9f9f9;">
+                <img src="<?php echo esc_url( $url ); ?>" alt="<?php _e( 'پیش‌نمایش', 'nixfile-uploader' ); ?>"
+                     style="max-width: 100%; height: auto; display: block;"/>
             </div>
-            <p class="description"><?php _e('آدرس تصویر نیکس‌فایل را برای استفاده به عنوان تصویر شاخص وارد کنید. این تصویر جایگزین تصویر آپلود شده خواهد شد.', 'nixfile-uploader'); ?></p>
+            <p class="description"><?php _e( 'آدرس تصویر خارجی را برای استفاده به عنوان تصویر شاخص وارد کنید. این تصویر جایگزین تصویر آپلود شده خواهد شد.', 'nixfile-uploader' ); ?></p>
         </div>
 		<?php
 	}
 
 	// Save external featured image URL
-	public function save_external_featured_image($post_id) {
-		if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-		if (!isset($_POST['external_featured_image_url'])) return;
+	public function save_external_featured_image( $post_id ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+		if ( ! isset( $_POST['external_featured_image_url'] ) ) {
+			return;
+		}
 
-		$url = sanitize_text_field($_POST['external_featured_image_url']);
+		$url = sanitize_text_field( $_POST['external_featured_image_url'] );
 
-		if (!empty($url) && filter_var($url, FILTER_VALIDATE_URL)) {
-			update_post_meta($post_id, '_external_featured_image_url', esc_url_raw($url));
+		if ( ! empty( $url ) && filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			update_post_meta( $post_id, '_external_featured_image_url', esc_url_raw( $url ) );
 		} else {
-			delete_post_meta($post_id, '_external_featured_image_url');
+			delete_post_meta( $post_id, '_external_featured_image_url' );
 		}
 	}
 
 	// Enqueue script for live preview
-	public function enqueue_external_featured_image_script($hook) {
-		if (!in_array($hook, ['post.php', 'post-new.php'])) return;
+	public function enqueue_external_featured_image_script( $hook ) {
+		if ( ! in_array( $hook, [ 'post.php', 'post-new.php' ] ) ) {
+			return;
+		}
 
 		$screen = get_current_screen();
-		if (!$screen || !in_array($screen->base, ['post', 'page'])) return;
+		if ( ! $screen || ! in_array( $screen->base, [ 'post', 'page' ] ) ) {
+			return;
+		}
 
 		$script = <<<JS
         (function($) {
@@ -134,49 +150,57 @@ class AdminHooks {
         })(jQuery);
         JS;
 
-		wp_add_inline_script('jquery', $script);
+		wp_add_inline_script( 'jquery', $script );
 	}
 
 	// Replace featured image with external URL
-	public function replace_featured_image_with_external($html, $post_id, $post_thumbnail_id, $size, $attr) {
-		$external_url = get_post_meta($post_id, '_external_featured_image_url', true);
-		if (empty($external_url)) return $html;
+	public function replace_featured_image_with_external( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
+		$external_url = get_post_meta( $post_id, '_external_featured_image_url', true );
+		if ( empty( $external_url ) ) {
+			return $html;
+		}
 
 		$default_attr = [
 			'class' => 'attachment-' . $size . ' size-' . $size . ' external-featured-image',
-			'alt'   => get_the_title($post_id),
+			'alt'   => get_the_title( $post_id ),
 		];
-		$attr = wp_parse_args($attr, $default_attr);
+		$attr         = wp_parse_args( $attr, $default_attr );
 
 		return sprintf(
 			'<img src="%s"%s />',
-			esc_url($external_url),
-			$this->get_attr_html($attr)
+			esc_url( $external_url ),
+			$this->get_attr_html( $attr )
 		);
 	}
 
 	// Fake thumbnail ID for external images
-	public function fake_thumbnail_id($value, $object_id, $meta_key, $single) {
-		if ($meta_key !== '_thumbnail_id') return $value;
+	public function fake_thumbnail_id( $value, $object_id, $meta_key, $single ) {
+		if ( $meta_key !== '_thumbnail_id' ) {
+			return $value;
+		}
 
-		$external_url = get_post_meta($object_id, '_external_featured_image_url', true);
-		if (!empty($external_url)) {
-			return $single ? -1 : [-1];
+		$external_url = get_post_meta( $object_id, '_external_featured_image_url', true );
+		if ( ! empty( $external_url ) ) {
+			return $single ? - 1 : [ - 1 ];
 		}
 
 		return $value;
 	}
 
 	// Fake attachment image source for external images
-	public function fake_attachment_image_src($image, $attachment_id, $size, $icon) {
-		if ($attachment_id !== -1) return $image;
+	public function fake_attachment_image_src( $image, $attachment_id, $size, $icon ) {
+		if ( $attachment_id !== - 1 ) {
+			return $image;
+		}
 
 		$post = get_post();
-		if (!$post) return $image;
+		if ( ! $post ) {
+			return $image;
+		}
 
-		$external_url = get_post_meta($post->ID, '_external_featured_image_url', true);
-		if (!empty($external_url)) {
-			return [$external_url, 0, 0, false];
+		$external_url = get_post_meta( $post->ID, '_external_featured_image_url', true );
+		if ( ! empty( $external_url ) ) {
+			return [ $external_url, 0, 0, false ];
 		}
 
 		return $image;
@@ -184,26 +208,30 @@ class AdminHooks {
 
 	// Add social media meta tags
 	public function add_social_media_meta_tags() {
-		if (!is_singular()) return;
+		if ( ! is_singular() ) {
+			return;
+		}
 
-		$post_id = get_queried_object_id();
-		$external_url = get_post_meta($post_id, '_external_featured_image_url', true);
+		$post_id      = get_queried_object_id();
+		$external_url = get_post_meta( $post_id, '_external_featured_image_url', true );
 
-		if (!empty($external_url)) {
-			echo '<meta property="og:image" content="' . esc_url($external_url) . '" />' . "\n";
-			echo '<meta name="twitter:image" content="' . esc_url($external_url) . '" />' . "\n";
+		if ( ! empty( $external_url ) ) {
+			echo '<meta property="og:image" content="' . esc_url( $external_url ) . '" />' . "\n";
+			echo '<meta name="twitter:image" content="' . esc_url( $external_url ) . '" />' . "\n";
 			echo '<meta name="twitter:card" content="summary_large_image" />' . "\n";
 		}
 	}
 
 	// Rank Math integration
-	public function rank_math_image_override($image) {
-		if (!is_singular()) return $image;
+	public function rank_math_image_override( $image ) {
+		if ( ! is_singular() ) {
+			return $image;
+		}
 
-		$post_id = get_queried_object_id();
-		$external_url = get_post_meta($post_id, '_external_featured_image_url', true);
+		$post_id      = get_queried_object_id();
+		$external_url = get_post_meta( $post_id, '_external_featured_image_url', true );
 
-		if (!empty($external_url)) {
+		if ( ! empty( $external_url ) ) {
 			return $external_url;
 		}
 
@@ -211,12 +239,127 @@ class AdminHooks {
 	}
 
 	// Helper function to generate attribute HTML
-	private function get_attr_html($attr) {
+	private function get_attr_html( $attr ) {
 		$html = '';
-		foreach ($attr as $name => $value) {
-			$html .= ' ' . esc_attr($name) . '="' . esc_attr($value) . '"';
+		foreach ( $attr as $name => $value ) {
+			$html .= ' ' . esc_attr( $name ) . '="' . esc_attr( $value ) . '"';
 		}
+
 		return $html;
+	}
+
+	// Convert Gregorian date to Jalali (Persian calendar)
+	public function convert_to_jalali( $date, $format = '', $timestamp = null, $gmt = false ): string {
+		// Check if Jalali converter is enabled
+		if ( ! $this->jalali_converter ) {
+			return $date;
+		}
+
+		$persian_months = [
+			'ژانویه'  => 'January',
+			'فوریه'   => 'February',
+			'مارس'    => 'March',
+			'آوریل'   => 'April',
+			'مه'      => 'May',
+			'می'      => 'May',
+			'ژوئن'    => 'June',
+			'ژوئیه'   => 'July',
+			'جولای'   => 'July',
+			'اوت'     => 'August',
+			'سپتامبر' => 'September',
+			'اکتبر'   => 'October',
+			'نوامبر'  => 'November',
+			'دسامبر'  => 'December',
+		];
+
+		foreach ( $persian_months as $fa => $en ) {
+			if ( strpos( $date, $fa ) !== false ) {
+				$date = str_replace( $fa, $en, $date );
+				break;
+			}
+		}
+
+		if ( ! $timestamp || ! is_numeric( $timestamp ) ) {
+			$timestamp = strtotime( $date );
+		}
+
+		if ( ! $timestamp ) {
+			return $date;
+		}
+
+		try {
+			// Check if Morilog\Jalali\Jalalian class exists
+			if ( class_exists( 'Morilog\\Jalali\\Jalalian' ) ) {
+				return \Morilog\Jalali\Jalalian::forge( $timestamp )->format( '%A، %d %B %Y' );
+			}
+
+			// Fallback to a simple conversion if the class doesn't exist
+			return $this->simple_jalali_conversion( $timestamp );
+		} catch ( \Exception $e ) {
+			return $date;
+		}
+	}
+
+	// Simple Jalali conversion as fallback
+	private function simple_jalali_conversion( $timestamp ) {
+		$g_d = date( 'j', $timestamp );
+		$g_m = date( 'n', $timestamp );
+		$g_y = date( 'Y', $timestamp );
+
+		$g_days_in_month = array( 31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29 );
+		$j_days_in_month = array( 31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29 );
+
+		$gy = $g_y - 1600;
+		$gm = $g_m - 1;
+		$gd = $g_d - 1;
+
+		$g_day_no = 365 * $gy + intval( ( $gy + 3 ) / 4 ) - intval( ( $gy + 99 ) / 100 ) + intval( ( $gy + 399 ) / 400 );
+
+		for ( $i = 0; $i < $gm; ++ $i ) {
+			$g_day_no += $g_days_in_month[ $i ];
+		}
+
+		$g_day_no += $gd;
+
+		$j_day_no = $g_day_no - 79;
+
+		$j_np     = intval( $j_day_no / 12053 );
+		$j_day_no %= 12053;
+
+		$jy       = 979 + 33 * $j_np + 4 * intval( $j_day_no / 1461 );
+		$j_day_no %= 1461;
+
+		if ( $j_day_no >= 366 ) {
+			$jy       += intval( ( $j_day_no - 1 ) / 365 );
+			$j_day_no = ( $j_day_no - 1 ) % 365;
+		}
+
+		for ( $i = 0; $i < 11 && $j_day_no >= $j_days_in_month[ $i ]; ++ $i ) {
+			$j_day_no -= $j_days_in_month[ $i ];
+		}
+
+		$jm = $i + 1;
+		$jd = $j_day_no + 1;
+
+		$j_month_name = array(
+			'',
+			'فروردین',
+			'اردیبهشت',
+			'خرداد',
+			'تیر',
+			'مرداد',
+			'شهریور',
+			'مهر',
+			'آبان',
+			'آذر',
+			'دی',
+			'بهمن',
+			'اسفند'
+		);
+		$j_day_name   = array( 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه' );
+		$day_of_week  = date( 'w', $timestamp );
+
+		return $j_day_name[ $day_of_week ] . '، ' . $jd . ' ' . $j_month_name[ $jm ] . ' ' . $jy;
 	}
 
 	// ... [Rest of the AdminHooks class remains unchanged] ...
@@ -301,6 +444,22 @@ class AdminHooks {
 			'permission_callback' => [ $this, 'check_manage_options_permission' ],
 			'args'                => [],
 		] );
+
+		// New route for Jalali converter
+		register_rest_route( $namespace, '/jalali-converter', [
+			'methods'             => 'POST',
+			'callback'            => [ $this, 'set_jalali_converter_rest' ],
+			'permission_callback' => [ $this, 'check_manage_options_permission' ],
+			'args'                => [],
+		] );
+
+		register_rest_route( $namespace, '/modern-template', [
+			'methods'             => 'POST',
+			'callback'            => [ $this, 'set_modern_template_rest' ],
+			'permission_callback' => [ $this, 'check_manage_options_permission' ],
+			'args'                => [],
+		] );
+
 		register_rest_route( $namespace, '/settings', [
 			'methods'             => 'GET',
 			'callback'            => [ $this, 'get_all_settings_rest' ],
@@ -334,6 +493,12 @@ class AdminHooks {
 				'compress_webp_upload' => [
 					'type' => 'boolean',
 				],
+				'jalali_converter'     => [
+					'type' => 'boolean',
+				],
+				'modern_template'      => [
+					'type' => 'boolean',
+				],
 			],
 		] );
 	}
@@ -350,6 +515,8 @@ class AdminHooks {
 		$this->compress_upload      = (bool) get_option( 'nixfile_uploader_compress_upload', false );
 		$this->compress_webp_upload = (bool) get_option( 'nixfile_uploader_compress_webp_upload', false );
 		$this->avif_on_upload       = (bool) get_option( 'nixfile_uploader_avif_on_upload', false );
+		$this->jalali_converter     = (bool) get_option( 'nixfile_uploader_jalali_converter', false );
+		$this->modern_template      = (bool) get_option( 'nixfile_uploader_modern_template', false );
 	}
 
 	public function set_token_rest( WP_REST_Request $request ): WP_REST_Response {
@@ -447,6 +614,35 @@ class AdminHooks {
 		], 200 );
 	}
 
+	// New method for Jalali converter
+	public function set_jalali_converter_rest( WP_REST_Request $request ): WP_REST_Response {
+		$jalali = get_option( "nixfile_uploader_jalali_converter", false );
+		update_option( 'nixfile_uploader_jalali_converter', ! $jalali );
+		$this->jalali_converter = ! $jalali;
+
+		return new WP_REST_Response( [
+			'success' => true,
+			'message' => __( 'Jalali converter setting updated successfully.', 'nixfile-uploader' ),
+			'data'    => [
+				'jalali_converter' => get_option( "nixfile_uploader_jalali_converter" )
+			]
+		], 200 );
+	}
+
+	public function set_modern_template_rest( WP_REST_Request $request ): WP_REST_Response {
+		$modern = get_option( "nixfile_uploader_modern_template", false );
+		update_option( 'nixfile_uploader_modern_template', ! $modern );
+		$this->modern_template = ! $modern;
+
+		return new WP_REST_Response( [
+			'success' => true,
+			'message' => __( 'Jalali converter setting updated successfully.', 'nixfile-uploader' ),
+			'data'    => [
+				'modern_template' => get_option( "nixfile_uploader_jalali_converter" )
+			]
+		], 200 );
+	}
+
 	public function get_all_settings_rest( WP_REST_Request $request ): WP_REST_Response {
 		return new WP_REST_Response( [
 			'success' => true,
@@ -457,6 +653,8 @@ class AdminHooks {
 				'show_status_navbar'   => $this->show_status_navbar,
 				'compress_upload'      => $this->compress_upload,
 				'compress_webp_upload' => $this->compress_webp_upload,
+				'jalali_converter'     => $this->jalali_converter,
+				'modern_template'      => $this->modern_template,
 			]
 		], 200 );
 	}
@@ -484,6 +682,9 @@ class AdminHooks {
 			'show_status_navbar'   => 'nixfile_uploader_show_status_navbar',
 			'compress_upload'      => 'nixfile_uploader_compress_upload',
 			'compress_webp_upload' => 'nixfile_uploader_compress_webp_upload',
+			'jalali_converter'     => 'nixfile_uploader_jalali_converter',
+			'modern_template'      => 'nixfile_uploader_modern_template',
+
 		];
 		foreach ( $boolean_settings as $param_name => $option_name ) {
 			if ( $request->has_param( $param_name ) ) {
@@ -506,6 +707,8 @@ class AdminHooks {
 					'show_status_navbar'   => $this->show_status_navbar,
 					'compress_upload'      => $this->compress_upload,
 					'compress_webp_upload' => $this->compress_webp_upload,
+					'jalali_converter'     => $this->jalali_converter,
+					'modern_template'      => $this->modern_template,
 				]
 			]
 		], 200 );
@@ -533,6 +736,15 @@ class AdminHooks {
 
 	public function is_compress_webp_upload_enabled(): bool {
 		return $this->compress_webp_upload;
+	}
+
+	// New getter for Jalali converter
+	public function is_jalali_converter_enabled(): bool {
+		return $this->jalali_converter;
+	}
+
+	public function is_modern_template_enabled(): bool {
+		return $this->modern_template;
 	}
 
 	public function nixfile_uploader_menu(): void {
@@ -565,12 +777,21 @@ class AdminHooks {
 	public function enqueue_admin_assets( $hook ): void {
 		$screen = get_current_screen();
 		if ( in_array( $screen->base, [ 'media_page_custom-media-submenu' ] ) ) {
-			wp_enqueue_style(
-				'nixfile-uploader-page-style',
-				plugin_dir_url( __DIR__ ) . 'assets/css/nix-file-page.css',
-				[],
-				time()
-			);
+			if ( $this->is_modern_template_enabled() ) {
+				wp_enqueue_style(
+					'modern-file-manager-style',
+					plugin_dir_url( __DIR__ ) . 'assets/css/modern-file-manager.css',
+					[],
+					time()
+				);
+			} else {
+				wp_enqueue_style(
+					'nixfile-uploader-page-style',
+					plugin_dir_url( __DIR__ ) . 'assets/css/nix-file-page.css',
+					[],
+					time()
+				);
+			}
 			wp_enqueue_script(
 				'progressbar-js',
 				'https://cdn.jsdelivr.net/npm/progressbar.js@1.1.0/dist/progressbar.min.js',
@@ -592,6 +813,7 @@ class AdminHooks {
 				time(),
 				true
 			);
+
 			wp_localize_script( 'nixfile-uploader-page-script', 'nixfile_ajax_data', [
 				'rest_url'         => rest_url( 'nixfile/v1/' ),
 				'nonce'            => wp_create_nonce( 'wp_rest' ),
@@ -603,6 +825,8 @@ class AdminHooks {
 					'compress_upload'      => $this->compress_upload,
 					'compress_webp_upload' => $this->compress_webp_upload,
 					'avif_on_upload'       => $this->avif_on_upload,
+					'jalali_converter'     => $this->jalali_converter,
+					'modern_template'      => $this->modern_template,
 				],
 				'action'           => [
 					'token'                => 'token',
@@ -612,6 +836,8 @@ class AdminHooks {
 					'compress_upload'      => 'compress-upload',
 					'compress_webp_upload' => 'compress-webp-upload',
 					'avif_on_upload'       => 'avif-upload',
+					'jalali_converter'     => 'jalali-converter',
+					'modern_template'      => 'modern-template',
 					'all_settings'         => 'settings',
 				],
 				'images_url'       => plugin_dir_url( __DIR__ ) . 'assets/images/',
@@ -627,6 +853,8 @@ class AdminHooks {
 					'compress_upload'      => $this->compress_upload,
 					'compress_webp_upload' => $this->compress_webp_upload,
 					'avif_on_upload'       => $this->avif_on_upload,
+					'jalali_converter'     => $this->jalali_converter,
+					'modern_template'      => $this->modern_template,
 				],
 				'action'           => [
 					'token'                => 'token',
@@ -636,6 +864,8 @@ class AdminHooks {
 					'compress_upload'      => 'compress-upload',
 					'compress_webp_upload' => 'compress-webp-upload',
 					'avif_on_upload'       => 'avif-upload',
+					'jalali_converter'     => 'jalali-converter',
+					'modern_template'      => 'modern-template',
 					'all_settings'         => 'settings',
 				],
 				'images_url'       => plugin_dir_url( __DIR__ ) . 'assets/images/',
@@ -652,12 +882,21 @@ class AdminHooks {
 		if ( $screen->base === "media_page_nixfile-file-manager" ) {
 			wp_enqueue_script( 'anime-js', 'https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js', [], null, true );
 			wp_enqueue_script( 'html2canvas', 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', [], null, true );
-			wp_enqueue_style(
-				'nixfile-uploader-page-style',
-				plugin_dir_url( __DIR__ ) . 'assets/css/nix-file-page.css',
-				[],
-				time()
-			);
+			if ( $this->is_modern_template_enabled() ) {
+				wp_enqueue_style(
+					'modern-file-manager-style',
+					plugin_dir_url( __DIR__ ) . 'assets/css/modern-file-manager.css',
+					[],
+					time()
+				);
+			} else {
+				wp_enqueue_style(
+					'nixfile-uploader-page-style',
+					plugin_dir_url( __DIR__ ) . 'assets/css/nix-file-page.css',
+					[],
+					time()
+				);
+			}
 			wp_enqueue_script(
 				'progressbar-js',
 				'https://cdn.jsdelivr.net/npm/progressbar.js@1.1.0/dist/progressbar.min.js',
@@ -683,6 +922,8 @@ class AdminHooks {
 					'compress_upload'      => $this->compress_upload,
 					'compress_webp_upload' => $this->compress_webp_upload,
 					'avif_on_upload'       => $this->avif_on_upload,
+					'jalali_converter'     => $this->jalali_converter,
+					'modern_template'      => $this->modern_template,
 				],
 				'action'           => [
 					'token'                => 'token',
@@ -692,6 +933,8 @@ class AdminHooks {
 					'compress_upload'      => 'compress-upload',
 					'compress_webp_upload' => 'compress-webp-upload',
 					'avif_on_upload'       => 'avif-upload',
+					'jalali_converter'     => 'jalali-converter',
+					'modern_template'      => 'modern-template',
 					'all_settings'         => 'settings',
 				],
 				'images_url'       => plugin_dir_url( __DIR__ ) . 'assets/images/',
@@ -734,6 +977,8 @@ class AdminHooks {
 				'show_status_navbar'   => $this->show_status_navbar,
 				'compress_upload'      => $this->compress_upload,
 				'compress_webp_upload' => $this->compress_webp_upload,
+				'jalali_converter'     => $this->jalali_converter,
+				'modern_template'      => $this->modern_template,
 			],
 			'action'           => [
 				'token'                => 'token',
@@ -742,6 +987,8 @@ class AdminHooks {
 				'show_status_navbar'   => 'show-status-navbar',
 				'compress_upload'      => 'compress-upload',
 				'compress_webp_upload' => 'compress-webp-upload',
+				'jalali_converter'     => 'jalali-converter',
+				'modern_template'      => 'modern-template',
 				'all_settings'         => 'settings',
 			],
 		] );
@@ -764,17 +1011,18 @@ class AdminHooks {
 		] );
 
 		if ( is_wp_error( $response ) ) {
-			$title = '❌ اتصال به سرور انجام نشد';
+			$title = '❌  عدم اتصال به سرور';
 		} else {
 			$body = json_decode( wp_remote_retrieve_body( $response ), true );
 			if (
 				isset( $body['data']['uploaded'], $body['data']['capacity'] ) && $body['data']['capacity'] > 0
 			) {
-				$percent  = number_format( (float) ( ( $body['data']['uploaded'] * 100 ) / $body['data']['capacity'] ), 2 );
+				$percent  = intval( number_format( (float) ( ( $body['data']['uploaded'] * 100 ) / $body['data']['capacity'] ), 2 ) );
 				$duration = isset( $body['data']['duration'] ) ? (int) $body['data']['duration'] : null;
-				$title    = "📦 استفاده ‌شده: {$percent}%";
+				$title    = " حجم مصرفی: {$percent}%" .
+				            " | ";
 				if ( ! is_null( $duration ) ) {
-					$title .= " | ⏳ {$duration} روز مانده";
+					$title .= "انقضا: {$duration} روز";
 				}
 			} else {
 				$title = '⚠️ اطلاعات ناقص';
