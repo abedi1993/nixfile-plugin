@@ -5,6 +5,8 @@ $compress_upload    = get_option( "nixfile_uploader_compress_upload", false );
 $avif               = get_option( "nixfile_uploader_avif_on_upload", false );
 $jalali_converter   = get_option( "nixfile_uploader_jalali_converter", false ); // New variable
 $modernTemplate     = get_option( "nixfile_uploader_modern_template", false ); // New variable
+$external_featured_image = get_option( "nixfile_uploader_external_featured_image", false ); // New variable for external featured image
+$default_external_image = get_option( "nixfile_uploader_default_external_image", "https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp" ); // New variable for default external image
 ?>
 <div class="nixfile-container">
     <div id="nixfile-loader">
@@ -150,6 +152,14 @@ $modernTemplate     = get_option( "nixfile_uploader_modern_template", false ); /
 					<?php echo $show_status_navbar ? "فعال" : "غیر فعال" ?>
                 </button>
             </p>
+            <p>
+                <span>تصویر شاخص خارجی</span>
+                <button id="external-featured-image"
+                        style="<?php echo $external_featured_image ? "background-color:#00aa2c" : "background-color:red;" ?>"
+                >
+			        <?php echo $external_featured_image ? "فعال" : "غیر فعال" ?>
+                </button>
+            </p>
         </div>
         <div class="nixfile-option">
             <p>
@@ -167,6 +177,14 @@ $modernTemplate     = get_option( "nixfile_uploader_modern_template", false ); /
                 >
 					<?php echo $avif ? "فعال" : "غیر فعال" ?>
                 </button>
+            </p>
+            <p class="default-external-image-container" style="<?php echo $external_featured_image ? 'display: flex;' : 'display: none;' ?>">
+                <span>آدرس تصویر پیش‌فرض</span>
+                <input type="text" id="default-external-image"
+                       placeholder="https://example.com/default-image.jpg"
+                       value="<?php echo esc_attr($default_external_image); ?>"
+                       style="width: 100%; margin-right: 10px;">
+                <button id="save-default-external-image" >ذخیره</button>
             </p>
         </div>
     </div>
@@ -355,7 +373,11 @@ $modernTemplate     = get_option( "nixfile_uploader_modern_template", false ); /
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const jalaliConverterBtn = document.getElementById('jalali-converter');
-        const modernTemplateBtn = document.getElementById('modern-template'); // Same ID is used, need to change it to 'modern-template-btn' or something appropriate.
+        const modernTemplateBtn = document.getElementById('modern-template');
+        const externalFeaturedImageBtn = document.getElementById('external-featured-image');
+        const defaultExternalImageInput = document.getElementById('default-external-image');
+        const saveDefaultExternalImageBtn = document.getElementById('save-default-external-image');
+        const defaultExternalImageContainer = document.querySelector('.default-external-image-container');
 
         // Jalali Converter Button Event
         if (jalaliConverterBtn) {
@@ -385,6 +407,42 @@ $modernTemplate     = get_option( "nixfile_uploader_modern_template", false ); /
                     this.textContent = 'فعال';
                     this.style.backgroundColor = '#00aa2c';
                     updateModernTemplateSetting(true);
+                }
+            });
+        }
+
+        // External Featured Image Button Event
+        if (externalFeaturedImageBtn) {
+            externalFeaturedImageBtn.addEventListener('click', function () {
+                const currentState = this.textContent.trim();
+                if (currentState === 'فعال') {
+                    this.textContent = 'غیر فعال';
+                    this.style.backgroundColor = 'red';
+                    updateExternalFeaturedImageSetting(false);
+                    // Hide default image input when disabled
+                    if (defaultExternalImageContainer) {
+                        defaultExternalImageContainer.style.display = 'none';
+                    }
+                } else {
+                    this.textContent = 'فعال';
+                    this.style.backgroundColor = '#00aa2c';
+                    updateExternalFeaturedImageSetting(true);
+                    // Show default image input when enabled
+                    if (defaultExternalImageContainer) {
+                        defaultExternalImageContainer.style.display = 'flex';
+                    }
+                }
+            });
+        }
+
+        // Save Default External Image Button Event
+        if (saveDefaultExternalImageBtn) {
+            saveDefaultExternalImageBtn.addEventListener('click', function () {
+                const imageUrl = defaultExternalImageInput.value.trim();
+                if (imageUrl) {
+                    updateDefaultExternalImageSetting(imageUrl);
+                } else {
+                    alert('لطفاً یک آدرس تصویر معتبر وارد کنید');
                 }
             });
         }
@@ -487,6 +545,112 @@ $modernTemplate     = get_option( "nixfile_uploader_modern_template", false ); /
                     })
                     .catch(error => {
                         console.error('Error updating Modern template setting:', error);
+                    });
+            }
+        }
+
+        // Update the External Featured Image setting
+        function updateExternalFeaturedImageSetting(enabled) {
+            if (typeof jQuery !== 'undefined') {
+                jQuery.ajax({
+                    url: nixfile_ajax_data.rest_url + 'external-featured-image',
+                    method: 'POST',
+                    data: JSON.stringify({
+                        external_featured_image: enabled
+                    }),
+                    contentType: 'application/json',
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('X-WP-Nonce', nixfile_ajax_data.nonce);
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            console.log('External featured image setting updated successfully');
+                            location.reload();
+                        } else {
+                            console.error('Failed to update External featured image setting');
+                        }
+                    },
+                    error: function (error) {
+                        console.error('Error updating External featured image setting:', error);
+                    }
+                });
+            } else {
+                fetch(nixfile_ajax_data.rest_url + 'external-featured-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': nixfile_ajax_data.nonce
+                    },
+                    body: JSON.stringify({
+                        external_featured_image: enabled
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('External featured image setting updated successfully');
+                            location.reload();
+                        } else {
+                            console.error('Failed to update External featured image setting');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating External featured image setting:', error);
+                    });
+            }
+        }
+
+        // Update the Default External Image setting
+        function updateDefaultExternalImageSetting(imageUrl) {
+            if (typeof jQuery !== 'undefined') {
+                jQuery.ajax({
+                    url: nixfile_ajax_data.rest_url + 'settings',
+                    method: 'POST',
+                    data: JSON.stringify({
+                        default_external_image: imageUrl
+                    }),
+                    contentType: 'application/json',
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('X-WP-Nonce', nixfile_ajax_data.nonce);
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            console.log('Default external image setting updated successfully');
+                            alert('تصویر پیش‌فرض با موفقیت ذخیره شد');
+                        } else {
+                            console.error('Failed to update Default external image setting');
+                            alert('خطا در ذخیره تصویر پیش‌فرض');
+                        }
+                    },
+                    error: function (error) {
+                        console.error('Error updating Default external image setting:', error);
+                        alert('خطا در ذخیره تصویر پیش‌فرض');
+                    }
+                });
+            } else {
+                fetch(nixfile_ajax_data.rest_url + 'settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': nixfile_ajax_data.nonce
+                    },
+                    body: JSON.stringify({
+                        default_external_image: imageUrl
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Default external image setting updated successfully');
+                            alert('تصویر پیش‌فرض با موفقیت ذخیره شد');
+                        } else {
+                            console.error('Failed to update Default external image setting');
+                            alert('خطا در ذخیره تصویر پیش‌فرض');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating Default external image setting:', error);
+                        alert('خطا در ذخیره تصویر پیش‌فرض');
                     });
             }
         }

@@ -19,8 +19,13 @@ class AdminHooks {
 	private bool $avif_on_upload;
 	private bool $jalali_converter;
 	private bool $modern_template;
+	private bool $external_featured_image_enabled = false; // Initialize with default value
+	private string $default_external_image = 'https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp'; // Default external image URL
 
 	public function register_hooks(): void {
+		// Load settings first before initializing any features
+		$this->load_settings();
+
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
 		add_action( 'edit_form_after_editor', [ $this, 'inject_uploader_view' ] );
 		add_action( 'elementor/editor/after_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
@@ -28,18 +33,22 @@ class AdminHooks {
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 		add_action( 'admin_bar_menu', [ $this, 'maybe_add_admin_bar_item' ], 100 );
 
+		// Initialize external featured image after settings are loaded
 		$this->init_external_featured_image();
 
 		add_filter( 'get_the_date', [ $this, 'convert_to_jalali' ], 10, 3 );
 		add_filter( 'get_the_time', [ $this, 'convert_to_jalali' ], 10, 3 );
 		add_filter( 'get_comment_date', [ $this, 'convert_to_jalali' ], 10, 3 );
 		add_filter( 'get_post_time', [ $this, 'convert_to_jalali' ], 10, 3 );
-
-		$this->load_settings();
 	}
 
 	// Initialize External Featured Image functionality
 	private function init_external_featured_image() {
+		// Only initialize if the feature is enabled
+		if ( ! $this->external_featured_image_enabled ) {
+			return;
+		}
+
 		// Add field to featured image box
 		add_action( 'add_meta_boxes', [ $this, 'add_external_featured_image_meta_box' ] );
 
@@ -60,6 +69,36 @@ class AdminHooks {
 
 		// Enqueue admin script for live preview
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_external_featured_image_script' ] );
+
+		// Add external featured image to REST API
+		add_action( 'rest_api_init', [ $this, 'add_external_featured_image_to_rest_api' ] );
+	}
+
+	// Add external featured image to REST API
+	public function add_external_featured_image_to_rest_api() {
+		register_rest_field(
+			['post', 'page'],
+			'external_featured_image',
+			[
+				'get_callback'    => [ $this, 'get_external_featured_image_for_rest' ],
+				'update_callback' => null,
+				'schema'          => [
+					'description' => __( 'External featured image URL', 'nixfile-uploader' ),
+					'type'        => 'string',
+					'format'      => 'uri',
+				],
+			]
+		);
+	}
+
+	// Get external featured image for REST API
+	public function get_external_featured_image_for_rest( $post ) {
+		if ( ! $this->external_featured_image_enabled ) {
+			return null;
+		}
+
+		$external_url = get_post_meta( $post['id'], '_external_featured_image_url', true );
+		return $external_url ? $external_url : null;
 	}
 
 	// Add external featured image meta box
@@ -77,8 +116,8 @@ class AdminHooks {
 	// Render external featured image meta box
 	public function render_external_featured_image_meta_box( $post ) {
 		$external_url = get_post_meta( $post->ID, '_external_featured_image_url', true );
-		$default_url  = 'https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp';
-		$url          = ! empty( $external_url ) ? $external_url : $default_url;
+		$url = ! empty( $external_url ) ? $external_url : $this->default_external_image;
+
 		?>
         <div class="external-featured-image-wrapper">
             <p>
@@ -110,7 +149,10 @@ class AdminHooks {
 		$url = sanitize_text_field( $_POST['external_featured_image_url'] );
 
 		if ( ! empty( $url ) && filter_var( $url, FILTER_VALIDATE_URL ) ) {
-			update_post_meta( $post_id, '_external_featured_image_url', esc_url_raw( $url ) );
+			// Only save if it's different from the default URL or if the default URL is empty
+			if ( $url !== $this->default_external_image || empty( $this->default_external_image ) ) {
+				update_post_meta( $post_id, '_external_featured_image_url', esc_url_raw( $url ) );
+			}
 		} else {
 			delete_post_meta( $post_id, '_external_featured_image_url' );
 		}
@@ -133,10 +175,11 @@ class AdminHooks {
                 var input = $('#external_featured_image_url');
                 var preview = $('#external-image-preview');
                 var previewImg = preview.find('img');
+                var defaultUrl = '{$this->default_external_image}';
                 
                 function updatePreview() {
                     var url = input.val().trim();
-                    if (url && /^https?:\\/\\//i.test(url)) {
+                    if (url) {
                         previewImg.attr('src', url);
                         preview.show();
                     } else {
@@ -155,9 +198,13 @@ class AdminHooks {
 
 	// Replace featured image with external URL
 	public function replace_featured_image_with_external( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
+		if ( ! $this->external_featured_image_enabled ) {
+			return $html;
+		}
+
 		$external_url = get_post_meta( $post_id, '_external_featured_image_url', true );
 		if ( empty( $external_url ) ) {
-			return $html;
+			return $html; // Don't use default image automatically
 		}
 
 		$default_attr = [
@@ -175,7 +222,7 @@ class AdminHooks {
 
 	// Fake thumbnail ID for external images
 	public function fake_thumbnail_id( $value, $object_id, $meta_key, $single ) {
-		if ( $meta_key !== '_thumbnail_id' ) {
+		if ( ! $this->external_featured_image_enabled || $meta_key !== '_thumbnail_id' ) {
 			return $value;
 		}
 
@@ -189,7 +236,7 @@ class AdminHooks {
 
 	// Fake attachment image source for external images
 	public function fake_attachment_image_src( $image, $attachment_id, $size, $icon ) {
-		if ( $attachment_id !== - 1 ) {
+		if ( ! $this->external_featured_image_enabled || $attachment_id !== - 1 ) {
 			return $image;
 		}
 
@@ -208,7 +255,7 @@ class AdminHooks {
 
 	// Add social media meta tags
 	public function add_social_media_meta_tags() {
-		if ( ! is_singular() ) {
+		if ( ! is_singular() || ! $this->external_featured_image_enabled ) {
 			return;
 		}
 
@@ -224,7 +271,7 @@ class AdminHooks {
 
 	// Rank Math integration
 	public function rank_math_image_override( $image ) {
-		if ( ! is_singular() ) {
+		if ( ! is_singular() || ! $this->external_featured_image_enabled ) {
 			return $image;
 		}
 
@@ -362,9 +409,6 @@ class AdminHooks {
 		return $j_day_name[ $day_of_week ] . '، ' . $jd . ' ' . $j_month_name[ $jm ] . ' ' . $jy;
 	}
 
-	// ... [Rest of the AdminHooks class remains unchanged] ...
-	// (All existing methods from your original AdminHooks class)
-
 	public function register_rest_routes(): void {
 		$namespace = 'nixfile/v1';
 		register_rest_route( $namespace, '/token', [
@@ -460,6 +504,14 @@ class AdminHooks {
 			'args'                => [],
 		] );
 
+		// New route for external featured image
+		register_rest_route( $namespace, '/external-featured-image', [
+			'methods'             => 'POST',
+			'callback'            => [ $this, 'set_external_featured_image_rest' ],
+			'permission_callback' => [ $this, 'check_manage_options_permission' ],
+			'args'                => [],
+		] );
+
 		register_rest_route( $namespace, '/settings', [
 			'methods'             => 'GET',
 			'callback'            => [ $this, 'get_all_settings_rest' ],
@@ -499,6 +551,13 @@ class AdminHooks {
 				'modern_template'      => [
 					'type' => 'boolean',
 				],
+				'external_featured_image' => [
+					'type' => 'boolean',
+				],
+				'default_external_image' => [
+					'type'              => 'string',
+					'sanitize_callback' => 'esc_url_raw',
+				],
 			],
 		] );
 	}
@@ -517,6 +576,8 @@ class AdminHooks {
 		$this->avif_on_upload       = (bool) get_option( 'nixfile_uploader_avif_on_upload', false );
 		$this->jalali_converter     = (bool) get_option( 'nixfile_uploader_jalali_converter', false );
 		$this->modern_template      = (bool) get_option( 'nixfile_uploader_modern_template', false );
+		$this->external_featured_image_enabled = (bool) get_option( 'nixfile_uploader_external_featured_image', false );
+		$this->default_external_image = get_option( 'nixfile_uploader_default_external_image', 'https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp' );
 	}
 
 	public function set_token_rest( WP_REST_Request $request ): WP_REST_Response {
@@ -636,9 +697,24 @@ class AdminHooks {
 
 		return new WP_REST_Response( [
 			'success' => true,
-			'message' => __( 'Jalali converter setting updated successfully.', 'nixfile-uploader' ),
+			'message' => __( 'Modern template setting updated successfully.', 'nixfile-uploader' ),
 			'data'    => [
-				'modern_template' => get_option( "nixfile_uploader_jalali_converter" )
+				'modern_template' => get_option( "nixfile_uploader_modern_template" )
+			]
+		], 200 );
+	}
+
+	// New method for external featured image
+	public function set_external_featured_image_rest( WP_REST_Request $request ): WP_REST_Response {
+		$external_featured_image = get_option( "nixfile_uploader_external_featured_image", false );
+		update_option( 'nixfile_uploader_external_featured_image', ! $external_featured_image );
+		$this->external_featured_image_enabled = ! $external_featured_image;
+
+		return new WP_REST_Response( [
+			'success' => true,
+			'message' => __( 'External featured image setting updated successfully.', 'nixfile-uploader' ),
+			'data'    => [
+				'external_featured_image' => get_option( "nixfile_uploader_external_featured_image" )
 			]
 		], 200 );
 	}
@@ -655,6 +731,8 @@ class AdminHooks {
 				'compress_webp_upload' => $this->compress_webp_upload,
 				'jalali_converter'     => $this->jalali_converter,
 				'modern_template'      => $this->modern_template,
+				'external_featured_image' => $this->external_featured_image_enabled,
+				'default_external_image' => $this->default_external_image,
 			]
 		], 200 );
 	}
@@ -684,7 +762,7 @@ class AdminHooks {
 			'compress_webp_upload' => 'nixfile_uploader_compress_webp_upload',
 			'jalali_converter'     => 'nixfile_uploader_jalali_converter',
 			'modern_template'      => 'nixfile_uploader_modern_template',
-
+			'external_featured_image' => 'nixfile_uploader_external_featured_image',
 		];
 		foreach ( $boolean_settings as $param_name => $option_name ) {
 			if ( $request->has_param( $param_name ) ) {
@@ -692,6 +770,16 @@ class AdminHooks {
 				$this->$param_name = $value;
 				update_option( $option_name, $value );
 				$updated_settings[ $param_name ] = $value;
+			}
+		}
+
+		// Handle default external image URL
+		if ( $request->has_param( 'default_external_image' ) ) {
+			$default_image = $request->get_param( 'default_external_image' );
+			if ( ! empty( $default_image ) && filter_var( $default_image, FILTER_VALIDATE_URL ) ) {
+				$this->default_external_image = $default_image;
+				update_option( 'nixfile_uploader_default_external_image', $default_image );
+				$updated_settings['default_external_image'] = $default_image;
 			}
 		}
 
@@ -709,6 +797,8 @@ class AdminHooks {
 					'compress_webp_upload' => $this->compress_webp_upload,
 					'jalali_converter'     => $this->jalali_converter,
 					'modern_template'      => $this->modern_template,
+					'external_featured_image' => $this->external_featured_image_enabled,
+					'default_external_image' => $this->default_external_image,
 				]
 			]
 		], 200 );
@@ -745,6 +835,16 @@ class AdminHooks {
 
 	public function is_modern_template_enabled(): bool {
 		return $this->modern_template;
+	}
+
+	// New getter for external featured image
+	public function is_external_featured_image_enabled(): bool {
+		return $this->external_featured_image_enabled;
+	}
+
+	// New getter for default external image
+	public function get_default_external_image(): string {
+		return $this->default_external_image;
 	}
 
 	public function nixfile_uploader_menu(): void {
@@ -827,6 +927,8 @@ class AdminHooks {
 					'avif_on_upload'       => $this->avif_on_upload,
 					'jalali_converter'     => $this->jalali_converter,
 					'modern_template'      => $this->modern_template,
+					'external_featured_image' => $this->external_featured_image_enabled,
+					'default_external_image' => $this->default_external_image,
 				],
 				'action'           => [
 					'token'                => 'token',
@@ -838,6 +940,7 @@ class AdminHooks {
 					'avif_on_upload'       => 'avif-upload',
 					'jalali_converter'     => 'jalali-converter',
 					'modern_template'      => 'modern-template',
+					'external_featured_image' => 'external-featured-image',
 					'all_settings'         => 'settings',
 				],
 				'images_url'       => plugin_dir_url( __DIR__ ) . 'assets/images/',
@@ -855,6 +958,8 @@ class AdminHooks {
 					'avif_on_upload'       => $this->avif_on_upload,
 					'jalali_converter'     => $this->jalali_converter,
 					'modern_template'      => $this->modern_template,
+					'external_featured_image' => $this->external_featured_image_enabled,
+					'default_external_image' => $this->default_external_image,
 				],
 				'action'           => [
 					'token'                => 'token',
@@ -866,6 +971,7 @@ class AdminHooks {
 					'avif_on_upload'       => 'avif-upload',
 					'jalali_converter'     => 'jalali-converter',
 					'modern_template'      => 'modern-template',
+					'external_featured_image' => 'external-featured-image',
 					'all_settings'         => 'settings',
 				],
 				'images_url'       => plugin_dir_url( __DIR__ ) . 'assets/images/',
@@ -924,6 +1030,8 @@ class AdminHooks {
 					'avif_on_upload'       => $this->avif_on_upload,
 					'jalali_converter'     => $this->jalali_converter,
 					'modern_template'      => $this->modern_template,
+					'external_featured_image' => $this->external_featured_image_enabled,
+					'default_external_image' => $this->default_external_image,
 				],
 				'action'           => [
 					'token'                => 'token',
@@ -935,6 +1043,7 @@ class AdminHooks {
 					'avif_on_upload'       => 'avif-upload',
 					'jalali_converter'     => 'jalali-converter',
 					'modern_template'      => 'modern-template',
+					'external_featured_image' => 'external-featured-image',
 					'all_settings'         => 'settings',
 				],
 				'images_url'       => plugin_dir_url( __DIR__ ) . 'assets/images/',
@@ -979,6 +1088,8 @@ class AdminHooks {
 				'compress_webp_upload' => $this->compress_webp_upload,
 				'jalali_converter'     => $this->jalali_converter,
 				'modern_template'      => $this->modern_template,
+				'external_featured_image' => $this->external_featured_image_enabled,
+				'default_external_image' => $this->default_external_image,
 			],
 			'action'           => [
 				'token'                => 'token',
@@ -989,6 +1100,7 @@ class AdminHooks {
 				'compress_webp_upload' => 'compress-webp-upload',
 				'jalali_converter'     => 'jalali-converter',
 				'modern_template'      => 'modern-template',
+				'external_featured_image' => 'external-featured-image',
 				'all_settings'         => 'settings',
 			],
 		] );
