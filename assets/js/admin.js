@@ -1,11 +1,11 @@
 jQuery(document).ready(function ($) {
     const uploaderDir = $("#nixfile-box");
     const nixfileSettingData = nixfile_ajax_data;
+    const container = $('<div id="nixfile-box"><strong>NixFileUploader:</strong> This is where your file uploader will go!</div>');
+    $('#postdivrich').after(container);
     $(window).on('load', function () {
         uploaderDir.css("display", 'flex');
     });
-    const container = $('<div id="nixfile-box"><strong>NixFileUploader:</strong> This is where your file uploader will go!</div>');
-    $('#postdivrich').after(container);
     const formData = new FormData();
     const errorsBox = $(".nixfile-errors-box");
     // const api = "https://api.yekpayamak.com/v1"
