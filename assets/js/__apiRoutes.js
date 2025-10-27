@@ -1,5 +1,5 @@
 const api = {
-    url: "https://api.naring.ir",
+    url: "https://api.nixfile.com",
     version: ["v1", "v2"]
 }
 
