@@ -4,8 +4,6 @@ namespace NixFileUploader;
 
 use WP_REST_Request;
 use WP_REST_Response;
-use WP_Error;
-use JetBrains\PhpStorm\NoReturn;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -1123,7 +1121,7 @@ class AdminHooks {
 		] );
 
 		if ( is_wp_error( $response ) ) {
-			$title = '❌  عدم اتصال به سرور';
+			$title = '❌ ابتدا دامنه خود را در نیکس فایل احراز کنید';
 		} else {
 			$body = json_decode( wp_remote_retrieve_body( $response ), true );
 			if (
@@ -1137,7 +1135,7 @@ class AdminHooks {
 					$title .= "انقضا: {$duration} روز";
 				}
 			} else {
-				$title = '⚠️ اطلاعات ناقص';
+				$title = 'خود را در نیکس فایل ثبت کنید.';
 			}
 		}
 

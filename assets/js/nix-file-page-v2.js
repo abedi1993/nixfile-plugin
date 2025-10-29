@@ -4,37 +4,26 @@ import {uploaderInput} from "./ui/uploaderInput.js";
 import {setting} from "./ui/setting.js";
 import {statistics} from "./utils/statistics.js";
 
-
 jQuery(async function ($) {
-    const nixfileLoader = $("#nixfile-loader");
-    const nixfileUploaderSection = $(".nixfile-uploader");
-    const nixfileSettingSection = $(".nixfile-setting");
-    const nixfileFolderFormContainer = $(".nixfile-folder-form-container");
-    const nixfileFolderContextMenu = $(".nixfile-folder-contextmenu");
-    const nixfileDeleteFolderContainer = $("#nixfile-delete-folder-form-container");
-    const nixfileMoveFolderContainer = $("#nixfile-folder-move-container");
-    const nixfileDetailBar = $(".nixfile-detail-bar");
-    const nixfileFileContextMenu = $(".nixfile-file-contextmenu");
-    const nixfileFileEditNameContainer = $(".nixfile-file-edit-name-form-container");
-    const nixfileDeleteFileContainer = $("#nixfile-delete-file-form-container");
-    const nixfileCreateNewFolderForm = $(".nixfile-create-new-folder-form");
-    const nixfileReplaceFormContainer = $("#nixfile-replace-file-form-container");
-    const nixfileMultiSelectTools = $(".nixfile-multi-select-tools");
+    const elements = {
+        loader: $("#nixfile-loader"),
+        uploaderSection: $(".nixfile-uploader"),
+        settingSection: $(".nixfile-setting"),
+        folderFormContainer: $(".nixfile-folder-form-container"),
+        folderContextMenu: $(".nixfile-folder-contextmenu"),
+        deleteFolderContainer: $("#nixfile-delete-folder-form-container"),
+        moveFolderContainer: $("#nixfile-folder-move-container"),
+        detailBar: $(".nixfile-detail-bar"),
+        fileContextMenu: $(".nixfile-file-contextmenu"),
+        fileEditNameContainer: $(".nixfile-file-edit-name-form-container"),
+        deleteFileContainer: $("#nixfile-delete-file-form-container"),
+        createNewFolderForm: $(".nixfile-create-new-folder-form"),
+        replaceFormContainer: $("#nixfile-replace-file-form-container"),
+        multiSelectTools: $(".nixfile-multi-select-tools")
+    };
 
-    nixfileLoader.fadeOut(400);
-    nixfileUploaderSection.hide();
-    nixfileSettingSection.hide();
-    nixfileFolderFormContainer.hide();
-    nixfileFolderContextMenu.hide();
-    nixfileDeleteFolderContainer.hide();
-    nixfileMoveFolderContainer.hide();
-    nixfileDetailBar.hide();
-    nixfileFileContextMenu.hide();
-    nixfileFileEditNameContainer.hide();
-    nixfileDeleteFileContainer.hide();
-    nixfileCreateNewFolderForm.hide();
-    nixfileReplaceFormContainer.hide();
-    nixfileMultiSelectTools.hide();
+    Object.values(elements).forEach($el => $el.hide());
+    elements.loader.fadeOut(400);
 
     window.nixfileMediaPage = 1;
     window.nixfileMediaLoading = false;
@@ -42,13 +31,10 @@ jQuery(async function ($) {
     window.nixfileMediaRequest = null;
     window.selectedTypeFilter = null;
     window.selectedDateFilter = null;
-
+    window.$ = jQuery
     setting();
-    await fetchFileManagerData({
-        force: true
-    });
-
+    await fetchFileManagerData({force: true});
     postFolder();
     uploaderInput();
-    statistics()
+    statistics();
 });

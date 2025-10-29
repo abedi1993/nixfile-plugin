@@ -192,7 +192,9 @@ $default_external_image = get_option( "nixfile_uploader_default_external_image",
     <div id="breadcrumb"></div>
 
     <div class="nixfile-media-section-container">
-        <div class="nixfile-media-section"></div>
+        <div class="nixfile-media-section">
+            <a href="#">دامنه خود را احراز کنید.</a>
+        </div>
     </div>
 
     <div class="nixfile-errors-box"></div>
