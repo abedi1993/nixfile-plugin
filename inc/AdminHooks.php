@@ -1135,7 +1135,7 @@ class AdminHooks {
 					$title .= "انقضا: {$duration} روز";
 				}
 			} else {
-				$title = 'خود را در نیکس فایل ثبت کنید.';
+				$title = 'ثبت دامنه در نیکس فایل';
 			}
 		}
 
