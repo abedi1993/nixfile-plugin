@@ -7,6 +7,7 @@ $jalali_converter   = get_option( "nixfile_uploader_jalali_converter", false ); 
 $modernTemplate     = get_option( "nixfile_uploader_modern_template", false ); // New variable
 $external_featured_image = get_option( "nixfile_uploader_external_featured_image", false ); // New variable for external featured image
 $default_external_image = get_option( "nixfile_uploader_default_external_image", "https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp" ); // New variable for default external image
+$daily_backup       = get_option( "nixfile_uploader_daily_backup", false ); // New variable for daily backup
 ?>
 <div class="nixfile-container">
     <div id="nixfile-loader">
@@ -128,7 +129,7 @@ $default_external_image = get_option( "nixfile_uploader_default_external_image",
                 <button id="jalali-converter"
                         style="<?php echo $jalali_converter ? "background-color:#00aa2c" : "background-color:red;" ?>"
                 >
-					<?php echo $jalali_converter ? "فعال" : "غیر فعال" ?>
+                    <?php echo $jalali_converter ? "فعال" : "غیر فعال" ?>
                 </button>
             </p>
             <p>
@@ -136,20 +137,24 @@ $default_external_image = get_option( "nixfile_uploader_default_external_image",
                 <button id="modern-template"
                         style="<?php echo $modernTemplate ? "background-color:#00aa2c" : "background-color:red;" ?>"
                 >
-					<?php echo $modernTemplate ? "فعال" : "غیر فعال" ?>
+                    <?php echo $modernTemplate ? "فعال" : "غیر فعال" ?>
                 </button>
             </p>
         </div>
         <div class="nixfile-option">
             <p>
                 <span>بکاپ گیری کامل سایت (روزانه)</span>
-                <button>به زودی</button>
+                <button id="daily-backup"
+                        style="<?php echo $daily_backup ? "background-color:#00aa2c" : "background-color:red;" ?>"
+                >
+                    <?php echo $daily_backup ? "فعال" : "غیر فعال" ?>
+                </button>
             </p>
             <p>
                 <span>نمایش مانیتورینگ در نوار وردپرس </span>
                 <button id="nixfile-show-on-navbar"
                         style="<?php echo $show_status_navbar ? "background-color:#00aa2c" : "background-color:red;" ?>">
-					<?php echo $show_status_navbar ? "فعال" : "غیر فعال" ?>
+                    <?php echo $show_status_navbar ? "فعال" : "غیر فعال" ?>
                 </button>
             </p>
             <p>
@@ -157,7 +162,7 @@ $default_external_image = get_option( "nixfile_uploader_default_external_image",
                 <button id="external-featured-image"
                         style="<?php echo $external_featured_image ? "background-color:#00aa2c" : "background-color:red;" ?>"
                 >
-			        <?php echo $external_featured_image ? "فعال" : "غیر فعال" ?>
+                    <?php echo $external_featured_image ? "فعال" : "غیر فعال" ?>
                 </button>
             </p>
         </div>
@@ -167,7 +172,7 @@ $default_external_image = get_option( "nixfile_uploader_default_external_image",
                 <button id="compares-on-upload"
                         style="<?php echo $compress_upload ? "background-color:#00aa2c" : "background-color:red;" ?>"
                 >
-					<?php echo $compress_upload ? "فعال" : "غیر فعال" ?>
+                    <?php echo $compress_upload ? "فعال" : "غیر فعال" ?>
                 </button>
             </p>
             <p>
@@ -175,7 +180,7 @@ $default_external_image = get_option( "nixfile_uploader_default_external_image",
                 <button id="avif-on-upload"
                         style="<?php echo $avif ? "background-color:#00aa2c" : "background-color:red;" ?>"
                 >
-					<?php echo $avif ? "فعال" : "غیر فعال" ?>
+                    <?php echo $avif ? "فعال" : "غیر فعال" ?>
                 </button>
             </p>
             <p class="default-external-image-container" style="<?php echo $external_featured_image ? 'display: flex;' : 'display: none;' ?>">
@@ -380,6 +385,7 @@ $default_external_image = get_option( "nixfile_uploader_default_external_image",
         const defaultExternalImageInput = document.getElementById('default-external-image');
         const saveDefaultExternalImageBtn = document.getElementById('save-default-external-image');
         const defaultExternalImageContainer = document.querySelector('.default-external-image-container');
+        const dailyBackupBtn = document.getElementById('daily-backup');
 
         // Jalali Converter Button Event
         if (jalaliConverterBtn) {
@@ -433,6 +439,22 @@ $default_external_image = get_option( "nixfile_uploader_default_external_image",
                     if (defaultExternalImageContainer) {
                         defaultExternalImageContainer.style.display = 'flex';
                     }
+                }
+            });
+        }
+
+        // Daily Backup Button Event
+        if (dailyBackupBtn) {
+            dailyBackupBtn.addEventListener('click', function () {
+                const currentState = this.textContent.trim();
+                if (currentState === 'فعال') {
+                    this.textContent = 'غیر فعال';
+                    this.style.backgroundColor = 'red';
+                    updateDailyBackupSetting(false);
+                } else {
+                    this.textContent = 'فعال';
+                    this.style.backgroundColor = '#00aa2c';
+                    updateDailyBackupSetting(true);
                 }
             });
         }
@@ -598,6 +620,69 @@ $default_external_image = get_option( "nixfile_uploader_default_external_image",
                     })
                     .catch(error => {
                         console.error('Error updating External featured image setting:', error);
+                    });
+            }
+        }
+
+        // Update the Daily Backup setting
+        function updateDailyBackupSetting(enabled) {
+            if (typeof jQuery !== 'undefined') {
+                jQuery.ajax({
+                    url: nixfile_ajax_data.rest_url + 'daily-backup',
+                    method: 'POST',
+                    data: JSON.stringify({
+                        daily_backup: enabled
+                    }),
+                    contentType: 'application/json',
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('X-WP-Nonce', nixfile_ajax_data.nonce);
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            console.log('Daily backup setting updated successfully');
+
+                            // Show notification if immediate backup was triggered
+                            if (response.data && response.data.immediate_backup) {
+                                alert('بکاپ گیری روزانه فعال شد. اولین بکاپ در حال انجام است...');
+                            }
+
+                            location.reload();
+                        } else {
+                            console.error('Failed to update Daily backup setting');
+                        }
+                    },
+                    error: function (error) {
+                        console.error('Error updating Daily backup setting:', error);
+                    }
+                });
+            } else {
+                fetch(nixfile_ajax_data.rest_url + 'daily-backup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': nixfile_ajax_data.nonce
+                    },
+                    body: JSON.stringify({
+                        daily_backup: enabled
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Daily backup setting updated successfully');
+
+                            // Show notification if immediate backup was triggered
+                            if (data.data && data.data.immediate_backup) {
+                                alert('بکاپ گیری روزانه فعال شد. اولین بکاپ در حال انجام است...');
+                            }
+
+                            location.reload();
+                        } else {
+                            console.error('Failed to update Daily backup setting');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating Daily backup setting:', error);
                     });
             }
         }
