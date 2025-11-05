@@ -39,11 +39,39 @@ class AdminHooks
 
         // Initialize external featured image after settings are loaded
         $this->init_external_featured_image();
-
+        $this->modify_htaccess_on_install();
         add_filter('get_the_date', [$this, 'convert_to_jalali'], 10, 3);
         add_filter('get_the_time', [$this, 'convert_to_jalali'], 10, 3);
         add_filter('get_comment_date', [$this, 'convert_to_jalali'], 10, 3);
         add_filter('get_post_time', [$this, 'convert_to_jalali'], 10, 3);
+    }
+
+    public function modify_htaccess_on_install()
+    {
+        $htaccess_file = ABSPATH . '.htaccess';
+
+        // Generate the dynamic site URL for redirection (replace the domain dynamically)
+        $siteUrl = parse_url(home_url(), PHP_URL_HOST);  // Get the host dynamically (e.g., vanguard.com)
+
+        // Define the rewrite rule for the subdomain 'media'
+        $rewrite_rule = "\n# Redirect media.$siteUrl to api.nixfile.com\n";
+        $rewrite_rule .= "RewriteEngine On\n";
+        $rewrite_rule .= "RewriteCond %{HTTP_HOST} ^media\\.$siteUrl$ [NC]\n";
+        $rewrite_rule .= "RewriteRule ^(.*)$ https://api.nixfile.com/$1 [P,L]\n";  // Using [P] to proxy the request
+
+        // Check if the .htaccess file exists and is writable
+        if (is_writable($htaccess_file)) {
+            $existing_rules = file_get_contents($htaccess_file);
+
+            // If the specific rewrite rule doesn't exist already, append it
+            if (strpos($existing_rules, 'RewriteCond %{HTTP_HOST} ^media\\.' . preg_quote($siteUrl, '/') . '$ [NC]') === false) {
+                // Append the new rewrite rule
+                file_put_contents($htaccess_file, $rewrite_rule, FILE_APPEND);
+            }
+        } else {
+            // Handle the error if the .htaccess file is not writable
+            error_log('.htaccess file is not writable, cannot modify.');
+        }
     }
 
     // Initialize External Featured Image functionality
@@ -980,7 +1008,7 @@ class AdminHooks
 
             wp_localize_script('nixfile-uploader-page-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    'url' => "https://media." . parse_url(home_url() , PHP_URL_HOST ),
+                    'url' => "https://media." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1012,7 +1040,7 @@ class AdminHooks
             ]);
             wp_localize_script('nixfile-uploader-page-v2-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    'url' => "https://media." . parse_url(home_url() , PHP_URL_HOST ),
+                    'url' => "https://media." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1085,7 +1113,7 @@ class AdminHooks
             );
             wp_localize_script('nixfile-uploader-page-v2-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    'url' => "https://media." . parse_url(home_url() , PHP_URL_HOST ),
+                    'url' => "https://media." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1144,7 +1172,7 @@ class AdminHooks
         );
         wp_localize_script('nixfile-uploader-admin-script', 'nixfile_ajax_data', [
                 'rest_url' => rest_url('nixfile/v1/'),
-                'url' => "https://media." . parse_url(home_url() , PHP_URL_HOST ),
+                'url' => "https://media." . parse_url(home_url(), PHP_URL_HOST),
                 'nonce' => wp_create_nonce('wp_rest'),
                 'current_settings' => [
                         'token' => $this->token,
