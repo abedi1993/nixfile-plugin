@@ -50,29 +50,36 @@ class AdminHooks
     {
         $htaccess_file = ABSPATH . '.htaccess';
 
-        // Generate the dynamic site URL for redirection (replace the domain dynamically)
-        $siteUrl = parse_url(home_url(), PHP_URL_HOST);  // Get the host dynamically (e.g., vanguard.com)
+        // Get the current site domain dynamically (e.g., example.com)
+        $siteUrl = parse_url(home_url(), PHP_URL_HOST);
 
-        // Define the rewrite rule for the subdomain 'media'
-        $rewrite_rule = "\n# Redirect media.$siteUrl to api.nixfile.com\n";
-        $rewrite_rule .= "RewriteEngine On\n";
-        $rewrite_rule .= "RewriteCond %{HTTP_HOST} ^media\\.$siteUrl$ [NC]\n";
-        $rewrite_rule .= "RewriteRule ^(.*)$ https://api.nixfile.com/$1 [P,L]\n";  // Using [P] to proxy the request
+        // Build the rewrite block
+        $rewrite_block = <<<HTACCESS
 
-        // Check if the .htaccess file exists and is writable
+# Redirect media.$siteUrl to api.nixfile.com
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^media\.{$siteUrl}$ [NC]
+RewriteRule ^(.*)$ https://api.nixfiel.com/\$1 [R=301,L]
+</IfModule>
+
+HTACCESS;
+
+        // Check if file exists and is writable
         if (is_writable($htaccess_file)) {
             $existing_rules = file_get_contents($htaccess_file);
 
-            // If the specific rewrite rule doesn't exist already, append it
-            if (strpos($existing_rules, 'RewriteCond %{HTTP_HOST} ^media\\.' . preg_quote($siteUrl, '/') . '$ [NC]') === false) {
-                // Append the new rewrite rule
-                file_put_contents($htaccess_file, $rewrite_rule, FILE_APPEND);
+            // Check if the redirect already exists
+            if (strpos($existing_rules, "media.$siteUrl") === false && strpos($existing_rules, 'api.nixfiel.com') === false) {
+                file_put_contents($htaccess_file, $rewrite_block, FILE_APPEND);
+            } else {
+                error_log('Redirect rule for media.' . $siteUrl . ' already exists in .htaccess.');
             }
         } else {
-            // Handle the error if the .htaccess file is not writable
-            error_log('.htaccess file is not writable, cannot modify.');
+            error_log('.htaccess file is not writable or does not exist.');
         }
     }
+
 
     // Initialize External Featured Image functionality
     private function init_external_featured_image()
