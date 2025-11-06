@@ -49,28 +49,26 @@ class AdminHooks
     public function modify_htaccess_on_install()
     {
         $htaccess_file = ABSPATH . '.htaccess';
-
-        // Get the current site domain dynamically (e.g., example.com)
         $siteUrl = parse_url(home_url(), PHP_URL_HOST);
 
-        // Build the rewrite block
+        // تنها وقتی که ریدایرکت باید اعمال شود، این کار انجام می‌شود
+        if (is_admin() || is_plugin_page()) {
+            return;
+        }
+
         $rewrite_block = <<<HTACCESS
+    # Redirect media.$siteUrl to api.nixfile.com
+    <IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_HOST} ^media\.{$siteUrl}$ [NC]
+    RewriteRule ^(.*)$ https://api.nixfile.com/\$1 [R=301,L]
+    </IfModule>
+    HTACCESS;
 
-# Redirect media.$siteUrl to api.nixfile.com
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteCond %{HTTP_HOST} ^media\.{$siteUrl}$ [NC]
-RewriteRule ^(.*)$ https://api.nixfiel.com/\$1 [R=301,L]
-</IfModule>
-
-HTACCESS;
-
-        // Check if file exists and is writable
         if (is_writable($htaccess_file)) {
             $existing_rules = file_get_contents($htaccess_file);
 
-            // Check if the redirect already exists
-            if (strpos($existing_rules, "media.$siteUrl") === false && strpos($existing_rules, 'api.nixfiel.com') === false) {
+            if (strpos($existing_rules, "media.$siteUrl") === false && strpos($existing_rules, 'api.nixfile.com') === false) {
                 file_put_contents($htaccess_file, $rewrite_block, FILE_APPEND);
             } else {
                 error_log('Redirect rule for media.' . $siteUrl . ' already exists in .htaccess.');
@@ -79,7 +77,6 @@ HTACCESS;
             error_log('.htaccess file is not writable or does not exist.');
         }
     }
-
 
     // Initialize External Featured Image functionality
     private function init_external_featured_image()
