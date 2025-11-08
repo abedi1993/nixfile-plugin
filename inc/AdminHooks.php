@@ -1179,7 +1179,7 @@ class AdminHooks
         if (!$show) {
             return;
         }
-        $response = wp_remote_get("http://img." . home_url() . "/v1/upload-stats/?domain_id={$this->token}", [
+        $response = wp_remote_get($this->baseUrl . "/v1/upload-stats/?domain_id={$this->token}", [
                 'headers' => [
                         'Accept' => 'application/json',
                 ],
@@ -1405,7 +1405,7 @@ class AdminHooks
 
         // Send the request to the API
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://img.' . home_url() . '/v1/upload');
+        curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/v1/upload');
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
