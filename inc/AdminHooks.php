@@ -21,6 +21,7 @@ class AdminHooks
     private bool $external_featured_image_enabled = false; // Initialize with default value
     private string $default_external_image = 'https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp'; // Default external image URL
 
+    private string $baseUrl = "https://api.nixfile.com";
     public function register_hooks(): void
     {
         // Load settings first before initializing any features
@@ -979,7 +980,6 @@ class AdminHooks
 
             wp_localize_script('nixfile-uploader-page-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    'url' => "http://img." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1011,7 +1011,6 @@ class AdminHooks
             ]);
             wp_localize_script('nixfile-uploader-page-v2-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    'url' => "http://img." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1084,7 +1083,6 @@ class AdminHooks
             );
             wp_localize_script('nixfile-uploader-page-v2-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    'url' => "http://img." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1143,7 +1141,6 @@ class AdminHooks
         );
         wp_localize_script('nixfile-uploader-admin-script', 'nixfile_ajax_data', [
                 'rest_url' => rest_url('nixfile/v1/'),
-                'url' => "http://img." . parse_url(home_url(), PHP_URL_HOST),
                 'nonce' => wp_create_nonce('wp_rest'),
                 'current_settings' => [
                         'token' => $this->token,

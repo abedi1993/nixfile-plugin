@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7e1df8fc-cf38-47c6-a013-7ba007645583" name="Changes" comment="feat: update media URL to use HTTP instead of HTTPS and remove unnecessary htaccess modification logic in AdminHooks.php" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;naserianali&quot;
+  }
+}</component>
+  <component name="GitLabMergeRequestFiltersHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPENED&quot;,
+    &quot;assignee&quot;: {
+      &quot;type&quot;: &quot;org.jetbrains.plugins.gitlab.mergerequest.ui.filters.GitLabMergeRequestsFiltersValue.MergeRequestsMemberFilterValue.MergeRequestsAssigneeFilterValue&quot;,
+      &quot;username&quot;: &quot;ali&quot;,
+      &quot;fullname&quot;: &quot;Ali Naserian&quot;
+    }
+  }
+}</component>
+  <component name="GitLabMergeRequestsSettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;first&quot;: &quot;http://185.181.183.57:180/root/nixfile-plugin.git&quot;,
+    &quot;second&quot;: &quot;261ee5e7-fc04-46ef-8d41-14cfeadbfaa7&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/abedi1993/nixfile-plugin.git&quot;,
+    &quot;accountId&quot;: &quot;8d33d89d-1e16-42c0-856a-b28b84442272&quot;
+  }
+}</component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:/wamp64/bin/php/php8.3.14/php.exe" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="34vHTonxEDcNw0yY0SI8ZqoAgim" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "//wsl.localhost/Debian/home/admin/Project/wordpress/plugins/nixfile-plugin",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PS-252.27397.112" />
+        <option value="bundled-php-predefined-a98d8de5180a-b35feea871ed-com.jetbrains.php.sharedIndexes-PS-252.27397.112" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7e1df8fc-cf38-47c6-a013-7ba007645583" name="Changes" comment="" />
+      <created>1762087138208</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1762087138208</updated>
+      <workItem from="1762087139962" duration="1897000" />
+      <workItem from="1762094813708" duration="27000" />
+      <workItem from="1762175229468" duration="4905000" />
+      <workItem from="1762234831710" duration="127000" />
+      <workItem from="1762341782529" duration="7443000" />
+      <workItem from="1762407445207" duration="4458000" />
+      <workItem from="1762581641122" duration="577000" />
+      <workItem from="1762607154173" duration="1656000" />
+    </task>
+    <task id="LOCAL-00001" summary="fix: update title for domain registration in AdminHooks.php">
+      <option name="closed" value="true" />
+      <created>1762087298179</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1762087298179</updated>
+    </task>
+    <task id="LOCAL-00002" summary="feat: add daily backup feature to Nixfile Uploader plugin&#10;&#10;- Implemented daily backup functionality with scheduling via WP Cron.&#10;- Added a button in the admin UI for users to enable/disable daily backups.&#10;- Updated REST API routes to handle daily backup settings.&#10;- Enhanced user notifications for immediate backups triggered upon enabling the feature.">
+      <option name="closed" value="true" />
+      <created>1762179063171</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1762179063171</updated>
+    </task>
+    <task id="LOCAL-00003" summary="fix: update API URL to use dynamic host and improve code consistency&#10;&#10;- Changed the API URL in `apiRoutes.js` to utilize the dynamic `nixfile_ajax_data.url`.&#10;- Refactored various instances in `AdminHooks.php` to ensure consistent formatting and coding standards, including method definitions and action filters.">
+      <option name="closed" value="true" />
+      <created>1762343193950</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1762343193950</updated>
+    </task>
+    <task id="LOCAL-00004" summary="feat(htaccess): add dynamic rewrite rule for media subdomain redirection on install&#10;&#10;- Introduced a method to modify the .htaccess file to include a rewrite rule for redirecting media subdomain requests to api.nixfile.com.&#10;- Ensured the rule is added only if it doesn't already exist and handled the case where the .htaccess file is not writable.&#10;- Updated instances of home_url parsing to maintain consistency.">
+      <option name="closed" value="true" />
+      <created>1762348226589</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1762348226589</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat: refactor dynamic site URL generation and rewrite block for media redirection&#10;&#10;- Improved the clarity of comments related to the site URL generation.&#10;- Refactored the rewrite rule construction to use a dedicated block format.&#10;- Added checks to ensure existing rules are not duplicated in the .htaccess file. &#10;- Updated error handling for .htaccess file accessibility.">
+      <option name="closed" value="true" />
+      <created>1762409720180</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1762409720180</updated>
+    </task>
+    <task id="LOCAL-00006" summary="fix: update redirect rules and cleanup in AdminHooks.php&#10;&#10;- Removed commented-out legacy redirect code.&#10;- Added dynamic redirect for media domain to api.nixfile.com.&#10;- Improved code readability and organization.">
+      <option name="closed" value="true" />
+      <created>1762412007340</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1762412007340</updated>
+    </task>
+    <task id="LOCAL-00007" summary="feat: update media URL to use HTTP instead of HTTPS and remove unnecessary htaccess modification logic in AdminHooks.php">
+      <option name="closed" value="true" />
+      <created>1762607291335</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1762607291335</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="fix: update title for domain registration in AdminHooks.php" />
+    <MESSAGE value="feat: add daily backup feature to Nixfile Uploader plugin&#10;&#10;- Implemented daily backup functionality with scheduling via WP Cron.&#10;- Added a button in the admin UI for users to enable/disable daily backups.&#10;- Updated REST API routes to handle daily backup settings.&#10;- Enhanced user notifications for immediate backups triggered upon enabling the feature." />
+    <MESSAGE value="fix: update API URL to use dynamic host and improve code consistency&#10;&#10;- Changed the API URL in `apiRoutes.js` to utilize the dynamic `nixfile_ajax_data.url`.&#10;- Refactored various instances in `AdminHooks.php` to ensure consistent formatting and coding standards, including method definitions and action filters." />
+    <MESSAGE value="feat(htaccess): add dynamic rewrite rule for media subdomain redirection on install&#10;&#10;- Introduced a method to modify the .htaccess file to include a rewrite rule for redirecting media subdomain requests to api.nixfile.com.&#10;- Ensured the rule is added only if it doesn't already exist and handled the case where the .htaccess file is not writable.&#10;- Updated instances of home_url parsing to maintain consistency." />
+    <MESSAGE value="feat: refactor dynamic site URL generation and rewrite block for media redirection&#10;&#10;- Improved the clarity of comments related to the site URL generation.&#10;- Refactored the rewrite rule construction to use a dedicated block format.&#10;- Added checks to ensure existing rules are not duplicated in the .htaccess file. &#10;- Updated error handling for .htaccess file accessibility." />
+    <MESSAGE value="fix: update redirect rules and cleanup in AdminHooks.php&#10;&#10;- Removed commented-out legacy redirect code.&#10;- Added dynamic redirect for media domain to api.nixfile.com.&#10;- Improved code readability and organization." />
+    <MESSAGE value="feat: update media URL to use HTTP instead of HTTPS and remove unnecessary htaccess modification logic in AdminHooks.php" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: update media URL to use HTTP instead of HTTPS and remove unnecessary htaccess modification logic in AdminHooks.php" />
+    <option name="NON_MODAL_COMMIT_POSTPONE_SLOW_CHECKS" value="false" />
+  </component>
+</project>
