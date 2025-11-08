@@ -39,43 +39,10 @@ class AdminHooks
 
         // Initialize external featured image after settings are loaded
         $this->init_external_featured_image();
-        $this->modify_htaccess_on_install();
         add_filter('get_the_date', [$this, 'convert_to_jalali'], 10, 3);
         add_filter('get_the_time', [$this, 'convert_to_jalali'], 10, 3);
         add_filter('get_comment_date', [$this, 'convert_to_jalali'], 10, 3);
         add_filter('get_post_time', [$this, 'convert_to_jalali'], 10, 3);
-    }
-
-    public function modify_htaccess_on_install()
-    {
-        $htaccess_file = ABSPATH . '.htaccess';
-        $siteUrl = parse_url(home_url(), PHP_URL_HOST);
-
-        // تنها وقتی که ریدایرکت باید اعمال شود، این کار انجام می‌شود
-        if (is_admin() || is_plugin_page()) {
-            return;
-        }
-
-        $rewrite_block = <<<HTACCESS
-    # Redirect media.$siteUrl to api.nixfile.com
-    <IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteCond %{HTTP_HOST} ^media\.{$siteUrl}$ [NC]
-    RewriteRule ^(.*)$ https://api.nixfile.com/\$1 [R=301,L]
-    </IfModule>
-    HTACCESS;
-
-        if (is_writable($htaccess_file)) {
-            $existing_rules = file_get_contents($htaccess_file);
-
-            if (strpos($existing_rules, "media.$siteUrl") === false && strpos($existing_rules, 'api.nixfile.com') === false) {
-                file_put_contents($htaccess_file, $rewrite_block, FILE_APPEND);
-            } else {
-                error_log('Redirect rule for media.' . $siteUrl . ' already exists in .htaccess.');
-            }
-        } else {
-            error_log('.htaccess file is not writable or does not exist.');
-        }
     }
 
     // Initialize External Featured Image functionality
@@ -1012,7 +979,7 @@ class AdminHooks
 
             wp_localize_script('nixfile-uploader-page-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    'url' => "https://media." . parse_url(home_url(), PHP_URL_HOST),
+                    'url' => "http://img." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1044,7 +1011,7 @@ class AdminHooks
             ]);
             wp_localize_script('nixfile-uploader-page-v2-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    'url' => "https://media." . parse_url(home_url(), PHP_URL_HOST),
+                    'url' => "http://img." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1117,7 +1084,7 @@ class AdminHooks
             );
             wp_localize_script('nixfile-uploader-page-v2-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    'url' => "https://media." . parse_url(home_url(), PHP_URL_HOST),
+                    'url' => "http://img." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1176,7 +1143,7 @@ class AdminHooks
         );
         wp_localize_script('nixfile-uploader-admin-script', 'nixfile_ajax_data', [
                 'rest_url' => rest_url('nixfile/v1/'),
-                'url' => "https://media." . parse_url(home_url(), PHP_URL_HOST),
+                'url' => "http://img." . parse_url(home_url(), PHP_URL_HOST),
                 'nonce' => wp_create_nonce('wp_rest'),
                 'current_settings' => [
                         'token' => $this->token,
@@ -1215,7 +1182,7 @@ class AdminHooks
         if (!$show) {
             return;
         }
-        $response = wp_remote_get("https://media." . home_url() . "/v1/upload-stats/?domain_id={$this->token}", [
+        $response = wp_remote_get("http://img." . home_url() . "/v1/upload-stats/?domain_id={$this->token}", [
                 'headers' => [
                         'Accept' => 'application/json',
                 ],
@@ -1441,7 +1408,7 @@ class AdminHooks
 
         // Send the request to the API
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'https://media.' . home_url() . '/v1/upload');
+        curl_setopt($ch, CURLOPT_URL, 'http://img.' . home_url() . '/v1/upload');
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
