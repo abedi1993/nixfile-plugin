@@ -28,7 +28,7 @@ jQuery(document).ready(function ($) {
                 $("#nixfile-box").append(preloader);
 
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', `${api}upload`, true);
+                xhr.open('POST', `${api}/upload`, true);
 
                 xhr.upload.addEventListener('progress', function (event) {
                     if (event.lengthComputable) {
