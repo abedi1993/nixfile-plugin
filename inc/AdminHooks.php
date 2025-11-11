@@ -30,9 +30,9 @@ class AdminHooks
 
     private function get_media_base_url(): string
     {
+        return "https://api.naring.ir";
         $home = home_url();
         $parts = wp_parse_url($home);
-
         if (empty($parts['host'])) {
             return $home;
         }
