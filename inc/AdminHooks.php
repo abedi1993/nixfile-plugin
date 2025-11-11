@@ -21,7 +21,27 @@ class AdminHooks
     private bool $external_featured_image_enabled = false; // Initialize with default value
     private string $default_external_image = 'https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp'; // Default external image URL
 
-    private string $baseUrl = "https://api.nixfile.com";
+    private string $baseUrl;
+
+    public function __construct()
+    {
+        $this->baseUrl = $this->get_media_base_url();
+    }
+
+    private function get_media_base_url(): string
+    {
+        $home = home_url();
+        $parts = wp_parse_url($home);
+
+        if (empty($parts['host'])) {
+            return $home;
+        }
+        $scheme = isset($parts['scheme']) ? $parts['scheme'] : 'https';
+        $host = 'media.' . $parts['host'];
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+        return $scheme . '://' . $host . $port;
+    }
+
     public function register_hooks(): void
     {
         // Load settings first before initializing any features
@@ -980,7 +1000,7 @@ class AdminHooks
 
             wp_localize_script('nixfile-uploader-page-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    "url" => $this->baseUrl ,
+                    "url" => $this->baseUrl,
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1012,7 +1032,7 @@ class AdminHooks
             ]);
             wp_localize_script('nixfile-uploader-page-v2-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    "url" => $this->baseUrl ,
+                    "url" => $this->baseUrl,
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1085,7 +1105,7 @@ class AdminHooks
             );
             wp_localize_script('nixfile-uploader-page-v2-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
-                    "url" => $this->baseUrl ,
+                    "url" => $this->baseUrl,
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1144,7 +1164,7 @@ class AdminHooks
         );
         wp_localize_script('nixfile-uploader-admin-script', 'nixfile_ajax_data', [
                 'rest_url' => rest_url('nixfile/v1/'),
-                "url" => $this->baseUrl ,
+                "url" => $this->baseUrl,
                 'nonce' => wp_create_nonce('wp_rest'),
                 'current_settings' => [
                         'token' => $this->token,
