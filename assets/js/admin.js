@@ -55,7 +55,7 @@ jQuery(document).ready(function ($) {
                             </g>
                         </svg>`;
 
-                        fetch(`${nixfileSettingData.home}/v1/private/${slug}`)
+                        fetch(`${api}/v1/private/${slug}`)
                             .then(response => response.blob())
                             .then(blob => {
                                 const imageObjectURL = URL.createObjectURL(blob);
