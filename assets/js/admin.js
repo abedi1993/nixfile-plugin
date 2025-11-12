@@ -76,7 +76,7 @@ jQuery(document).ready(function ($) {
                                     click: function () {
                                         const btn = $(this);
                                         btn.addClass("copied");
-                                        navigator.clipboard.writeText(`${api}/private/${slug}`).then(() => {
+                                        navigator.clipboard.writeText(`${nixfileSettingData.home}/v1/private/${slug}`).then(() => {
                                             btn.html(successSVG);
                                             setTimeout(() => {
                                                 btn.removeClass("copied");
