@@ -1001,7 +1001,7 @@ class AdminHooks
             wp_localize_script('nixfile-uploader-page-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
                     "url" => $this->baseUrl,
-                    "home" => "media." . parse_url(home_url(), PHP_URL_HOST),
+                    "home" => "https://media." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1034,7 +1034,7 @@ class AdminHooks
             wp_localize_script('nixfile-uploader-page-v2-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
                     "url" => $this->baseUrl,
-                    "home" => "media." . parse_url(home_url(), PHP_URL_HOST),
+                    "home" => "https://media." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1108,7 +1108,7 @@ class AdminHooks
             wp_localize_script('nixfile-uploader-page-v2-script', 'nixfile_ajax_data', [
                     'rest_url' => rest_url('nixfile/v1/'),
                     "url" => $this->baseUrl,
-                    "home" => "media." . parse_url(home_url(), PHP_URL_HOST),
+                    "home" => "https://media." . parse_url(home_url(), PHP_URL_HOST),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'current_settings' => [
                             'token' => $this->token,
@@ -1168,7 +1168,7 @@ class AdminHooks
         wp_localize_script('nixfile-uploader-admin-script', 'nixfile_ajax_data', [
                 'rest_url' => rest_url('nixfile/v1/'),
                 "url" => $this->baseUrl,
-                "home" => "media." . parse_url(home_url(), PHP_URL_HOST),
+                "home" => "https://media." . parse_url(home_url(), PHP_URL_HOST),
                 'nonce' => wp_create_nonce('wp_rest'),
                 'current_settings' => [
                         'token' => $this->token,
