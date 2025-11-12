@@ -30,7 +30,7 @@ class AdminHooks
 
     private function get_media_base_url(): string
     {
-        return "https://api.naring.ir";
+        return "https://api.nixfile.com";
         $home = home_url();
         $parts = wp_parse_url($home);
         if (empty($parts['host'])) {
