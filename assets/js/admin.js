@@ -55,11 +55,11 @@ jQuery(document).ready(function ($) {
                             </g>
                         </svg>`;
 
-                        fetch(`${api}private/${slug}`)
+                        fetch(`${api}/private/${slug}`)
                             .then(response => response.blob())
                             .then(blob => {
                                 const imageObjectURL = URL.createObjectURL(blob);
-                                preloader.remove(); // remove the progress bar
+                                preloader.remove();
 
                                 let deleteBtn = $("<button/>", {
                                     class: "nixfile-delete-btn",
@@ -76,7 +76,7 @@ jQuery(document).ready(function ($) {
                                     click: function () {
                                         const btn = $(this);
                                         btn.addClass("copied");
-                                        navigator.clipboard.writeText(`${api}private/${slug}`).then(() => {
+                                        navigator.clipboard.writeText(`${api}/private/${slug}`).then(() => {
                                             btn.html(successSVG);
                                             setTimeout(() => {
                                                 btn.removeClass("copied");
