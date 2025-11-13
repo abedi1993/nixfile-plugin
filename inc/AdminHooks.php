@@ -18,10 +18,16 @@ class AdminHooks
     private bool $avif_on_upload;
     private bool $jalali_converter;
     private bool $modern_template;
-    private bool $external_featured_image_enabled = false; // Initialize with default value
-    private string $default_external_image = 'https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp'; // Default external image URL
+    private bool $external_featured_image_enabled = false;
+    private string $default_external_image = 'https://bostak1337.ir/wp-content/uploads/2025/10/shakes-image.webp';
 
     private string $baseUrl;
+
+    /**
+     * Tracks the current post ID within the loop to be used by filters.
+     * @var int
+     */
+    private int $current_post_id = 0;
 
     public function __construct()
     {
@@ -64,6 +70,18 @@ class AdminHooks
         add_filter('get_the_time', [$this, 'convert_to_jalali'], 10, 3);
         add_filter('get_comment_date', [$this, 'convert_to_jalali'], 10, 3);
         add_filter('get_post_time', [$this, 'convert_to_jalali'], 10, 3);
+
+        // Hook to track the current post ID in the loop
+        add_action('the_post', [$this, 'track_current_post']);
+    }
+
+    /**
+     * Stores the current post ID from the loop.
+     * @param \WP_Post $post
+     */
+    public function track_current_post($post)
+    {
+        $this->current_post_id = $post->ID;
     }
 
     // Initialize External Featured Image functionality
@@ -84,6 +102,7 @@ class AdminHooks
         add_filter('post_thumbnail_html', [$this, 'replace_featured_image_with_external'], 10, 5);
         add_filter('get_post_metadata', [$this, 'fake_thumbnail_id'], 10, 4);
         add_filter('wp_get_attachment_image_src', [$this, 'fake_attachment_image_src'], 10, 4);
+        add_filter('wp_get_attachment_image_attributes', [$this, 'fake_attachment_image_attributes'], 10, 3);
 
         // Social media meta tags
         add_action('wp_head', [$this, 'add_social_media_meta_tags'], 5);
@@ -91,6 +110,10 @@ class AdminHooks
         // Rank Math integration
         add_filter('rank_math/opengraph/facebook/image', [$this, 'rank_math_image_override']);
         add_filter('rank_math/opengraph/twitter/image', [$this, 'rank_math_image_override']);
+
+        // Yoast SEO integration
+        add_filter('wpseo_opengraph_image', [$this, 'yoast_seo_image_override']);
+        add_filter('wpseo_twitter_image', [$this, 'yoast_seo_image_override']);
 
         // Enqueue admin script for live preview
         add_action('admin_enqueue_scripts', [$this, 'enqueue_external_featured_image_script']);
@@ -144,8 +167,17 @@ class AdminHooks
     // Render external featured image meta box
     public function render_external_featured_image_meta_box($post)
     {
-        $external_url = get_post_meta($post->ID, '_external_featured_image_url', true);
-        $url = !empty($external_url) ? $external_url : $this->default_external_image;
+        $use_default = get_post_meta($post->ID, '_use_default_external_image', true);
+        $custom_url = get_post_meta($post->ID, '_external_featured_image_url', true);
+
+        // Determine if we should show the default URL or custom URL
+        $is_default = (bool) $use_default;
+        $effective_url = $is_default ? $this->default_external_image : $custom_url;
+
+        // If no URL is set, use default URL as placeholder
+        if (empty($effective_url)) {
+            $effective_url = $this->default_external_image;
+        }
 
         ?>
         <div class="external-featured-image-wrapper">
@@ -153,15 +185,22 @@ class AdminHooks
                 <label for="external_featured_image_url"><?php _e('آدرس تصویر خارجی', 'nixfile-uploader'); ?></label>
             </p>
             <input type="url" id="external_featured_image_url" name="external_featured_image_url"
-                   value="<?php echo esc_attr($url); ?>"
+                   value="<?php echo esc_attr($effective_url); ?>"
                    placeholder="https://example.com/image.jpg"
                    style="width: 100%; margin-bottom: 10px;"/>
             <div id="external-image-preview"
-                 style="display: <?php echo !empty($external_url) ? 'block' : 'none'; ?>; border: 1px solid #ddd; padding: 8px; border-radius: 4px; background: #f9f9f9;">
-                <img src="<?php echo esc_url($url); ?>" alt="<?php _e('پیش‌نمایش', 'nixfile-uploader'); ?>"
+                 style="display: <?php echo !empty($effective_url) ? 'block' : 'none'; ?>; border: 1px solid #ddd; padding: 8px; border-radius: 4px; background: #f9f9f9;">
+                <img src="<?php echo esc_url($effective_url); ?>" alt="<?php _e('پیش‌نمایش', 'nixfile-uploader'); ?>"
                      style="max-width: 100%; height: auto; display: block;"/>
             </div>
-            <p class="description"><?php _e('آدرس تصویر خارجی را برای استفاده به عنوان تصویر شاخص وارد کنید. این تصویر جایگزین تصویر آپلود شده خواهد شد.', 'nixfile-uploader'); ?></p>
+            <p>
+                <label>
+                    <input type="checkbox" id="use_default_external_image" name="use_default_external_image"
+                            <?php checked($is_default); ?> />
+                    <?php _e('استفاده از تصویر پیش‌فرض خارجی', 'nixfile-uploader'); ?>
+                </label>
+            </p>
+            <p class="description"><?php _e('آدرس تصویر خارجی را برای استفاده به عنوان تصویر شاخص وارد کنید. با تیک زدن گزینه بالا، از تصویر پیش‌فرض استفاده خواهد شد.', 'nixfile-uploader'); ?></p>
         </div>
         <?php
     }
@@ -172,19 +211,30 @@ class AdminHooks
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return;
         }
-        if (!isset($_POST['external_featured_image_url'])) {
+        if (wp_is_post_revision($post_id)) {
+            return;
+        }
+        if (!current_user_can('edit_post', $post_id)) {
             return;
         }
 
+        $use_default = isset($_POST['use_default_external_image']) && (bool)$_POST['use_default_external_image'];
         $url = sanitize_text_field($_POST['external_featured_image_url']);
 
-        if (!empty($url) && filter_var($url, FILTER_VALIDATE_URL)) {
-            // Only save if it's different from the default URL or if the default URL is empty
-            if ($url !== $this->default_external_image || empty($this->default_external_image)) {
-                update_post_meta($post_id, '_external_featured_image_url', esc_url_raw($url));
-            }
+        // Always update the use_default flag
+        update_post_meta($post_id, '_use_default_external_image', $use_default ? '1' : '0');
+
+        if ($use_default) {
+            // If using default, save the default URL
+            update_post_meta($post_id, '_external_featured_image_url', $this->default_external_image);
         } else {
-            delete_post_meta($post_id, '_external_featured_image_url');
+            // If not using default, save the custom URL (even if empty)
+            if (!empty($url) && filter_var($url, FILTER_VALIDATE_URL)) {
+                update_post_meta($post_id, '_external_featured_image_url', esc_url_raw($url));
+            } else {
+                // If URL is empty or invalid, clear the meta field
+                delete_post_meta($post_id, '_external_featured_image_url');
+            }
         }
     }
 
@@ -206,6 +256,7 @@ class AdminHooks
                 var input = $('#external_featured_image_url');
                 var preview = $('#external-image-preview');
                 var previewImg = preview.find('img');
+                var defaultCheckbox = $('#use_default_external_image');
                 var defaultUrl = '{$this->default_external_image}';
                 
                 function updatePreview() {
@@ -218,6 +269,16 @@ class AdminHooks
                     }
                 }
                 
+                defaultCheckbox.on('change', function() {
+                    if ($(this).is(':checked')) {
+                        input.val(defaultUrl);
+                    } else {
+                        // Clear the field to allow user input
+                        input.val('');
+                    }
+                    updatePreview();
+                });
+
                 input.on('input', updatePreview);
                 updatePreview();
             });
@@ -235,14 +296,22 @@ class AdminHooks
         }
 
         $external_url = get_post_meta($post_id, '_external_featured_image_url', true);
+
+        // If no external URL is set, return the original HTML
         if (empty($external_url)) {
-            return $html; // Don't use default image automatically
+            return $html;
         }
 
+        // Get image dimensions for the specified size
+        $dimensions = $this->get_image_dimensions($size);
+
         $default_attr = [
-                'class' => 'attachment-' . $size . ' size-' . $size . ' external-featured-image',
+                'class' => 'attachment-' . $size . ' size-' . $size . ' external-featured-image wp-post-image',
                 'alt' => get_the_title($post_id),
+                'width' => $dimensions['width'],
+                'height' => $dimensions['height'],
         ];
+
         $attr = wp_parse_args($attr, $default_attr);
 
         return sprintf(
@@ -250,6 +319,28 @@ class AdminHooks
                 esc_url($external_url),
                 $this->get_attr_html($attr)
         );
+    }
+
+    // Get image dimensions for a specific size
+    private function get_image_dimensions($size)
+    {
+        global $_wp_additional_image_sizes;
+
+        $width = 0;
+        $height = 0;
+
+        if (is_array($size)) {
+            $width = $size[0];
+            $height = $size[1];
+        } elseif (in_array($size, ['thumbnail', 'medium', 'large'])) {
+            $width = get_option($size . '_size_w');
+            $height = get_option($size . '_size_h');
+        } elseif (isset($_wp_additional_image_sizes[$size])) {
+            $width = $_wp_additional_image_sizes[$size]['width'];
+            $height = $_wp_additional_image_sizes[$size]['height'];
+        }
+
+        return ['width' => $width, 'height' => $height];
     }
 
     // Fake thumbnail ID for external images
@@ -274,17 +365,39 @@ class AdminHooks
             return $image;
         }
 
-        $post = get_post();
-        if (!$post) {
+        // Use the tracked post ID instead of relying on the global post object
+        if (empty($this->current_post_id)) {
             return $image;
         }
 
-        $external_url = get_post_meta($post->ID, '_external_featured_image_url', true);
+        $external_url = get_post_meta($this->current_post_id, '_external_featured_image_url', true);
         if (!empty($external_url)) {
-            return [$external_url, 0, 0, false];
+            $dimensions = $this->get_image_dimensions($size);
+            return [$external_url, $dimensions['width'], $dimensions['height'], false];
         }
 
         return $image;
+    }
+
+    // Fake attachment image attributes for external images
+    public function fake_attachment_image_attributes($attr, $attachment, $size)
+    {
+        if (!$this->external_featured_image_enabled || $attachment->ID !== -1) {
+            return $attr;
+        }
+
+        // Use the tracked post ID instead of relying on the global post object
+        if (empty($this->current_post_id)) {
+            return $attr;
+        }
+
+        $external_url = get_post_meta($this->current_post_id, '_external_featured_image_url', true);
+        if (!empty($external_url)) {
+            $attr['src'] = $external_url;
+            $attr['class'] .= ' external-featured-image';
+        }
+
+        return $attr;
     }
 
     // Add social media meta tags
@@ -306,6 +419,23 @@ class AdminHooks
 
     // Rank Math integration
     public function rank_math_image_override($image)
+    {
+        if (!is_singular() || !$this->external_featured_image_enabled) {
+            return $image;
+        }
+
+        $post_id = get_queried_object_id();
+        $external_url = get_post_meta($post_id, '_external_featured_image_url', true);
+
+        if (!empty($external_url)) {
+            return $external_url;
+        }
+
+        return $image;
+    }
+
+    // Yoast SEO integration
+    public function yoast_seo_image_override($image)
     {
         if (!is_singular() || !$this->external_featured_image_enabled) {
             return $image;
@@ -1419,7 +1549,7 @@ class AdminHooks
 
         // Prepare the file for upload
         if (class_exists('CURLFile')) {
-            $file = new CURLFile($backup_file, 'application/zip', $file_name);
+            $file = new \CURLFile($backup_file, 'application/zip', $file_name);
         } else {
             $file = '@' . $backup_file;
         }
