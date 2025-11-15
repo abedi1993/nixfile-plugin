@@ -167,16 +167,11 @@ class AdminHooks
     // Render external featured image meta box
     public function render_external_featured_image_meta_box($post)
     {
-        $use_default = get_post_meta($post->ID, '_use_default_external_image', true);
-        $custom_url = get_post_meta($post->ID, '_external_featured_image_url', true);
-
-        // Determine if we should show the default URL or custom URL
-        $is_default = (bool) $use_default;
-        $effective_url = $is_default ? $this->default_external_image : $custom_url;
+        $external_url = get_post_meta($post->ID, '_external_featured_image_url', true);
 
         // If no URL is set, use default URL as placeholder
-        if (empty($effective_url)) {
-            $effective_url = $this->default_external_image;
+        if (empty($external_url)) {
+            $external_url = $this->default_external_image;
         }
 
         ?>
@@ -185,22 +180,15 @@ class AdminHooks
                 <label for="external_featured_image_url"><?php _e('آدرس تصویر خارجی', 'nixfile-uploader'); ?></label>
             </p>
             <input type="url" id="external_featured_image_url" name="external_featured_image_url"
-                   value="<?php echo esc_attr($effective_url); ?>"
+                   value="<?php echo esc_attr($external_url); ?>"
                    placeholder="https://example.com/image.jpg"
                    style="width: 100%; margin-bottom: 10px;"/>
             <div id="external-image-preview"
-                 style="display: <?php echo !empty($effective_url) ? 'block' : 'none'; ?>; border: 1px solid #ddd; padding: 8px; border-radius: 4px; background: #f9f9f9;">
-                <img src="<?php echo esc_url($effective_url); ?>" alt="<?php _e('پیش‌نمایش', 'nixfile-uploader'); ?>"
+                 style="display: <?php echo !empty($external_url) ? 'block' : 'none'; ?>; border: 1px solid #ddd; padding: 8px; border-radius: 4px; background: #f9f9f9;">
+                <img src="<?php echo esc_url($external_url); ?>" alt="<?php _e('پیش‌نمایش', 'nixfile-uploader'); ?>"
                      style="max-width: 100%; height: auto; display: block;"/>
             </div>
-            <p>
-                <label>
-                    <input type="checkbox" id="use_default_external_image" name="use_default_external_image"
-                            <?php checked($is_default); ?> />
-                    <?php _e('استفاده از تصویر پیش‌فرض خارجی', 'nixfile-uploader'); ?>
-                </label>
-            </p>
-            <p class="description"><?php _e('آدرس تصویر خارجی را برای استفاده به عنوان تصویر شاخص وارد کنید. با تیک زدن گزینه بالا، از تصویر پیش‌فرض استفاده خواهد شد.', 'nixfile-uploader'); ?></p>
+            <p class="description"><?php _e('آدرس تصویر خارجی را برای استفاده به عنوان تصویر شاخص وارد کنید.', 'nixfile-uploader'); ?></p>
         </div>
         <?php
     }
@@ -218,23 +206,14 @@ class AdminHooks
             return;
         }
 
-        $use_default = isset($_POST['use_default_external_image']) && (bool)$_POST['use_default_external_image'];
         $url = sanitize_text_field($_POST['external_featured_image_url']);
 
-        // Always update the use_default flag
-        update_post_meta($post_id, '_use_default_external_image', $use_default ? '1' : '0');
-
-        if ($use_default) {
-            // If using default, save the default URL
-            update_post_meta($post_id, '_external_featured_image_url', $this->default_external_image);
+        // Save the URL (even if empty)
+        if (!empty($url) && filter_var($url, FILTER_VALIDATE_URL)) {
+            update_post_meta($post_id, '_external_featured_image_url', esc_url_raw($url));
         } else {
-            // If not using default, save the custom URL (even if empty)
-            if (!empty($url) && filter_var($url, FILTER_VALIDATE_URL)) {
-                update_post_meta($post_id, '_external_featured_image_url', esc_url_raw($url));
-            } else {
-                // If URL is empty or invalid, clear the meta field
-                delete_post_meta($post_id, '_external_featured_image_url');
-            }
+            // If URL is empty or invalid, clear the meta field
+            delete_post_meta($post_id, '_external_featured_image_url');
         }
     }
 
@@ -256,8 +235,6 @@ class AdminHooks
                 var input = $('#external_featured_image_url');
                 var preview = $('#external-image-preview');
                 var previewImg = preview.find('img');
-                var defaultCheckbox = $('#use_default_external_image');
-                var defaultUrl = '{$this->default_external_image}';
                 
                 function updatePreview() {
                     var url = input.val().trim();
@@ -268,16 +245,6 @@ class AdminHooks
                         preview.hide();
                     }
                 }
-                
-                defaultCheckbox.on('change', function() {
-                    if ($(this).is(':checked')) {
-                        input.val(defaultUrl);
-                    } else {
-                        // Clear the field to allow user input
-                        input.val('');
-                    }
-                    updatePreview();
-                });
 
                 input.on('input', updatePreview);
                 updatePreview();
