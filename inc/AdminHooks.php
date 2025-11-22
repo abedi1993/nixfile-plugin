@@ -1273,6 +1273,7 @@ class AdminHooks
                         'daily_backup' => $this->daily_backup,
                         'show_status_navbar' => $this->show_status_navbar,
                         'compress_upload' => $this->compress_upload,
+                        'avif_on_upload' => $this->avif_on_upload,
                         'compress_webp_upload' => $this->compress_webp_upload,
                         'jalali_converter' => $this->jalali_converter,
                         'modern_template' => $this->modern_template,
