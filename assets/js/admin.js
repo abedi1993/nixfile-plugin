@@ -20,15 +20,16 @@ jQuery(document).ready(function ($) {
                 formData.append('upload_type', '1');
                 formData.append('expired_at', '2');
                 formData.append("domain_id", nixfileSettingData.current_settings.token);
-                if (nixfileSettingData.current_settings) {
-                    const setting = nixfileSettingData.current_settings;
-                    if (setting.avif_on_upload && setting.compress_upload) {
-                        formData.append("collection", "6");
-                    } else if (setting.avif_on_upload) {
-                        formData.append("collection", "5");
-                    } else if (setting.compress_upload) {
-                        formData.append("collection", "3");
-                    }
+                const setting = nixfileSettingData.current_settings;
+                const avif = !!setting.avif_on_upload;
+                const compress = !!setting.compress_upload;
+
+                if (avif && compress) {
+                    formData.append("collection", "6");
+                } else if (avif) {
+                    formData.append("collection", "5");
+                } else if (compress) {
+                    formData.append("collection", "3");
                 }
                 // === PREVIEW + PROGRESS ===
                 const preloader = $('<div class="nixfile-preloader"></div>');
