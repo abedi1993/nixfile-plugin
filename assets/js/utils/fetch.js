@@ -36,6 +36,57 @@ export async function post(link, body) {
     return window.nixfilePostRequest.then(res => res.data);
 }
 
+
+/*testing duplicate */
+export function xhrReplaceMedia(url, formData, box) {
+    return jQuery.ajax({
+        url,
+        type: "POST",  
+        data: formData,
+        processData: false,
+        contentType: false,
+        xhr: function () {
+            const xhr = new window.XMLHttpRequest();
+            xhr.upload.addEventListener("progress", function (e) {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    console.log(`Upload Progress: ${percent}%`);
+
+                   
+                    const progressBar = box.find(".nixfile-media-progress");
+                    if (progressBar.length > 0) {
+                        progressBar.css("width", `${percent}%`);
+                    } else {
+                        console.error("Progress bar not found!");
+                    }
+                }
+            });
+            return xhr;
+        },
+        success: async function (response) {
+            console.log("File replacement successful:", response);
+            box.addClass("uploaded");
+            const slug = response.data.slug;
+            const url = `${link(2)}/private/${slug}`;
+            box.css("background-image", `url(${url})`);
+            box.html('');
+            await fetchFileManagerData({
+                folder_id: window.currentFolderId,
+                page: 1,
+                force: true,
+            });
+        },
+        error: function () {
+            console.error("Error during file upload");
+            box.find(".nixfile-media-progress").css("background-color", "red");
+            setTimeout(() => box.detach(), 5000);  
+        }
+    });
+}
+
+
+
+
 export function xhr(url, formData, box) {
     return jQuery.ajax({
         url,
@@ -72,6 +123,8 @@ export function xhr(url, formData, box) {
         }
     });
 }
+
+
 export async function wpRestPost(url, data) {
     return jQuery.ajax({
         url: url,

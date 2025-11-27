@@ -91,21 +91,34 @@ export function initMoveDialog({
             await loadFolderList();
             createNewFolderForm.trigger("reset");
         });
-
+        $(document).on("nixfile-folder-created", async () => {
+            await loadFolderList();
+        });
         async function loadFolderList() {
-            divider.empty();
-            const response = await get(`${link(2)}/domain/file-manager/${getToken}/move-list`);
-            const folderList = response.data;
+            try {
+                const response = await get(`${link(2)}/domain/file-manager/${getToken}/move-list`);
+                const folderList = response.data;
 
-            divider.append(
-                createFolder({
-                    title: folderList.title,
-                    id: folderList.id,
-                    children: [],
-                })
-            );
-            folderList.children?.forEach((folder) => divider.append(createFolder(folder)));
+                
+                divider.empty();
+
+                
+                divider.append(
+                    createFolder({
+                        title: folderList.title,
+                        id: folderList.id,
+                        children: [],
+                    })
+                );
+
+                folderList.children?.forEach((folder) => divider.append(createFolder(folder)));
+
+            } catch (error) {
+                console.error("Error loading folder list:", error);
+                
+            }
         }
+
 
         function createFolder(folder) {
             const selectedId = currentItem?.id;

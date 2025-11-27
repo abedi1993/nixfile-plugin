@@ -13,22 +13,25 @@ export function folderDetails() {
                 console.error('Folder context menu data-item attribute missing');
                 return;
             }
+
             const item = JSON.parse(itemData);
             const folderElement = $(`.nixfile-folder[data-id="${item.id}"]`);
             const folderIcon = folderElement.find('.nixfile-folder-icon');
-            console.log(folderIcon);
             const bgImage = folderIcon.css('background-image');
+
             if (!bgImage || bgImage === 'none') {
                 console.error('Background image not found');
                 return;
             }
+
             const imageUrlMatch = bgImage.match(/url\(["']?(.*?)["']?\)/);
             if (!imageUrlMatch || !imageUrlMatch[1]) {
                 console.error('Unable to parse background image URL');
                 return;
             }
+
             const imageUrl = imageUrlMatch[1];
-            const detailBar = $("<div/>", { class: 'nixfile-detail-bar' }).hide();
+            const detailBar = $("<div/>", { class: 'nixfile-detail-bar folder-detail' }).hide();
             const media = $("<img/>", { src: imageUrl, alt: item.title });
             const hr = $("<hr/>");
             const name = $("<p/>", { text: item.title });
@@ -36,8 +39,22 @@ export function folderDetails() {
             const fileCount = $("<p/>", { text: `تعداد فایل‌ها: ${item.files_count}` });
             const folderCount = $("<p/>", { text: `تعداد پوشه‌ها: ${item.folders_count}` });
             const copyRight = $("<p/>").html('آپلود شده در <a href="https://nixfile.com">نیکس فایل</a>');
-            detailBar
-                .append(media, hr, name, size, fileCount, folderCount, copyRight);
+
+            // Close button
+            const closeBtn = $("<div/>", {
+                class: "nixfile-detail-close",
+                html: "&times;"
+            }).on("click", function () {
+                detailBar.slideUp(200, function () {
+                    $(this).remove();
+                    mediaSection.css("grid-template-columns", 'repeat(12, 1fr)');
+                });
+            });
+
+            detailBar.append(closeBtn);
+
+            detailBar.append(media, hr, name, size, fileCount, folderCount, copyRight);
+
             mediaSection.css("grid-template-columns", 'repeat(8, 1fr)');
             mediaSectionContainer.append(detailBar);
             detailBar.slideDown();

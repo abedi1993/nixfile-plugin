@@ -13,7 +13,6 @@ export async function fetchFileManagerData(params = {}) {
     const page = params.page || 1;
     const force = params.force || false;
 
-    // Reset state if forced refresh
     if (force) {
         if (window.nixfileMediaAbortController) {
             window.nixfileMediaAbortController.abort();
@@ -24,27 +23,24 @@ export async function fetchFileManagerData(params = {}) {
         jQuery(".nixfile-media-section-container").scrollTop(0);
     }
 
-    // Check if already loading or reached end
     if ((window.nixfileMediaLoading || window.nixfileMediaReachedEnd) && !force) return;
 
     window.nixfileMediaLoading = true;
 
     try {
-        console.log('Fetching file manager data...');
         const response = await get(`${link(2)}/domain/file-manager/${getToken}?folder_id=${params.folder_id ?? ''}&page=${page}&month=${params.month}&type=${params.type}&search=${params.search}`);
+
         if (!response) {
             showErrorContainer();
             window.nixfileMediaLoading = false;
             return null;
         }
 
-        // Process successful response
         await statistics();
         createTypeFilters(response.data.filter.type);
         createDateFilters(response.data.filter.date);
         searchInput();
 
-        // Update state with response data
         window.currentFolderId = response.data?.current_folder?.id;
         window.nixfileMediaPage = response.data.media.current_page;
         window.nixfileMediaLastPage = response.data.media.last_page;
@@ -54,7 +50,13 @@ export async function fetchFileManagerData(params = {}) {
         }
 
         await breadcrumb(response.data.current_folder);
-        if (page === 1) await createFolder(response.data.folders);
+
+        const folders = response.data.folders ?? [];
+
+        if (page === 1 || force) {
+            await createFolder(folders);
+        }
+
         await createMedia(response.data.media);
 
         window.nixfileMediaLoading = false;
@@ -63,14 +65,14 @@ export async function fetchFileManagerData(params = {}) {
     } catch (error) {
         console.error('Error fetching file manager data:', error);
         showErrorContainer();
-        createTypeFilters(response.data.filter.type);
+        createTypeFilters(response.data?.filter?.type ?? []);
         searchInput();
         window.nixfileMediaLoading = false;
         return null;
     }
 }
 
-// Helper function to show error container
+
 function showErrorContainer() {
     const errorContainer = jQuery("<div/>", {
         class: "nixfile-error-container",

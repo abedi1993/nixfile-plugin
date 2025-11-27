@@ -116,13 +116,13 @@ $daily_backup       = get_option( "nixfile_uploader_daily_backup", false ); // N
                 <div>
                     <p>در حال بارگذاری...</p>
                 </div>
-                <p>زمان باقی مانده</p>
+                <p>روز باقی مانده</p>
             </div>
         </div>
         <div class="nixfile-token">
             <label>
-                <button id="nixfile_store_token">ثبت</button>
                 <input placeholder="توکن" value="<?php echo $token ?>" name="nixfile_store_token" type="text">
+                <button id="nixfile_store_token">ثبت</button>
             </label>
             <p>
                 <span>شمسی ساز تاریخ‌ها</span>
@@ -184,7 +184,7 @@ $daily_backup       = get_option( "nixfile_uploader_daily_backup", false ); // N
                 </button>
             </p>
             <p class="default-external-image-container" style="<?php echo $external_featured_image ? 'display: flex;' : 'display: none;' ?>">
-                <span>آدرس تصویر پیش‌فرض</span>
+                <span>آدرس پیش‌فرض</span>
                 <input type="text" id="default-external-image"
                        placeholder="https://example.com/default-image.jpg"
                        value="<?php echo esc_attr($default_external_image); ?>"
@@ -313,9 +313,9 @@ $daily_backup       = get_option( "nixfile_uploader_daily_backup", false ); // N
             <label>
                 <input type="text" name="id">
             </label>
-            <div>
+            <div id="nixfile-delete-folder-buttons">
                 <input type="submit" , value="حذف">
-                <button type="button">انصراف</button>
+                <button id="cancel" type="button">انصراف</button>
             </div>
         </form>
     </div>
@@ -370,7 +370,7 @@ $daily_backup       = get_option( "nixfile_uploader_daily_backup", false ); // N
             <h1>فایل جدید را بارگزاری کنید</h1>
             <label class="nixfile-upload-file">
                 <input type="file" name="id">
-                <span>50%</span>
+                <span></span>
             </label>
         </form>
     </div>

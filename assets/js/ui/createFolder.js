@@ -7,15 +7,13 @@ import {folderDetails} from "../actions/folderDetails.js";
 import {multiMediaSelect} from "../actions/multiMediaSelect.js";
 
 export function createFolder(folders) {
-    jQuery(async function ($) {
-        if (!folders.length) return;
+    jQuery(function ($) {
         const fileManagerSection = $(".nixfile-media-section");
-        const nixfileFolderContextMenu = $(".nixfile-folder-contextmenu");
-        const nixfileFileContextMenu = $(".nixfile-file-contextmenu");
-        folders.forEach(function (item) {
-            const box = $("<div/>", {
-                class: "nixfile-folder"
-            })
+
+        if (!folders.length) return fileManagerSection.empty().append('<p class="no-folders">هیچ پوشه‌ای وجود ندارد.</p>');
+
+        const folderElements = folders.map(function (item) {
+            const box = $("<div/>", { class: "nixfile-folder" })
                 .attr({
                     'data-id': item.id,
                     'data-item': JSON.stringify(item),
@@ -23,11 +21,10 @@ export function createFolder(folders) {
                 })
                 .on('click', async function () {
                     const clickedItem = JSON.parse($(this).attr('data-item'));
-                    if (window.currentFolderId === clickedItem.id) {
-                        window.currentFolderId = clickedItem.parent_id;
-                    } else {
-                        window.currentFolderId = clickedItem.id;
-                    }
+                    window.currentFolderId = (window.currentFolderId === clickedItem.id)
+                        ? clickedItem.parent_id
+                        : clickedItem.id;
+
                     await fetchFileManagerData({
                         folder_id: window.currentFolderId,
                         force: true
@@ -36,8 +33,9 @@ export function createFolder(folders) {
                 .on('contextmenu', function (e) {
                     e.preventDefault();
                     moveFolder();
+
+                    const nixfileFolderContextMenu = $(".nixfile-folder-contextmenu");
                     nixfileFolderContextMenu.stop().slideDown(100);
-                    nixfileFileContextMenu.stop().slideUp(100);
                     nixfileFolderContextMenu.css({
                         'position': 'absolute',
                         'top': e.pageY + 'px',
@@ -46,31 +44,31 @@ export function createFolder(folders) {
                     nixfileFolderContextMenu.attr({
                         'data-id': $(this).attr('data-id'),
                         'data-item': JSON.stringify(item)
-                    })
+                    });
                 });
-            const icon = $("<div/>", {
-                class: 'nixfile-folder-icon'
-            })
+
+            const icon = $("<div/>", { class: 'nixfile-folder-icon' })
                 .css("background-image", `url(${nixfileAjaxData.images_url}/folder.png)`);
-            const title = $("<p/>", {
-                class: 'nixfile-folder-title',
-                text: item.title
-            });
+
+            const title = $("<p/>", { class: 'nixfile-folder-title', text: item.title });
+
             if (item.id === window.currentFolderId) {
                 icon.css("background-image", `url(${nixfileAjaxData.images_url}/back.png)`);
                 box.attr('data-open', true);
-                box.css('order', '-1')
+                box.css('order', '-1');
             }
+
             box.append(icon).append(title);
-            fileManagerSection.prepend(box);
+            fileManagerSection.prepend(box)
+            return box;
         });
-        $(document).on('click', function (e) {
-            nixfileFolderContextMenu.stop().slideUp(100);
-            nixfileFileContextMenu.stop().slideUp(100);
-        });
+
+        editFolderTitle();
+        deleteFolder();
+        folderDetails();
+        multiMediaSelect();
+
+        
+        $(document).trigger("nixfile-folder-created");
     });
-    editFolderTitle();
-    deleteFolder();
-    folderDetails();
-    multiMediaSelect();
 }

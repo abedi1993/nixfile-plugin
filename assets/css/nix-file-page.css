@@ -40,10 +40,6 @@
         border-radius: 3px;
         color: #2d77b0;
         cursor: pointer;
-
-        &:hover {
-            background-color: transparent;
-        }
     }
 
     .nixfile-media-header {
@@ -59,6 +55,8 @@
             font-size: 1.7em;
         }
     }
+    
+
 
     .nixfile-uploader {
         margin: 20px 0;
@@ -189,98 +187,169 @@
         }
     }
 
+    /*Setting     */
     .nixfile-setting {
         display: flex;
         justify-content: space-between;
         background-color: #fff;
-        padding: 18px;
-        gap: 14px;
+        padding: 20px;
+        gap: 20px;
         margin-top: 15px;
-
-        & > div {
-            width: 100%;
-
-            &:nth-child(1) {
-                width: 40%;
-            }
-        }
-
-        .nixfile-token,
-        .nixfile-option {
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            gap: 0;
-
-            label,
-            p {
-                margin: 0;
-                border: 1px solid rgba(122, 122, 122, 0.44);
-                display: flex;
-                justify-content: space-between;
-                padding: 8px 16px;
-
-                &:nth-child(1) {
-                    border-bottom: none;
-                }
-
-                button {
-                    padding: 4px;
-                    width: 5em;
-                    border-radius: 15px;
-                    background-color: #00aa2c;
-                    color: #fff;
-                    border: none;
-                    font-weight: 800;
-                }
-
-                input {
-                    background-color: transparent;
-                    width: 80%;
-                    border: none;
-                    direction: ltr;
-
-                    &:focus {
-                        box-shadow: initial;
-                    }
-                }
-            }
-        }
-
-        .nixfile-statistic {
-            display: flex;
-            gap: 15px;
-
-            .nixfile-capacity,
-            .nixfile-expired {
-                div {
-                    position: relative;
-                    width: 55px;
-                    height: 55px;
-                    display: flex;
-                    align-items: center;
-                    margin: 0 auto;
-
-                    p {
-                        position: absolute;
-                        bottom: 0;
-                        top: 0;
-                        right: 0;
-                        left: 0;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 1.2em;
-                    }
-                }
-
-                p {
-                    white-space: nowrap;
-                }
-            }
-        }
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        flex-wrap: wrap; 
     }
 
+    
+    .nixfile-setting > div {
+        flex: 1;
+        min-width: 280px; 
+    }
+
+    .nixfile-setting > div:first-child {
+        flex: 0 0 20%;
+    }
+
+    /* Label and P */
+    .nixfile-token,
+    .nixfile-option {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .nixfile-token label,
+    .nixfile-token p,
+    .nixfile-option label,
+    .nixfile-option p {
+        all: unset;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0;
+        padding: 25px 16px;
+        height: 40px; 
+        border: 1px solid rgba(122, 122, 122, 0.44);
+        border-radius: 8px;
+        background-color: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s ease;
+    }
+
+
+    .nixfile-token label:hover,
+    .nixfile-token p:hover,
+    .nixfile-option label:hover,
+    .nixfile-option p:hover {
+        box-shadow: 0 2px 6px rgba(0, 170, 44, 0.15);
+    }
+
+    /* Buttons */
+    .nixfile-setting button {
+        padding: 6px 12px;
+        border-radius: 10px;
+        background-color: #00aa2c;
+        color: #fff;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .nixfile-setting button:hover {
+        background-color: #00881f;
+        transform: translateY(-1px);
+    }
+
+    /* Inputs */
+    .nixfile-setting input {
+        flex: 1;
+        background-color: transparent;
+        border: none;
+        padding: 6px 8px;
+        font-size: 1em;
+        white-space: nowrap; 
+        overflow-x: auto; 
+        text-overflow: ellipsis; 
+    }
+
+    .nixfile-setting input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 170, 44, 0.3);
+    }
+
+    /* Statistics Section */
+    .nixfile-statistic {
+        display: flex;
+        gap: 15px; 
+        flex-wrap: wrap; /* Ensures responsiveness */
+        align-items: center;
+    }
+
+    .nixfile-capacity,
+    .nixfile-expired {
+        flex: 1;
+        text-align: center;
+        min-width: 60px;
+    }
+
+    .nixfile-capacity div,
+    .nixfile-expired div {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #e0ffe0, #c0ffc0);
+        box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .nixfile-capacity div p,
+    .nixfile-expired div p {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #333;
+        white-space: nowrap;
+    }
+
+    .nixfile-statistic .nixfile-capacity div,
+    .nixfile-statistic .nixfile-expired div {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* .nixfile-statistic .nixfile-capacity div:hover,
+    .nixfile-statistic .nixfile-expired div:hover {
+        transform: scale(1.05);
+        box-shadow: inset 0 -3px 8px rgba(0, 0, 0, 0.15);
+    } */
+    .no-folders {
+        text-align: center;
+        font-size: 1.1rem;
+        color: #94a3b8;
+        margin: 4rem 2rem;
+        font-weight: 500;
+        user-select: none;
+        
+        
+        display: block;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+        white-space: nowrap;
+    }
+   
+    @media (max-width: 480px) {
+        .no-folders { font-size: 1rem; }
+    }
+    
     .nixfile-media-section-container {
         display: flex;
         gap: 15px;
@@ -305,8 +374,10 @@
             }
 
             img {
-                width: 100%;
+                width: calc(100% - 20px);   
+                margin: 10px;
                 max-height: 250px;
+                display: block;
             }
 
             p {
@@ -317,6 +388,22 @@
                 }
             }
 
+
+            .nixfile-detail-close {
+                position: absolute;
+                top: 3.5px;
+                right: 6px;
+                font-size: 20px;
+                font-weight: bold;
+                color: rgb(255, 0, 0);
+                cursor: pointer;
+                z-index: 20;
+                transition: .2s;
+            }
+
+            .nixfile-detail-close:hover {
+                color: red;
+            }
             .nixfile-detail-actions {
                 justify-self: flex-end;
                 margin-top: auto;
@@ -331,7 +418,7 @@
                     color: #fff;
                     font-weight: bold;
                     height: 35px;
-                    width: 35%;
+                    width: 35px;
                 }
 
                 input {
@@ -365,7 +452,10 @@
             gap: 18px;
             justify-content: space-between;
             flex-grow: 1;
-
+            .nixfile-media-box.selected {
+                outline: 3px solid #3b82f6;
+                outline-offset: -3px;
+            }
             .nixfile-media-box,
             .nixfile-folder {
                 border: 1px solid #D5D5D5;
@@ -384,11 +474,14 @@
 
                 .nixfile-media-progress {
                     width: 20%;
-                    display: block;
                     height: 3px;
-                    background-color: green;
-                    transition: .5s ease-in-out;
-                    margin: 2em;
+                    background-color: #10b981;
+                    transition: width 0.3s ease;
+                    position: absolute;
+                    bottom: 2.5rem;
+                    left: 0;
+                    transform: none;
+                    
                 }
 
                 .nixfile-folder-icon {
@@ -429,6 +522,9 @@
                     margin: 0;
                     padding: 4px 0;
                     border-top: 1px solid #D5D5D5;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
                 &.active {
@@ -590,6 +686,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+        margin-top: 13px;
 
         .nixfile-breadcrumb-items {
             display: flex;
@@ -657,7 +754,7 @@
             }
         }
     }
-
+    /*start */
     #nixfile-delete-folder-form-container,
     #nixfile-delete-file-form-container,
     #nixfile-replace-file-form-container {
@@ -731,23 +828,37 @@
             & > div {
                 width: 100%;
                 display: flex;
+                gap: 12px;
+                justify-content: center;
 
                 input[type=submit] {
-                    width: 60%;
+                    flex: 1;
                     background-color: red;
                     border: 1px solid crimson;
                     color: #fff;
                     cursor: pointer;
-                    padding: 7px;
+                    padding: 12px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    border-radius: 8px;
+                    box-sizing: border-box;
                 }
 
                 button {
-                    width: 40%;
+                    flex: 1;
+                    background-color: #f5f5f5;
+                    border: 1px solid #ccc;
+                    color: #333;
+                    cursor: pointer;
+                    padding: 12px;
+                    font-size: 1rem;
+                    font-weight: 500;
+                    border-radius: 8px;
+                    box-sizing: border-box;
                 }
             }
         }
     }
-
     .nixfile-flex {
         display: flex;
     }
@@ -782,6 +893,7 @@
                 display: flex;
                 align-items: center;
                 gap: 8px;
+                margin-top: 5px;
 
                 label {
                     width: 75%;
@@ -869,6 +981,9 @@
             }
 
             button {
+                display: flex;
+                align-items: center;
+                
                 &.active {
                     svg {
                         transform: rotate(180deg);
@@ -947,5 +1062,169 @@
         .nixfile-size-4.rotated {
             transform: rotate(180deg);
         }
+    }
+}
+
+/* Responsive */
+
+@media (max-width: 992px) {
+
+    /* Stack sidebar under the grid */
+    .nixfile-media-section-container {
+        flex-direction: column-reverse !important;
+    }
+
+    /* Detail panel becomes full width */
+    .nixfile-detail-bar {
+        position: relative !important;
+        width: 100% !important;
+        max-height: none !important;
+        top: 0 !important;
+        margin: 15px 0 !important;
+        height: auto !important;
+    }
+
+    /* Fix close button wandering off */
+    .nixfile-detail-close {
+        position: absolute !important;
+        top: 10px !important;
+        right: 15px !important;
+        font-size: 24px !important;
+        transform: scale(1.3) !important;
+        transform-origin: top right !important;
+        z-index: 50 !important;
+    }
+
+    /* Mobile grid */
+    .nixfile-media-section {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important;
+        gap: 12px !important;
+    }
+}
+
+
+/* Tablets */
+@media (max-width: 768px) {
+
+    .nixfile-media-section {
+        grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)) !important;
+        gap: 10px !important;
+    }
+
+    .nixfile-media-box p,
+    .nixfile-folder p {
+        font-size: 0.8rem !important;
+        padding: 4px !important;
+    }
+}
+
+
+/* Small phones */
+@media (max-width: 576px) {
+
+    .nixfile-media-section {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
+        gap: 8px !important;
+    }
+
+    .nixfile-container {
+        margin: 5px !important;
+    }
+
+    .nixfile-detail-bar {
+        padding: 10px !important;
+    }
+
+    .nixfile-detail-actions {
+        flex-direction: column !important;
+        gap: 6px !important;
+    }
+
+    .nixfile-detail-actions button,
+    .nixfile-detail-actions input {
+        width: 100% !important;
+    }
+}
+/* FIX: FILTER BAR ON TABLETS */
+@media (max-width: 992px) {
+    .nixfile-filter-bar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 12px !important;
+    }
+
+    .nixfile-media-tools,
+    .nixfile-multi-select-tools {
+        width: 100% !important;
+        flex-wrap: wrap !important;
+        justify-content: flex-start !important;
+        gap: 8px !important;
+    }
+
+    .nixfile-filter-bar select,
+    .nixfile-filter-bar button {
+        flex: 1 1 auto !important;
+    }
+
+    .nixfile-search-box {
+        width: 100% !important;
+    }
+
+    .nixfile-search-box label {
+        width: 100% !important;
+    }
+
+    .nixfile-search-box input {
+        width: 100% !important;
+    }
+}
+
+/* FIX: FILTER BAR ON PHONES */
+@media (max-width: 576px) {
+    .nixfile-filter-bar {
+        gap: 8px !important;
+        padding: 10px !important;
+    }
+
+    .nixfile-media-tools button,
+    .nixfile-multi-select-tools button {
+        padding: 6px 10px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .nixfile-search-box label {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 4px !important;
+    }
+}
+/* Tablet */
+@media (max-width: 992px) {
+    .nixfile-media-section {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+        gap: 12px !important;
+    }
+}
+
+/* Large Phones */
+@media (max-width: 768px) {
+    .nixfile-media-section {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+        gap: 10px !important;
+    }
+}
+
+/* Small Phones */
+@media (max-width: 576px) {
+    .nixfile-media-section {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
+        gap: 8px !important;
+    }
+
+    .nixfile-media-box p,
+    .nixfile-folder p {
+        font-size: 0.75rem !important;
+        padding: 4px !important;
     }
 }

@@ -8,17 +8,21 @@ export function deleteFolder() {
         const nixfileDeleteFolderContainer = $("#nixfile-delete-folder-form-container");
         const nixfileFolderDelete = $("#nixfile-delete-folder");
         const nixfileFolderContextMenu = $(".nixfile-folder-contextmenu");
+        const cancelButton = nixfileDeleteFolderContainer.find("button[type='button']"); 
 
+        
         nixfileDeleteFolderContainer
             .off("click")
             .on('click', function (e) {
                 $(this).fadeOut();
             });
+        
         nixfileFolderDelete
             .off("click")
             .on('click', function (e) {
                 nixfileDeleteFolderContainer.fadeIn();
             });
+        
         nixfileDeleteFolderContainer
             .find('form')
             .off("submit click")
@@ -38,5 +42,13 @@ export function deleteFolder() {
             .on('click', function (e) {
                 e.stopPropagation();
             });
+
+        cancelButton
+            .off('click') 
+            .on('click', function (e) {
+                nixfileDeleteFolderContainer.fadeOut(); 
+                
+            });
+
     });
 }
