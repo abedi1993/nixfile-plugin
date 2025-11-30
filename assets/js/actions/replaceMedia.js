@@ -28,7 +28,17 @@ export function replaceMedia() {
                 const formData = new FormData();
                 formData.append("_method", 'PUT');  
                 formData.append("file", file);
+                const setting = nixfileSettingData.current_settings;
+                const avif = !!setting.avif_on_upload;
+                const compress = !!setting.compress_upload;
 
+                if (avif && compress) {
+                    formData.append("collection", "6");
+                } else if (avif) {
+                    formData.append("collection", "5");
+                } else if (compress) {
+                    formData.append("collection", "3");
+                }
                 const box = $(`.nixfile-media-box[data-id='${item.id}']`);
 
                 const progressBar = jQuery("<div/>", { class: "nixfile-media-progress" });
