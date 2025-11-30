@@ -52,6 +52,7 @@ class AdminHooks
     {
         // Load settings first before initializing any features
         $this->load_settings();
+        add_action('wp_head', [$this, 'add_preconnect_header']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
         add_action('edit_form_after_editor', [$this, 'inject_uploader_view']);
         add_action('elementor/editor/after_enqueue_scripts', [$this, 'enqueue_admin_assets']);
@@ -75,6 +76,23 @@ class AdminHooks
         add_action('the_post', [$this, 'track_current_post']);
     }
 
+    public function add_preconnect_header(): void
+    {
+        $home = home_url();
+        $parts = wp_parse_url($home);
+
+        if (empty($parts['host'])) {
+            return;
+        }
+
+        $scheme = $parts['scheme'] ?? 'https';
+        $host   = 'media.' . $parts['host'];
+        $port   = isset($parts['port']) ? ':' . $parts['port'] : '';
+
+        $media_url = $scheme . '://' . $host . $port;
+
+        echo '<link rel="preconnect" href="' . esc_url($media_url) . '">' . PHP_EOL;
+    }
     /**
      * Stores the current post ID from the loop.
      * @param \WP_Post $post
