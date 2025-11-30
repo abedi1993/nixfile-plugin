@@ -1,6 +1,6 @@
-import { link } from "../__apiRoutes.js";
-import { getToken } from "../utils/getToken.js";
-import { xhrReplaceMedia } from "../utils/fetch.js"; 
+import {link} from "../__apiRoutes.js";
+import {getToken} from "../utils/getToken.js";
+import {xhrReplaceMedia} from "../utils/fetch.js";
 
 export function replaceMedia() {
     jQuery(function ($) {
@@ -18,15 +18,17 @@ export function replaceMedia() {
         });
 
         nixfileReplaceForm
+            .off("click")
             .on('click', function (e) {
                 e.stopPropagation();
             })
             .find('input[type=file]')
+            .off("change")
             .on('change', function (e) {
                 const item = JSON.parse(nixfileFileContextMenu.attr('data-item'));
                 const [file] = e.target.files;
                 const formData = new FormData();
-                formData.append("_method", 'PUT');  
+                formData.append("_method", 'PUT');
                 formData.append("file", file);
                 const nixfileSettingData = nixfile_ajax_data;
                 const setting = nixfileSettingData.current_settings;
@@ -42,10 +44,10 @@ export function replaceMedia() {
                 }
                 const box = $(`.nixfile-media-box[data-id='${item.id}']`);
 
-                const progressBar = jQuery("<div/>", { class: "nixfile-media-progress" });
-                box.append(progressBar);  
+                const progressBar = jQuery("<div/>", {class: "nixfile-media-progress"});
+                box.append(progressBar);
 
-                
+
                 nixfileReplaceFormContainer.fadeOut();
 
                 xhrReplaceMedia(`${link(2)}/domain/file-manager/${getToken}/replace/${item.id}`, formData, box);
