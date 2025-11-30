@@ -28,6 +28,7 @@ export function replaceMedia() {
                 const formData = new FormData();
                 formData.append("_method", 'PUT');  
                 formData.append("file", file);
+                const nixfileSettingData = nixfile_ajax_data;
                 const setting = nixfileSettingData.current_settings;
                 const avif = !!setting.avif_on_upload;
                 const compress = !!setting.compress_upload;
