@@ -10,7 +10,7 @@ export function createFolder(folders) {
     jQuery(function ($) {
         const fileManagerSection = $(".nixfile-media-section");
 
-        if (!folders.length) return fileManagerSection.empty().append('<p class="no-folders">هیچ پوشه‌ای وجود ندارد.</p>');
+        // if (!folders.length) return fileManagerSection.empty().append('<p class="no-folders">هیچ پوشه‌ای وجود ندارد.</p>');
 
         const folderElements = folders.map(function (item) {
             const box = $("<div/>", { class: "nixfile-folder" })

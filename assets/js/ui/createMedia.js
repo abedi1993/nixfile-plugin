@@ -20,7 +20,7 @@ export function createMedia(media) {
         const fileManagerSection = $(".nixfile-media-section");
         const nixfileMediaSectionContainer = $(".nixfile-media-section-container");
         let openedMediaId = null;
-
+        
         media.data.forEach((item, index) => {
             const box = $("<div/>", {
                 class: "nixfile-media-box",
@@ -28,7 +28,7 @@ export function createMedia(media) {
                 'data-item': JSON.stringify(item),
                 'data-id': item.id
             });
-
+            console.log(media.data)
             /**************************************
              * CLICK — OPEN DETAIL PANEL
              **************************************/
@@ -103,7 +103,7 @@ export function createMedia(media) {
 
                 const hr = $("<hr/>");
                 const name = $("<p/>", { text: clickedItem.title });
-                const date = $("<p/>", { text: item.created_at.sh_date });
+
                 
                 // Convert size to KB or GB depending on the value
                 let sizeText;
@@ -116,9 +116,17 @@ export function createMedia(media) {
                     sizeText = ' حجم: ' +(fileSizeInMB / 1024).toFixed(2) + ' گیگابایت '; // more than 1GB, show GB
                 }
 
+                const date = $("<p/>", { 
+                    text: `زمان: ${item.created_at.sh_data2} ` 
+                }).css({
+                    "direction": "rtl",  
+                    "text-align": "right"
 
+                });
+                const format = $("<p/>", { text: `فرمت: ${item.mimes}` });            
                 const size = $("<p/>", { text: sizeText });
                 const resolution = $("<p/>", { text: `ابعاد: ${item.width} * ${item.height} پیکسل ` });
+
                 const copyRight = $("<p/>").html(
                     `آپلود شده در <a target="_blank" href="https://nixfile.com">نیکس فایل</a>`
                 );
@@ -168,9 +176,10 @@ export function createMedia(media) {
                     .append(mediaEl)
                     .append(hr)
                     .append(name)
-                    // .append(date)
+                    .append(date)
                     .append(size)
                     .append(resolution)
+                    .append(format)                    
                     .append(copyRight)
                     .append(nixfileDetailAction);
 

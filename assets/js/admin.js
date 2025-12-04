@@ -15,6 +15,7 @@ jQuery(document).ready(function ($) {
         const files = e.target.files;
         if (files.length > 0) {
             for (const file of files) {
+                // const object = createObjectURL(file)
                 const formData = new FormData();
                 formData.append("file", file);
                 formData.append('upload_type', '1');
@@ -52,49 +53,48 @@ jQuery(document).ready(function ($) {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         const res = JSON.parse(xhr.responseText);
                         const slug = res.data.slug;
+                        console.log('Image slug:', slug)
                         const defaultSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
                             <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
                                 <path d="M7 9.667A2.667 2.667 0 0 1 9.667 7h8.666A2.667 2.667 0 0 1 21 9.667v8.666A2.667 2.667 0 0 1 18.333 21H9.667A2.667 2.667 0 0 1 7 18.333z"/>
                                 <path d="M4.012 16.737A2 2 0 0 1 3 15V5c0-1.1.9-2 2-2h10c.75 0 1.158.385 1.5 1"/>
                             </g>
                         </svg>`;
+
                         const successSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
                             <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
                                 <path d="M7 9.667A2.667 2.667 0 0 1 9.667 7h8.666A2.667 2.667 0 0 1 21 9.667v8.666A2.667 2.667 0 0 1 18.333 21H9.667A2.667 2.667 0 0 1 7 18.333z"/>
                                 <path d="M4.012 16.737A2 2 0 0 1 3 15V5c0-1.1.9-2 2-2h10c.75 0 1.158.385 1.5 1M11 14l2 2l4-4"/>
                             </g>
                         </svg>`;
-
-                        fetch(`${api}/v1/private/${slug}`)
-                            .then(response => response.blob())
-                            .then(blob => {
-                                const imageObjectURL = URL.createObjectURL(blob);
-                                preloader.remove();
+                            const imageObjectURL = URL.createObjectURL(file);
+                            preloader.remove();
 
                                 let deleteBtn = $("<button/>", {
                                     class: "nixfile-delete-btn",
                                     text: "X",
                                     click: () => {
-                                        copyBtn.detach();
+                                        copyBtn.detach(); 
                                     }
                                 });
 
-                                let copyBtn = $("<button/>", {
+               
+                            let copyBtn = $("<button/>", {
                                     class: "nixfile-copy-btn",
-                                    html: defaultSVG,
-                                    style: `background-image : url(${imageObjectURL})`,
+                                    html: defaultSVG,  
+                                    style: `background-image: url(${imageObjectURL}); background-size: cover; background-position: center; width: 58; height: 58px;`, // Set the background image and proper sizing
                                     click: function () {
                                         const btn = $(this);
                                         btn.addClass("copied");
                                         navigator.clipboard.writeText(`${nixfileSettingData.home}/v1/private/${slug}`).then(() => {
-                                            btn.html(successSVG);
+                                            btn.html(successSVG); 
                                             setTimeout(() => {
                                                 btn.removeClass("copied");
-                                                btn.html(defaultSVG);
-                                                copyBtn.append(deleteBtn)
+                                                btn.html(defaultSVG); 
+                                                copyBtn.append(deleteBtn); 
                                                 deleteBtn.on('click', () => {
-                                                    copyBtn.detach()
-                                                })
+                                                    copyBtn.detach(); 
+                                                });
                                             }, 1000);
                                         }).catch(err => {
                                             console.error('Clipboard copy failed:', err);
@@ -102,19 +102,61 @@ jQuery(document).ready(function ($) {
                                     }
                                 });
 
-                                $("#nixfile-box").append(copyBtn)
-                                copyBtn.append(deleteBtn)
-                            })
-                            .catch(error => {
-                                console.error('Error fetching image blob:', error);
-                                preloader.remove();
-                            });
+                                $("#nixfile-box").append(copyBtn);
+                                copyBtn.append(deleteBtn); 
+                        // fetch(`${api}/v1/private/${slug}`, {
+                        //     method: 'GET',
+                        //     redirect: 'follow'  
+                        // })
+                        // .then(response => response.blob())
+                        // .then(blob => {
+                        //     const imageObjectURL = URL.createObjectURL(file);
+                        //     preloader.remove();
+
+                        //         let deleteBtn = $("<button/>", {
+                        //             class: "nixfile-delete-btn",
+                        //             text: "X",
+                        //             click: () => {
+                        //                 copyBtn.detach(); 
+                        //             }
+                        //         });
+
+               
+                        //     let copyBtn = $("<button/>", {
+                        //             class: "nixfile-copy-btn",
+                        //             html: defaultSVG,  
+                        //             style: `background-image: url(${imageObjectURL}); background-size: cover; background-position: center; width: 100px; height: 100px;`, // Set the background image and proper sizing
+                        //             click: function () {
+                        //                 const btn = $(this);
+                        //                 btn.addClass("copied");
+                        //                 navigator.clipboard.writeText(`${nixfileSettingData.home}/v1/private/${slug}`).then(() => {
+                        //                     btn.html(successSVG); 
+                        //                     setTimeout(() => {
+                        //                         btn.removeClass("copied");
+                        //                         btn.html(defaultSVG); 
+                        //                         copyBtn.append(deleteBtn); 
+                        //                         deleteBtn.on('click', () => {
+                        //                             copyBtn.detach(); 
+                        //                         });
+                        //                     }, 1000);
+                        //                 }).catch(err => {
+                        //                     console.error('Clipboard copy failed:', err);
+                        //                 });
+                        //             }
+                        //         });
+
+                        //         $("#nixfile-box").append(copyBtn);
+                        //         copyBtn.append(deleteBtn); 
+                        //     })
+                        //     .catch(error => {
+                        //         console.error('Error fetching image blob:', error);
+                        //         // preloader.remove(); 
+                        //     });
                     } else {
                         console.error("Upload failed:", xhr.statusText);
-                        preloader.remove();
+                        preloader.remove(); 
                     }
                 };
-
                 xhr.onerror = function () {
                     console.error("Upload error occurred.");
                     preloader.remove();

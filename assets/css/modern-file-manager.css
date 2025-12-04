@@ -407,7 +407,7 @@
             /* ------------------------------
             MEDIA DETAIL 
             ------------------------------ */
-            &.media-detail p:nth-of-type(-n + 3) {
+            &.media-detail p:nth-of-type(-n + 5) {
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
