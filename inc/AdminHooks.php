@@ -36,7 +36,7 @@ class AdminHooks
 
     private function get_media_base_url(): string
     {
-        return "https://api.nixfile.com";
+        return "https://api.naring.ir";
         $home = home_url();
         $parts = wp_parse_url($home);
         if (empty($parts['host'])) {
@@ -138,13 +138,26 @@ class AdminHooks
 
         // Add external featured image to REST API
         add_action('rest_api_init', [$this, 'add_external_featured_image_to_rest_api']);
+
+        // WooCommerce specific hooks
+        if (class_exists('WooCommerce')) {
+            // Add external image to product gallery
+            add_filter('woocommerce_product_get_gallery_image_ids', [$this, 'add_external_image_to_product_gallery'], 10, 2);
+
+            // Handle external images in product variations
+            add_filter('woocommerce_available_variation', [$this, 'add_external_image_to_variation'], 10, 3);
+
+            // Add external image field to product variations
+            add_action('woocommerce_variation_options', [$this, 'add_external_image_field_to_variations'], 10, 3);
+            add_action('woocommerce_save_product_variation', [$this, 'save_external_image_variation'], 10, 2);
+        }
     }
 
     // Add external featured image to REST API
     public function add_external_featured_image_to_rest_api()
     {
         register_rest_field(
-                ['post', 'page'],
+                ['post', 'page', 'product'], // Added 'product' to support WooCommerce
                 'external_featured_image',
                 [
                         'get_callback' => [$this, 'get_external_featured_image_for_rest'],
@@ -172,11 +185,18 @@ class AdminHooks
     // Add external featured image meta box
     public function add_external_featured_image_meta_box()
     {
+        $post_types = ['post', 'page'];
+
+        // Add product if WooCommerce is active
+        if (class_exists('WooCommerce')) {
+            $post_types[] = 'product';
+        }
+
         add_meta_box(
                 'external_featured_image',
                 __('تصویر شاخص خارجی', 'nixfile-uploader'),
                 [$this, 'render_external_featured_image_meta_box'],
-                ['post', 'page'],
+                $post_types,
                 'side',
                 'low'
         );
@@ -207,6 +227,10 @@ class AdminHooks
                      style="max-width: 100%; height: auto; display: block;"/>
             </div>
             <p class="description"><?php _e('آدرس تصویر خارجی را برای استفاده به عنوان تصویر شاخص وارد کنید.', 'nixfile-uploader'); ?></p>
+
+            <?php if (class_exists('WooCommerce') && $post->post_type === 'product'): ?>
+                <p class="description"><?php _e('برای محصولات، این تصویر به عنوان تصویر اصلی محصول و همچنین در گالری تصاویر نمایش داده خواهد شد.', 'nixfile-uploader'); ?></p>
+            <?php endif; ?>
         </div>
         <?php
     }
@@ -243,7 +267,7 @@ class AdminHooks
         }
 
         $screen = get_current_screen();
-        if (!$screen || !in_array($screen->base, ['post', 'page'])) {
+        if (!$screen || !in_array($screen->base, ['post', 'page', 'product'])) {
             return;
         }
 
@@ -445,6 +469,85 @@ class AdminHooks
         }
 
         return $html;
+    }
+
+    // WooCommerce specific functions
+
+    /**
+     * Add external image to product gallery
+     */
+    public function add_external_image_to_product_gallery($gallery_image_ids, $product)
+    {
+        if (!$this->external_featured_image_enabled) {
+            return $gallery_image_ids;
+        }
+
+        $external_url = get_post_meta($product->get_id(), '_external_featured_image_url', true);
+
+        if (!empty($external_url)) {
+            // Add a special marker for external images
+            $gallery_image_ids[] = 'external_image_' . md5($external_url);
+        }
+
+        return $gallery_image_ids;
+    }
+
+    /**
+     * Add external image to variation data
+     */
+    public function add_external_image_to_variation($variation_data, $product, $variation)
+    {
+        if (!$this->external_featured_image_enabled) {
+            return $variation_data;
+        }
+
+        $external_url = get_post_meta($variation->get_id(), '_external_featured_image_url', true);
+
+        if (!empty($external_url)) {
+            $variation_data['image']['url'] = $external_url;
+            $variation_data['image']['src'] = $external_url;
+            $variation_data['image']['gallery_thumbnail_src'] = $external_url;
+            $variation_data['image']['thumb_src'] = $external_url;
+        }
+
+        return $variation_data;
+    }
+
+    /**
+     * Add external image field to product variations
+     */
+    public function add_external_image_field_to_variations($loop, $variation_data, $variation)
+    {
+        if (!$this->external_featured_image_enabled) {
+            return;
+        }
+
+        $external_url = get_post_meta($variation->ID, '_external_featured_image_url', true);
+        ?>
+        <div class="variable_external_image" style="margin-top: 10px;">
+            <label><?php _e('External Image URL', 'nixfile-uploader'); ?>:</label>
+            <input type="url" name="external_featured_image_url[<?php echo $loop; ?>]"
+                   value="<?php echo esc_attr($external_url); ?>"
+                   placeholder="https://example.com/image.jpg"
+                   style="width: 100%; margin-top: 5px;" />
+        </div>
+        <?php
+    }
+
+    /**
+     * Save external image for variations
+     */
+    public function save_external_image_variation($variation_id, $loop)
+    {
+        if (isset($_POST['external_featured_image_url'][$loop])) {
+            $url = sanitize_text_field($_POST['external_featured_image_url'][$loop]);
+
+            if (!empty($url) && filter_var($url, FILTER_VALIDATE_URL)) {
+                update_post_meta($variation_id, '_external_featured_image_url', esc_url_raw($url));
+            } else {
+                delete_post_meta($variation_id, '_external_featured_image_url');
+            }
+        }
     }
 
     // Convert Gregorian date to Jalali (Persian calendar)
@@ -1263,7 +1366,7 @@ class AdminHooks
             }, 10, 3);
         }
 
-        if (!in_array($screen->base, ['post', 'page'])) {
+        if (!in_array($screen->base, ['post', 'page', 'product'])) {
             return;
         }
         wp_enqueue_style(
